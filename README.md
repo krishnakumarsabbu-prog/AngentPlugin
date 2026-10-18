@@ -135,6 +135,16 @@ npm test
 
 Runs Vitest against `tests/**/*.test.ts`.
 
+### Lint
+
+```bash
+npm run lint
+npm run lint:webview
+```
+
+Flat ESLint config lives in `eslint.config.mjs` and covers TypeScript sources in the extension
+host, tests, and WebView.
+
 ---
 
 ## Launching the VS Code Extension Development Host
@@ -238,5 +248,7 @@ arbitrary commands or write to arbitrary paths.
 | `npm run build:extension` | Bundle the extension host |
 | `npm run typecheck` | Type-check host and WebView |
 | `npm test` | Run Vitest tests |
+| `npm run lint` | Lint extension host and tests (ESLint) |
+| `npm run lint:webview` | Lint the WebView React sources |
 | `npm run dev:webview` | Vite dev server for the WebView |
 | `npm run package:vsix` | Package the extension as a VSIX |

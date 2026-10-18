@@ -5,7 +5,7 @@ import { LocalRepository } from "../storage/LocalRepository";
 export function registerOpenCommand(
   context: vscode.ExtensionContext,
   repo: LocalRepository,
-  provider: AgentForgeViewProvider,
+  _provider: AgentForgeViewProvider,
 ): void {
   const open = vscode.commands.registerCommand("agentforge.open", () => {
     vscode.commands.executeCommand("agentforge.view.focus");

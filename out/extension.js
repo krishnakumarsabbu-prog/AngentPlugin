@@ -825,7 +825,7 @@ var LocalRepository = class {
 
 // src/commands/openAgentForge.ts
 var vscode2 = __toESM(require("vscode"));
-function registerOpenCommand(context, repo, provider) {
+function registerOpenCommand(context, repo, _provider) {
   const open = vscode2.commands.registerCommand("agentforge.open", () => {
     vscode2.commands.executeCommand("agentforge.view.focus");
   });

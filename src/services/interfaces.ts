@@ -56,11 +56,9 @@ export interface IRepository<TSummary, TEntity> {
   summaries(): Promise<TSummary[]>;
 }
 
-export interface ISkillsRepository extends IRepository<SkillSummary, Skill> {}
-
-export interface IAgentsRepository extends IRepository<AgentSummary, Agent> {}
-
-export interface IWorkflowsRepository extends IRepository<WorkflowSummary, Workflow> {}
+export type SkillsRepository = IRepository<SkillSummary, Skill>;
+export type AgentsRepository = IRepository<AgentSummary, Agent>;
+export type WorkflowsRepository = IRepository<WorkflowSummary, Workflow>;
 
 export interface IExecutionsRepository {
   list(): Promise<ExecutionRecord[]>;

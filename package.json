@@ -65,15 +65,20 @@
     "compile": "tsc -p tsconfig.json --noEmit",
     "typecheck": "npm run compile && cd webview-ui && npm run typecheck",
     "test": "vitest run",
+    "lint": "eslint src tests",
+    "lint:webview": "cd webview-ui && npx eslint src",
     "dev:webview": "cd webview-ui && npm run dev",
     "package:vsix": "npx @vscode/vsce package --no-dependencies --allow-missing-repository"
   },
   "devDependencies": {
+    "@eslint/js": "^9.0.0",
     "@types/node": "^20.11.0",
     "@types/vscode": "^1.80.0",
     "@vscode/vsce": "^2.24.0",
     "esbuild": "^0.20.0",
+    "eslint": "^9.0.0",
     "typescript": "^5.4.0",
+    "typescript-eslint": "^8.0.0",
     "vitest": "^1.4.0"
   },
   "dependencies": {}

@@ -3,7 +3,7 @@ import { Skill } from "../domain/skills/types";
 import { Agent } from "../domain/agents/types";
 import { Workflow } from "../domain/workflows/types";
 import { ExecutionRecord } from "../domain/executions/types";
-import { AppSettings, DashboardData, ActivityEntry, IntegrationStatus } from "../services/interfaces";
+import { AppSettings, DashboardData, ActivityEntry } from "../services/interfaces";
 import { sampleSkills, sampleAgents, sampleWorkflows, sampleExecutions, sampleIntegrations } from "./sampleData";
 
 import { DEFAULT_SETTINGS, STORAGE_SCHEMA_VERSION } from "./settingsDefaults";
