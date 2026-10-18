@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { statSync } from "fs";
 import { LocalRepository } from "../storage/LocalRepository";
 import { validateIncomingMessage, makeResponse, unsupportedResponse } from "../bridge/messageValidator";
 import { BaseMessage, ResponseMessage } from "../bridge/messages";
@@ -8,9 +9,13 @@ const APP_VERSION = "0.1.0";
 export class AgentForgeViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = "agentforge.view";
 
-  constructor(private readonly context: vscode.ExtensionContext, private readonly repo: LocalRepository) {}
+  constructor(
+    private readonly context: vscode.ExtensionContext,
+    private readonly repo: LocalRepository,
+    private readonly channel: vscode.OutputChannel,
+  ) {}
 
-  public resolveWebviewView(webviewView: vscode.WebviewView) {
+  public resolveWebviewView(webviewView: vscode.WebviewView): void {
     webviewView.webview.options = {
       enableScripts: true,
       localResourceRoots: [vscode.Uri.joinPath(this.context.extensionUri, "dist", "webview")],
@@ -18,35 +23,40 @@ export class AgentForgeViewProvider implements vscode.WebviewViewProvider {
 
     webviewView.webview.html = this.getHtml(webviewView.webview);
 
-    const disposable = webviewView.webview.onDidReceiveMessage(
+    const messageDisposable = webviewView.webview.onDidReceiveMessage(
       (message) => this.handleMessage(message, webviewView),
       undefined,
       this.context.subscriptions,
     );
 
-    webviewView.onDidDispose(() => disposable.dispose());
+    const disposeDisposable = webviewView.onDidDispose(() => {
+      messageDisposable.dispose();
+      disposeDisposable.dispose();
+    });
   }
 
   private async handleMessage(raw: unknown, view: vscode.WebviewView): Promise<void> {
     const result = validateIncomingMessage(raw);
     if (!result.ok) {
+      this.channel.appendLine(`Rejected message: ${result.error}`);
       const errorResponse: ResponseMessage = {
         type: "response",
         requestId: (raw as { id?: string })?.id ?? "unknown",
         ok: false,
         error: result.error,
       };
-      view.webview.postMessage(errorResponse);
+      await view.webview.postMessage(errorResponse);
       return;
     }
 
     const msg = result.message;
     try {
       const data = await this.dispatch(msg);
-      view.webview.postMessage(makeResponse(msg.id, true, data));
+      await view.webview.postMessage(makeResponse(msg.id, true, data));
     } catch (err) {
       const message = err instanceof Error ? err.message : "Internal error";
-      view.webview.postMessage(makeResponse(msg.id, false, undefined, message));
+      this.channel.appendLine(`Message ${msg.type} (${msg.id}) failed: ${message}`);
+      await view.webview.postMessage(makeResponse(msg.id, false, undefined, message));
     }
   }
 
@@ -74,8 +84,10 @@ export class AgentForgeViewProvider implements vscode.WebviewViewProvider {
         const payload = msg.payload as { settings: Partial<Record<string, unknown>> };
         return this.repo.updateSettings(payload.settings as Record<string, unknown>);
       }
-      case "app.navigate":
-        return { ok: true };
+      case "app.navigate": {
+        const payload = msg.payload as { route: string };
+        return { ok: true, route: payload.route };
+      }
       default:
         return unsupportedResponse(msg.id, String(msg.type));
     }
@@ -83,8 +95,20 @@ export class AgentForgeViewProvider implements vscode.WebviewViewProvider {
 
   private getHtml(webview: vscode.Webview): string {
     const dist = vscode.Uri.joinPath(this.context.extensionUri, "dist", "webview");
-    const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(dist, "assets", "index.js"));
-    const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(dist, "assets", "index.css"));
+    const scriptPath = vscode.Uri.joinPath(dist, "assets", "index.js");
+    const stylePath = vscode.Uri.joinPath(dist, "assets", "index.css");
+
+    if (!this.assetExists(scriptPath) || !this.assetExists(stylePath)) {
+      this.channel.appendLine(
+        "WebView assets missing. Run 'npm run build' before launching the extension host.",
+      );
+      return this.errorHtml(
+        "AgentForge assets are missing. Run <code>npm run build</code> in the project root, then reopen this view.",
+      );
+    }
+
+    const scriptUri = webview.asWebviewUri(scriptPath);
+    const styleUri = webview.asWebviewUri(stylePath);
     const nonce = getNonce();
 
     const csp = [
@@ -106,12 +130,12 @@ export class AgentForgeViewProvider implements vscode.WebviewViewProvider {
 </head>
 <body>
 <div id="root"></div>
-<script nonce="${nonce}" src="${scriptUri}"></script>
 <div id="error-fallback" style="display:none;padding:16px;font-family:sans-serif;color:#B91C1C;">
-  AgentForge failed to load. Reopen the panel or run "AgentForge: Reset Demo Data".
+  AgentForge failed to load. Check the AgentForge output channel for details.
 </div>
+<script nonce="${nonce}" src="${scriptUri}"></script>
 <script nonce="${nonce}">
-  window.addEventListener('DOMContentLoaded', function () {
+  window.addEventListener('load', function () {
     var root = document.getElementById('root');
     if (!root || root.children.length === 0) {
       var fb = document.getElementById('error-fallback');
@@ -119,6 +143,25 @@ export class AgentForgeViewProvider implements vscode.WebviewViewProvider {
     }
   });
 </script>
+</body>
+</html>`;
+  }
+
+  private assetExists(uri: vscode.Uri): boolean {
+    try {
+      statSync(uri.fsPath);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  private errorHtml(message: string): string {
+    return `<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8" /></head>
+<body style="font-family: sans-serif; padding: 16px; color: #18233B;">
+<p>${message}</p>
 </body>
 </html>`;
   }

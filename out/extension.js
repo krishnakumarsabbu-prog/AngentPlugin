@@ -38,6 +38,7 @@ var vscode3 = __toESM(require("vscode"));
 
 // src/providers/AgentForgeViewProvider.ts
 var vscode = __toESM(require("vscode"));
+var import_fs = require("fs");
 
 // src/bridge/messages.ts
 var REQUEST_TYPES = [
@@ -123,9 +124,10 @@ function unsupportedResponse(requestId, feature) {
 // src/providers/AgentForgeViewProvider.ts
 var APP_VERSION = "0.1.0";
 var AgentForgeViewProvider = class {
-  constructor(context, repo) {
+  constructor(context, repo, channel) {
     this.context = context;
     this.repo = repo;
+    this.channel = channel;
   }
   static {
     this.viewType = "agentforge.view";
@@ -136,32 +138,37 @@ var AgentForgeViewProvider = class {
       localResourceRoots: [vscode.Uri.joinPath(this.context.extensionUri, "dist", "webview")]
     };
     webviewView.webview.html = this.getHtml(webviewView.webview);
-    const disposable = webviewView.webview.onDidReceiveMessage(
+    const messageDisposable = webviewView.webview.onDidReceiveMessage(
       (message) => this.handleMessage(message, webviewView),
       void 0,
       this.context.subscriptions
     );
-    webviewView.onDidDispose(() => disposable.dispose());
+    const disposeDisposable = webviewView.onDidDispose(() => {
+      messageDisposable.dispose();
+      disposeDisposable.dispose();
+    });
   }
   async handleMessage(raw, view) {
     const result = validateIncomingMessage(raw);
     if (!result.ok) {
+      this.channel.appendLine(`Rejected message: ${result.error}`);
       const errorResponse = {
         type: "response",
         requestId: raw?.id ?? "unknown",
         ok: false,
         error: result.error
       };
-      view.webview.postMessage(errorResponse);
+      await view.webview.postMessage(errorResponse);
       return;
     }
     const msg = result.message;
     try {
       const data = await this.dispatch(msg);
-      view.webview.postMessage(makeResponse(msg.id, true, data));
+      await view.webview.postMessage(makeResponse(msg.id, true, data));
     } catch (err) {
       const message = err instanceof Error ? err.message : "Internal error";
-      view.webview.postMessage(makeResponse(msg.id, false, void 0, message));
+      this.channel.appendLine(`Message ${msg.type} (${msg.id}) failed: ${message}`);
+      await view.webview.postMessage(makeResponse(msg.id, false, void 0, message));
     }
   }
   async dispatch(msg) {
@@ -188,16 +195,28 @@ var AgentForgeViewProvider = class {
         const payload = msg.payload;
         return this.repo.updateSettings(payload.settings);
       }
-      case "app.navigate":
-        return { ok: true };
+      case "app.navigate": {
+        const payload = msg.payload;
+        return { ok: true, route: payload.route };
+      }
       default:
         return unsupportedResponse(msg.id, String(msg.type));
     }
   }
   getHtml(webview) {
     const dist = vscode.Uri.joinPath(this.context.extensionUri, "dist", "webview");
-    const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(dist, "assets", "index.js"));
-    const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(dist, "assets", "index.css"));
+    const scriptPath = vscode.Uri.joinPath(dist, "assets", "index.js");
+    const stylePath = vscode.Uri.joinPath(dist, "assets", "index.css");
+    if (!this.assetExists(scriptPath) || !this.assetExists(stylePath)) {
+      this.channel.appendLine(
+        "WebView assets missing. Run 'npm run build' before launching the extension host."
+      );
+      return this.errorHtml(
+        "AgentForge assets are missing. Run <code>npm run build</code> in the project root, then reopen this view."
+      );
+    }
+    const scriptUri = webview.asWebviewUri(scriptPath);
+    const styleUri = webview.asWebviewUri(stylePath);
     const nonce = getNonce();
     const csp = [
       `default-src 'none'`,
@@ -217,12 +236,12 @@ var AgentForgeViewProvider = class {
 </head>
 <body>
 <div id="root"></div>
-<script nonce="${nonce}" src="${scriptUri}"></script>
 <div id="error-fallback" style="display:none;padding:16px;font-family:sans-serif;color:#B91C1C;">
-  AgentForge failed to load. Reopen the panel or run "AgentForge: Reset Demo Data".
+  AgentForge failed to load. Check the AgentForge output channel for details.
 </div>
+<script nonce="${nonce}" src="${scriptUri}"></script>
 <script nonce="${nonce}">
-  window.addEventListener('DOMContentLoaded', function () {
+  window.addEventListener('load', function () {
     var root = document.getElementById('root');
     if (!root || root.children.length === 0) {
       var fb = document.getElementById('error-fallback');
@@ -230,6 +249,23 @@ var AgentForgeViewProvider = class {
     }
   });
 </script>
+</body>
+</html>`;
+  }
+  assetExists(uri) {
+    try {
+      (0, import_fs.statSync)(uri.fsPath);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  errorHtml(message) {
+    return `<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8" /></head>
+<body style="font-family: sans-serif; padding: 16px; color: #18233B;">
+<p>${message}</p>
 </body>
 </html>`;
   }
@@ -825,30 +861,64 @@ var LocalRepository = class {
 
 // src/commands/openAgentForge.ts
 var vscode2 = __toESM(require("vscode"));
-function registerOpenCommand(context, repo, _provider) {
-  const open = vscode2.commands.registerCommand("agentforge.open", () => {
+function registerCommands(context, repo) {
+  const focusView = () => {
     vscode2.commands.executeCommand("agentforge.view.focus");
-  });
-  const openFromSidebar = vscode2.commands.registerCommand("agentforge.openFromSidebar", () => {
-    vscode2.commands.executeCommand("agentforge.view.focus");
-  });
+  };
+  const open = vscode2.commands.registerCommand("agentforge.open", focusView);
+  const openFromSidebar = vscode2.commands.registerCommand("agentforge.openFromSidebar", focusView);
   const reset = vscode2.commands.registerCommand("agentforge.resetDemoData", async () => {
-    await repo.resetDemoData();
-    vscode2.window.showInformationMessage("AgentForge demo data has been reset.");
+    try {
+      await repo.resetDemoData();
+      vscode2.window.showInformationMessage("AgentForge demo data has been reset.");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      vscode2.window.showErrorMessage(`AgentForge could not reset demo data: ${message}`);
+    }
   });
-  context.subscriptions.push(open, openFromSidebar, reset);
+  const status = vscode2.commands.registerCommand("agentforge.showStatus", async () => {
+    try {
+      const [skills, agents, workflows, executions] = await Promise.all([
+        repo.listSkills(),
+        repo.listAgents(),
+        repo.listWorkflows(),
+        repo.listExecutions()
+      ]);
+      const detail = `${skills.length} skills, ${agents.length} agents, ${workflows.length} pipelines, ${executions.length} runs stored locally.`;
+      const action = await vscode2.window.showInformationMessage(
+        `AgentForge is active. ${detail}`,
+        "Open Workbench"
+      );
+      if (action === "Open Workbench") {
+        focusView();
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      vscode2.window.showErrorMessage(`AgentForge status check failed: ${message}`);
+    }
+  });
+  context.subscriptions.push(open, openFromSidebar, reset, status);
 }
 
 // src/extension.ts
 function activate(context) {
-  const repo = new LocalRepository(context);
-  const provider = new AgentForgeViewProvider(context, repo);
-  context.subscriptions.push(
-    vscode3.window.registerWebviewViewProvider(AgentForgeViewProvider.viewType, provider, {
-      webviewOptions: { retainContextWhenHidden: true }
-    })
-  );
-  registerOpenCommand(context, repo, provider);
+  const channel = vscode3.window.createOutputChannel("AgentForge");
+  context.subscriptions.push(channel);
+  try {
+    const repo = new LocalRepository(context);
+    const provider = new AgentForgeViewProvider(context, repo, channel);
+    context.subscriptions.push(
+      vscode3.window.registerWebviewViewProvider(AgentForgeViewProvider.viewType, provider, {
+        webviewOptions: { retainContextWhenHidden: true }
+      })
+    );
+    registerCommands(context, repo);
+    channel.appendLine(`AgentForge activated (version ${context.extension.packageJSON?.version ?? "unknown"})`);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    channel.appendLine(`Activation failed: ${message}`);
+    vscode3.window.showErrorMessage(`AgentForge failed to activate: ${message}`);
+  }
 }
 function deactivate() {
 }

@@ -151,11 +151,13 @@ host, tests, and WebView.
 
 1. Run a production build: `npm run build`
 2. Open the project folder in VS Code.
-3. Press `F5` (or run the "Extension Development Host" launch configuration). If no launch config
-   exists, use the Command Palette → "Developer: Toggle Developer Tools" after opening the
-   extension via the AgentForge activity bar.
+3. Press `F5` — the included `.vscode/launch.json` starts the Extension Development Host and runs
+   the build task first.
 4. The AgentForge icon appears in the activity bar. Click it, then click the "Open Workbench" icon
    in the view title (or run **AgentForge: Open** from the Command Palette).
+5. To confirm activation, run **AgentForge: Show Status** from the Command Palette. It reports the
+   number of locally stored skills, agents, pipelines, and runs. Host errors are written to the
+   "AgentForge" output channel (View → Output).
 
 ---
 

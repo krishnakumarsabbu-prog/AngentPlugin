@@ -45,6 +45,10 @@
       {
         "command": "agentforge.resetDemoData",
         "title": "AgentForge: Reset Demo Data"
+      },
+      {
+        "command": "agentforge.showStatus",
+        "title": "AgentForge: Show Status"
       }
     ],
     "menus": {
