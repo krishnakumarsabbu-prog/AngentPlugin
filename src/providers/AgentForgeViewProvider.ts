@@ -1,9 +1,13 @@
 import * as vscode from "vscode";
 import { statSync } from "fs";
+import * as path from "path";
 import { LocalRepository } from "../storage/LocalRepository";
 import { validateIncomingMessage, makeResponse, unsupportedResponse } from "../bridge/messageValidator";
-import { BaseMessage, ResponseMessage, IdPayload, SkillWritePayload, SkillValidatePayload, SkillDiffPayload } from "../bridge/messages";
+import { BaseMessage, ResponseMessage, IdPayload, SkillWritePayload, SkillValidatePayload, SkillDiffPayload, SkillExportPayload, SkillImportPreviewPayload, SkillInstallTargetsPayload, SkillInstallPlanPayload, SkillInstallPayload, SkillUninstallPayload } from "../bridge/messages";
 import { SkillService } from "../skills/SkillService";
+import { SkillPackageService, ImportPreview, ExportResult } from "../skills/SkillPackageService";
+import { InstallationService, createInstallRegistry, InMemoryArtifactsStore, InstallRegistry, InstalledArtifactsStore } from "../skills/install/installationService";
+import { InstallFile, InstallScope, PlatformId } from "../skills/install/types";
 
 const APP_VERSION = "0.1.0";
 
@@ -19,6 +23,13 @@ export class AgentForgeViewProvider implements vscode.WebviewViewProvider {
   }
 
   private readonly skills: SkillService;
+  private readonly packages = new SkillPackageService(repo);
+  private readonly artifactsStore: InstalledArtifactsStore = new InMemoryArtifactsStore();
+  private readonly installRegistry: InstallRegistry = createInstallRegistry(
+    context.globalStorageUri?.fsPath ?? null,
+  );
+  private readonly installation = new InstallationService(this.installRegistry, this.artifactsStore);
+  private readonly importPreviews = new Map<string, ImportPreview>();
 
   public resolveWebviewView(webviewView: vscode.WebviewView): void {
     webviewView.webview.options = {
@@ -114,6 +125,100 @@ export class AgentForgeViewProvider implements vscode.WebviewViewProvider {
       case "skills.diff": {
         const payload = msg.payload as SkillDiffPayload;
         return this.skills.diff(payload.id, payload.skill as Partial<import("../domain/skills/types").Skill>);
+      }
+      case "skills.export": {
+        const payload = msg.payload as SkillExportPayload;
+        const result = await this.packages.exportSkill(payload.id, payload.format);
+        return serializeExport(result);
+      }
+      case "skills.importPreview": {
+        const payload = msg.payload as SkillImportPreviewPayload;
+        const preview = await this.packages.previewImport({
+          manifest: payload.content,
+          files: payload.files,
+          skillMd: payload.skillMd,
+        }).catch(async () => {
+          // Fall back to treating content as a raw SKILL.md document.
+          return this.packages.previewImport(payload.content);
+        });
+        const key = msg.id;
+        this.importPreviews.set(key, preview);
+        return serializeImportPreview(preview);
+      }
+      case "skills.importSave": {
+        const key = msg.id;
+        const preview = this.importPreviews.get(key);
+        if (!preview) throw new Error("Import preview not found. Please re-open the import dialog.");
+        const result = await this.packages.saveImport(preview);
+        this.importPreviews.delete(key);
+        return {
+          skill: result.skill,
+          updated: result.updated,
+          files: result.files,
+        };
+      }
+      case "skills.installTargets": {
+        const payload = msg.payload as SkillInstallTargetsPayload;
+        return this.installation.targetsFor(payload.platform as PlatformId);
+      }
+      case "skills.installPlan": {
+        const payload = msg.payload as SkillInstallPlanPayload;
+        const pkg = await this.packages.buildPackage(payload.id);
+        const files: InstallFile[] = [{ relativePath: "SKILL.md", content: pkg.skillMd, overwriteSafe: true }];
+        for (const f of pkg.files) {
+          files.push({ relativePath: f.path, content: f.content });
+        }
+        const plan = await this.installation.plan(
+          payload.id,
+          payload.platform as PlatformId,
+          payload.scope as InstallScope,
+          files,
+        );
+        return {
+          target: plan.target,
+          existing: plan.existing,
+          supported: plan.supported,
+          simulated: plan.simulated,
+          files: plan.files.map((f) => f.relativePath),
+        };
+      }
+      case "skills.install": {
+        const payload = msg.payload as SkillInstallPayload;
+        const pkg = await this.packages.buildPackage(payload.id);
+        const files: InstallFile[] = [{ relativePath: "SKILL.md", content: pkg.skillMd, overwriteSafe: true }];
+        for (const f of pkg.files) {
+          files.push({ relativePath: f.path, content: f.content });
+        }
+        const plan = await this.installation.plan(
+          payload.id,
+          payload.platform as PlatformId,
+          payload.scope as InstallScope,
+          files,
+        );
+        const artifact = await this.installation.install(payload.id, plan);
+        return artifact;
+      }
+      case "skills.installations": {
+        const payload = msg.payload as IdPayload;
+        return this.installation.artifactsFor(payload.id);
+      }
+      case "skills.uninstall": {
+        const payload = msg.payload as SkillUninstallPayload;
+        const result = await this.installation.uninstall(
+          payload.id,
+          payload.platform as PlatformId,
+          payload.scope as InstallScope,
+        );
+        return {
+          recordRemoved: result.recordRemoved,
+          diskRemoved: result.diskRemoved,
+          simulated: result.artifact.simulated,
+          message: payload.removeFromDisk
+            ? result.artifact.simulated
+              ? "Removed AgentForge record. No files were written during the (simulated) install, so nothing was removed from disk."
+              : `Removed AgentForge record and ${result.diskRemoved ? "removed installed files" : "no files needed removal"}.`
+            : "Removed only the AgentForge installation record. Installed files on disk were left untouched.",
+        };
       }
       case "agents.list":
         return this.repo.listAgents();
@@ -220,4 +325,30 @@ function getNonce(): string {
     nonce += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return nonce;
+}
+
+function serializeExport(result: ExportResult): unknown {
+  return {
+    format: result.format,
+    skillId: result.skillId,
+    skillName: result.skillName,
+    version: result.version,
+    fileName: result.fileName,
+    primaryContent: result.primaryContent,
+    files: result.files,
+    manifest: result.manifest,
+    validation: result.validation,
+  };
+}
+
+function serializeImportPreview(preview: ImportPreview): unknown {
+  return {
+    valid: preview.valid,
+    skill: preview.skill,
+    files: preview.files,
+    duplicate: preview.duplicate,
+    validation: preview.validation,
+    warnings: preview.warnings,
+    errors: preview.errors,
+  };
 }

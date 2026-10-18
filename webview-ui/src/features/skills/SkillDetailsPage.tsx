@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { ArrowLeft, Pencil, Copy, Trash as Trash2, FileText, Scroll, FileCode, FilePlus, PackageCheck, PackageOpen, RefreshCw } from "lucide-react";
+import { ArrowLeft, Pencil, Copy, Trash as Trash2, FileText, Scroll, FileCode, FilePlus, PackageCheck, PackageOpen, RefreshCw, Package } from "lucide-react";
 import type { Skill, InstallationState, SkillResource } from "../../types";
 import { EmptyState } from "../../components/EmptyState";
 import { StatusBadge } from "../../components/StatusBadge";
 import { Breadcrumbs } from "../../components/ui/Breadcrumbs";
 import { ConfirmDialog } from "../../components/ui/Dialog";
 import { getSkillsStore } from "../../services/skillsService";
+import { SkillPackagesDialog } from "./SkillPackagesDialog";
 
 interface SkillDetailsPageProps {
   skillId: string;
@@ -63,6 +64,7 @@ export function SkillDetailsPage({ skillId, onNavigate, onSkillsChanged, onToast
   const [skill, setSkill] = useState<Skill | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [packagesOpen, setPackagesOpen] = useState(false);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -160,6 +162,9 @@ export function SkillDetailsPage({ skillId, onNavigate, onSkillsChanged, onToast
             </button>
             <button className="btn secondary" onClick={handleDuplicate}>
               <Copy size={14} /> Duplicate
+            </button>
+            <button className="btn secondary" onClick={() => setPackagesOpen(true)}>
+              <Package size={14} /> Packages
             </button>
             <button className="btn danger" onClick={() => setConfirmDelete(true)}>
               <Trash2 size={14} /> Delete
@@ -271,6 +276,14 @@ export function SkillDetailsPage({ skillId, onNavigate, onSkillsChanged, onToast
         busy={busy}
         onConfirm={handleDelete}
         onCancel={() => setConfirmDelete(false)}
+      />
+
+      <SkillPackagesDialog
+        open={packagesOpen}
+        skill={skill}
+        onClose={() => setPackagesOpen(false)}
+        onToast={onToast}
+        onSkillsChanged={onSkillsChanged}
       />
     </div>
   );

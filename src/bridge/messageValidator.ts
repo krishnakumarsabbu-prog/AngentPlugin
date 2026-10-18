@@ -1,4 +1,4 @@
-import { BaseMessage, isBaseMessage, MessageType, NavigatePayload, SettingsUpdatePayload, IdPayload, SkillWritePayload, SkillValidatePayload, SkillDiffPayload } from "./messages";
+import { BaseMessage, isBaseMessage, MessageType, NavigatePayload, SettingsUpdatePayload, IdPayload, SkillWritePayload, SkillValidatePayload, SkillDiffPayload, SkillExportPayload, SkillImportPreviewPayload, SkillImportSavePayload, SkillInstallTargetsPayload, SkillInstallPlanPayload, SkillUninstallPayload } from "./messages";
 
 export type ValidationResult =
   | { ok: true; message: BaseMessage }
@@ -69,6 +69,74 @@ export function validatePayload(type: MessageType, payload: unknown): string | n
       }
       if (!p || typeof p.skill !== "object" || p.skill === null) {
         return "Invalid skill payload";
+      }
+      return null;
+    }
+    case "skills.export": {
+      const p = payload as SkillExportPayload | undefined;
+      if (!p || typeof p.id !== "string" || p.id.length === 0 || p.id.length > 128) {
+        return "Invalid skill id";
+      }
+      if (p.format !== "skill-md" && p.format !== "package") {
+        return "Invalid export format";
+      }
+      return null;
+    }
+    case "skills.importPreview": {
+      const p = payload as SkillImportPreviewPayload | undefined;
+      if (!p || typeof p.content !== "string" || p.content.length === 0) {
+        return "Invalid import content";
+      }
+      if (p.content.length > 1024 * 1024) {
+        return "Import content is too large (max 1 MB)";
+      }
+      return null;
+    }
+    case "skills.importSave": {
+      const p = payload as SkillImportSavePayload | undefined;
+      if (!p || typeof p.preview !== "object" || p.preview === null) {
+        return "Invalid import preview";
+      }
+      return null;
+    }
+    case "skills.installTargets": {
+      const p = payload as SkillInstallTargetsPayload | undefined;
+      if (!p || typeof p.platform !== "string" || p.platform.length === 0) {
+        return "Invalid platform";
+      }
+      return null;
+    }
+    case "skills.installPlan":
+    case "skills.install": {
+      const p = payload as SkillInstallPlanPayload | undefined;
+      if (!p || typeof p.id !== "string" || p.id.length === 0 || p.id.length > 128) {
+        return "Invalid skill id";
+      }
+      if (!p || typeof p.platform !== "string" || p.platform.length === 0) {
+        return "Invalid platform";
+      }
+      if (!p || (p.scope !== "user" && p.scope !== "workspace")) {
+        return "Invalid install scope";
+      }
+      return null;
+    }
+    case "skills.installations": {
+      const p = payload as IdPayload | undefined;
+      if (!p || typeof p.id !== "string" || p.id.length === 0 || p.id.length > 128) {
+        return "Invalid skill id";
+      }
+      return null;
+    }
+    case "skills.uninstall": {
+      const p = payload as SkillUninstallPayload | undefined;
+      if (!p || typeof p.id !== "string" || p.id.length === 0 || p.id.length > 128) {
+        return "Invalid skill id";
+      }
+      if (!p || typeof p.platform !== "string" || p.platform.length === 0) {
+        return "Invalid platform";
+      }
+      if (!p || (p.scope !== "user" && p.scope !== "workspace")) {
+        return "Invalid install scope";
       }
       return null;
     }

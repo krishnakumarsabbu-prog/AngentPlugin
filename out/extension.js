@@ -38,7 +38,7 @@ var vscode3 = __toESM(require("vscode"));
 
 // src/providers/AgentForgeViewProvider.ts
 var vscode = __toESM(require("vscode"));
-var import_fs = require("fs");
+var import_fs2 = require("fs");
 
 // src/bridge/messages.ts
 var REQUEST_TYPES = [
@@ -54,6 +54,14 @@ var REQUEST_TYPES = [
   "skills.validate",
   "skills.history",
   "skills.diff",
+  "skills.export",
+  "skills.importPreview",
+  "skills.importSave",
+  "skills.installTargets",
+  "skills.installPlan",
+  "skills.install",
+  "skills.installations",
+  "skills.uninstall",
   "agents.list",
   "workflows.list",
   "executions.list",
@@ -136,6 +144,74 @@ function validatePayload(type, payload) {
       }
       if (!p || typeof p.skill !== "object" || p.skill === null) {
         return "Invalid skill payload";
+      }
+      return null;
+    }
+    case "skills.export": {
+      const p = payload;
+      if (!p || typeof p.id !== "string" || p.id.length === 0 || p.id.length > 128) {
+        return "Invalid skill id";
+      }
+      if (p.format !== "skill-md" && p.format !== "package") {
+        return "Invalid export format";
+      }
+      return null;
+    }
+    case "skills.importPreview": {
+      const p = payload;
+      if (!p || typeof p.content !== "string" || p.content.length === 0) {
+        return "Invalid import content";
+      }
+      if (p.content.length > 1024 * 1024) {
+        return "Import content is too large (max 1 MB)";
+      }
+      return null;
+    }
+    case "skills.importSave": {
+      const p = payload;
+      if (!p || typeof p.preview !== "object" || p.preview === null) {
+        return "Invalid import preview";
+      }
+      return null;
+    }
+    case "skills.installTargets": {
+      const p = payload;
+      if (!p || typeof p.platform !== "string" || p.platform.length === 0) {
+        return "Invalid platform";
+      }
+      return null;
+    }
+    case "skills.installPlan":
+    case "skills.install": {
+      const p = payload;
+      if (!p || typeof p.id !== "string" || p.id.length === 0 || p.id.length > 128) {
+        return "Invalid skill id";
+      }
+      if (!p || typeof p.platform !== "string" || p.platform.length === 0) {
+        return "Invalid platform";
+      }
+      if (!p || p.scope !== "user" && p.scope !== "workspace") {
+        return "Invalid install scope";
+      }
+      return null;
+    }
+    case "skills.installations": {
+      const p = payload;
+      if (!p || typeof p.id !== "string" || p.id.length === 0 || p.id.length > 128) {
+        return "Invalid skill id";
+      }
+      return null;
+    }
+    case "skills.uninstall": {
+      const p = payload;
+      if (!p || typeof p.id !== "string" || p.id.length === 0 || p.id.length > 128) {
+        return "Invalid skill id";
+      }
+      if (!p || typeof p.platform !== "string" || p.platform.length === 0) {
+        return "Invalid platform";
+      }
+      if (!p || p.scope !== "user" && p.scope !== "workspace") {
+        return "Invalid install scope";
       }
       return null;
     }
@@ -310,26 +386,26 @@ function validateSkill(skill, ctx = defaultValidationContext()) {
 }
 function validateResource(resource, index, seen, ctx) {
   const findings = [];
-  const path2 = `resources[${index}]`;
+  const path4 = `resources[${index}]`;
   if (!resource || typeof resource !== "object") {
-    findings.push({ severity: "error", field: path2, message: "Resource is malformed." });
+    findings.push({ severity: "error", field: path4, message: "Resource is malformed." });
     return findings;
   }
   if (!resource.id || !resource.id.trim()) {
-    findings.push({ severity: "error", field: `${path2}.id`, message: "Resource id is required." });
+    findings.push({ severity: "error", field: `${path4}.id`, message: "Resource id is required." });
   } else if (seen.has(resource.id)) {
-    findings.push({ severity: "error", field: `${path2}.id`, message: `Duplicate resource id: "${resource.id}".` });
+    findings.push({ severity: "error", field: `${path4}.id`, message: `Duplicate resource id: "${resource.id}".` });
   } else {
     seen.add(resource.id);
   }
   if (!resource.name || !resource.name.trim()) {
-    findings.push({ severity: "error", field: `${path2}.name`, message: "Resource name is required." });
+    findings.push({ severity: "error", field: `${path4}.name`, message: "Resource name is required." });
   }
   if (!resource.kind || !ctx.knownResourceKinds.has(resource.kind)) {
-    findings.push({ severity: "error", field: `${path2}.kind`, message: `Unsupported resource kind: "${resource.kind}".` });
+    findings.push({ severity: "error", field: `${path4}.kind`, message: `Unsupported resource kind: "${resource.kind}".` });
   }
   if (!resource.description || !resource.description.trim()) {
-    findings.push({ severity: "warning", field: `${path2}.description`, message: "Resource description is empty." });
+    findings.push({ severity: "warning", field: `${path4}.description`, message: "Resource description is empty." });
   }
   return findings;
 }
@@ -586,14 +662,868 @@ function formatFindings(findings) {
   return findings.map((f) => `[${f.field}] ${f.message}`).join("; ");
 }
 
+// src/skills/install/skillMarkdown.ts
+function yamlEscape(value) {
+  if (/[:#[{}&*!|>'"%@`]/.test(value) || value !== value.trim()) {
+    return JSON.stringify(value);
+  }
+  return value;
+}
+function skillToYamlFrontmatter(skill) {
+  const lines = ["---"];
+  lines.push(`name: ${yamlEscape(skill.name)}`);
+  lines.push(`id: ${yamlEscape(skill.id)}`);
+  lines.push(`description: ${yamlEscape(skill.description)}`);
+  lines.push(`version: ${yamlEscape(skill.version)}`);
+  if (skill.author)
+    lines.push(`author: ${yamlEscape(skill.author)}`);
+  lines.push(`category: ${yamlEscape(skill.category)}`);
+  if (skill.tags.length > 0) {
+    lines.push(`tags:`);
+    for (const tag of skill.tags)
+      lines.push(`  - ${yamlEscape(tag)}`);
+  }
+  if (skill.compatibility.length > 0) {
+    lines.push(`compatibility:`);
+    for (const platform2 of skill.compatibility)
+      lines.push(`  - ${platform2}`);
+  }
+  if (skill.otherTargets.length > 0) {
+    lines.push(`otherTargets:`);
+    for (const target of skill.otherTargets)
+      lines.push(`  - ${yamlEscape(target)}`);
+  }
+  if (skill.requiredTools.length > 0) {
+    lines.push(`requiredTools:`);
+    for (const tool of skill.requiredTools)
+      lines.push(`  - ${yamlEscape(tool)}`);
+  }
+  if (skill.permissions.length > 0) {
+    lines.push(`permissions:`);
+    for (const permission of skill.permissions)
+      lines.push(`  - ${yamlEscape(permission)}`);
+  }
+  if (skill.requirements.trim()) {
+    lines.push(`requirements: ${yamlEscape(skill.requirements.replace(/\s+/g, " ").trim())}`);
+  }
+  lines.push("---");
+  return lines.join("\n");
+}
+function buildSkillMarkdown(skill) {
+  const header = skill.frontmatter.trim() ? skillToYamlFrontmatter(skill) + "\n" + skill.frontmatter.trim() + "\n" : skillToYamlFrontmatter(skill);
+  const sections = [header];
+  sections.push(`# ${skill.name}
+`);
+  sections.push(`${skill.description}
+`);
+  if (skill.instructions.trim()) {
+    sections.push("## Instructions\n");
+    sections.push(skill.instructions.replace(/\s+$/, "") + "\n");
+  }
+  if (skill.requiredTools.length > 0) {
+    sections.push("## Required Tools\n");
+    for (const tool of skill.requiredTools)
+      sections.push(`- ${tool}`);
+    sections.push("");
+  }
+  if (skill.permissions.length > 0) {
+    sections.push("## Permissions\n");
+    for (const permission of skill.permissions)
+      sections.push(`- ${permission}`);
+    sections.push("");
+  }
+  if (skill.requirements.trim()) {
+    sections.push("## Requirements\n");
+    sections.push(skill.requirements.replace(/\s+$/, "") + "\n");
+  }
+  if (skill.resources.length > 0) {
+    sections.push("## Resources\n");
+    for (const resource of skill.resources) {
+      sections.push(`- **${resource.name}** (${resource.kind}): ${resource.description}`);
+    }
+    sections.push("");
+  }
+  if (skill.changelog.trim()) {
+    sections.push("## Changelog\n");
+    sections.push(skill.changelog.replace(/\s+$/, "") + "\n");
+  }
+  return sections.join("\n").replace(/\n{3,}/g, "\n\n").replace(/^\s+|\s+$/g, "") + "\n";
+}
+
+// src/skills/SkillPackageService.ts
+var SkillPackageService = class {
+  constructor(store) {
+    this.store = store;
+  }
+  // ── Export ────────────────────────────────────────────────────────────────
+  async exportSkill(skillId, format) {
+    const skill = await this.store.getSkill(skillId);
+    if (!skill)
+      throw new Error(`Skill not found: ${skillId}`);
+    const validation = this.validate(skill, void 0);
+    if (!validation.valid) {
+      throw new Error(`Cannot export: skill has validation errors: ${this.summarizeErrors(validation)}`);
+    }
+    const skillMd = buildSkillMarkdown(skill);
+    const slug = slugify(skill.id || skill.name);
+    const fileName = `${slug}.md`;
+    if (format === "skill-md") {
+      return {
+        format,
+        skillId: skill.id,
+        skillName: skill.name,
+        version: skill.version,
+        fileName,
+        primaryContent: skillMd,
+        files: [],
+        validation
+      };
+    }
+    const files = [];
+    if (skill.resources.length > 0) {
+      for (const r of skill.resources) {
+        files.push({
+          path: `resources/${resourceFileName(r)}`,
+          content: resourceStub(r)
+        });
+      }
+    }
+    files.push({ path: "SKILL.md", content: skillMd });
+    const manifest = {
+      kind: "agentforge-skill",
+      skillId: skill.id,
+      skillName: skill.name,
+      version: skill.version,
+      exportedAt: (/* @__PURE__ */ new Date()).toISOString(),
+      files: files.map((f) => f.path)
+    };
+    return {
+      format,
+      skillId: skill.id,
+      skillName: skill.name,
+      version: skill.version,
+      fileName: `${slug}-package`,
+      primaryContent: JSON.stringify(manifest, null, 2),
+      files,
+      manifest,
+      validation
+    };
+  }
+  /**
+   * Returns the package representation (used by the installation service to
+   * decide which files to install).
+   */
+  async buildPackage(skillId) {
+    const skill = await this.store.getSkill(skillId);
+    if (!skill)
+      throw new Error(`Skill not found: ${skillId}`);
+    const skillMd = buildSkillMarkdown(skill);
+    const files = [];
+    if (skill.resources.length > 0) {
+      for (const r of skill.resources) {
+        files.push({
+          path: `resources/${resourceFileName(r)}`,
+          content: resourceStub(r)
+        });
+      }
+    }
+    return {
+      skillId: skill.id,
+      skillName: skill.name,
+      version: skill.version,
+      skillMd,
+      files,
+      hasResources: files.length > 0
+    };
+  }
+  // ── Import ─────────────────────────────────────────────────────────────────
+  /**
+   * Parse and validate a package without saving. Accepts either a SKILL.md
+   * document (string) or a serialized package (manifest JSON + files map).
+   */
+  async previewImport(input) {
+    let skill;
+    let files = [];
+    if (typeof input === "string") {
+      skill = parseSkillMarkdown(input);
+    } else {
+      const parsed = parsePackageInput(input);
+      skill = parsed.skill;
+      files = parsed.files;
+    }
+    const all = await this.store.list();
+    const existingIds = new Set(all.map((s) => s.id));
+    const validation = validateSkill(skill, {
+      ...defaultValidationContext(),
+      existingIds: /* @__PURE__ */ new Set()
+      // duplicate detection handled separately, below
+    });
+    const duplicate = detectDuplicate(skill, all);
+    const errors = validation.errors.map((e) => `[${e.field}] ${e.message}`);
+    const warnings = [
+      ...validation.warnings.map((w) => `[${w.field}] ${w.message}`)
+    ];
+    if (duplicate.kind === "same-version") {
+      warnings.push(`A skill with id "${duplicate.existingId}" and the same version ${duplicate.existingVersion} already exists.`);
+    } else if (duplicate.kind === "newer-existing") {
+      warnings.push(`A newer version (${duplicate.existingVersion}) of skill "${duplicate.existingId}" already exists.`);
+    }
+    return {
+      valid: validation.valid && errors.length === 0,
+      skill,
+      files,
+      duplicate,
+      validation,
+      warnings,
+      errors
+    };
+  }
+  async saveImport(preview) {
+    if (!preview.valid) {
+      throw new Error(`Cannot save invalid package: ${preview.errors.join("; ")}`);
+    }
+    const skill = preview.skill;
+    const existing = await this.store.getSkill(skill.id);
+    if (existing) {
+      const updated = await this.store.updateSkill(skill.id, skill);
+      return { skill: updated, imported: true, updated: true, files: preview.files };
+    }
+    const created = await this.store.createSkill(skill);
+    return { skill: created, imported: true, updated: false, files: preview.files };
+  }
+  validate(skill, selfId) {
+    return validateSkill(skill, {
+      ...defaultValidationContext(),
+      existingIds: /* @__PURE__ */ new Set(),
+      selfId
+    });
+  }
+  summarizeErrors(report) {
+    return report.errors.map((e) => `[${e.field}] ${e.message}`).join("; ");
+  }
+};
+var SEMVER_PATTERN2 = /^\d+\.\d+\.\d+(?:-[\w.]+)?$/;
+var ALLOWED_PLATFORMS2 = ["copilot", "claude", "openai", "neutral"];
+var ALLOWED_RESOURCE_KINDS2 = ["file", "script", "template", "reference", "example", "test"];
+var ALLOWED_STATUSES2 = ["Draft", "Ready", "Deprecated"];
+function parsePackageInput(input) {
+  let manifest;
+  try {
+    manifest = typeof input.manifest === "string" ? JSON.parse(input.manifest) : input.manifest;
+  } catch {
+    throw new Error("Package manifest is not valid JSON.");
+  }
+  if (!manifest || manifest.kind !== "agentforge-skill") {
+    throw new Error("Manifest is not an AgentForge skill package.");
+  }
+  if (typeof manifest.skillId !== "string" || typeof manifest.version !== "string") {
+    throw new Error("Manifest is missing required fields (skillId, version).");
+  }
+  const fileMap = input.files ?? {};
+  const skillMd = input.skillMd ?? fileMap["SKILL.md"];
+  if (!skillMd) {
+    throw new Error("Package is missing SKILL.md.");
+  }
+  const skill = parseSkillMarkdown(skillMd);
+  if (manifest.skillId && skill.id && manifest.skillId !== skill.id) {
+    throw new Error(`Manifest skillId "${manifest.skillId}" does not match SKILL.md id "${skill.id}".`);
+  }
+  skill.id = manifest.skillId;
+  skill.version = manifest.version;
+  const files = [];
+  for (const p of manifest.files ?? []) {
+    if (p === "SKILL.md")
+      continue;
+    const content = fileMap[p];
+    if (content === void 0) {
+      files.push({ path: p, content: "" });
+    } else {
+      files.push({ path: p, content });
+    }
+  }
+  return { skill, files };
+}
+function parseSkillMarkdown(md) {
+  const text = md.replace(/^\uFEFF/, "");
+  const fm = extractFrontmatter(text);
+  const body = fm ? text.slice(fm.raw.length) : text;
+  const skill = {
+    tags: [],
+    resources: [],
+    compatibility: [],
+    otherTargets: [],
+    requiredTools: [],
+    permissions: [],
+    frontmatter: "",
+    status: "Draft",
+    installationState: "not-installed",
+    changelog: "",
+    requirements: "",
+    instructions: ""
+  };
+  if (fm) {
+    applyFrontmatter(skill, fm.yaml);
+    skill.frontmatter = "";
+  }
+  applyBody(skill, body);
+  return skill;
+}
+function extractFrontmatter(text) {
+  const match = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/.exec(text);
+  if (!match)
+    return null;
+  return { raw: match[0], yaml: match[1] };
+}
+function applyFrontmatter(skill, yaml) {
+  const map = parseSimpleYaml(yaml);
+  if (typeof map.name === "string")
+    skill.name = map.name.trim();
+  if (typeof map.id === "string")
+    skill.id = map.id.trim();
+  if (typeof map.description === "string")
+    skill.description = map.description.trim();
+  if (typeof map.version === "string")
+    skill.version = map.version.trim();
+  if (typeof map.author === "string")
+    skill.author = map.author.trim();
+  if (typeof map.category === "string")
+    skill.category = map.category.trim();
+  if (typeof map.requirements === "string")
+    skill.requirements = map.requirements.trim();
+  if (Array.isArray(map.tags))
+    skill.tags = map.tags.filter((t) => typeof t === "string");
+  if (Array.isArray(map.compatibility)) {
+    skill.compatibility = map.compatibility.filter(
+      (p) => ALLOWED_PLATFORMS2.includes(p)
+    );
+  }
+  if (Array.isArray(map.otherTargets))
+    skill.otherTargets = map.otherTargets.filter((t) => typeof t === "string");
+  if (Array.isArray(map.requiredTools))
+    skill.requiredTools = map.requiredTools.filter((t) => typeof t === "string");
+  if (Array.isArray(map.permissions))
+    skill.permissions = map.permissions.filter((t) => typeof t === "string");
+  if (typeof map.status === "string" && ALLOWED_STATUSES2.includes(map.status)) {
+    skill.status = map.status;
+  }
+}
+function applyBody(skill, body) {
+  const sections = splitSections(body);
+  const h1 = sections.find((s) => s.heading.level === 1);
+  if (h1 && !skill.name) {
+    skill.name = h1.heading.text.trim();
+  }
+  if (h1) {
+    const desc = h1.body.trim();
+    if (desc && !skill.description)
+      skill.description = desc;
+  }
+  const get = (title) => sections.find((s) => s.heading.level === 2 && s.heading.text.trim().toLowerCase() === title.toLowerCase());
+  const instructions = get("Instructions");
+  if (instructions && instructions.body.trim())
+    skill.instructions = instructions.body.trim();
+  const requirements = get("Requirements");
+  if (requirements && requirements.body.trim())
+    skill.requirements = requirements.body.trim();
+  const changelog = get("Changelog");
+  if (changelog && changelog.body.trim())
+    skill.changelog = changelog.body.trim();
+  const tools = get("Required Tools");
+  if (tools) {
+    skill.requiredTools = parseList(tools.body);
+  }
+  const perms = get("Permissions");
+  if (perms) {
+    skill.permissions = parseList(perms.body);
+  }
+  const resources = get("Resources");
+  if (resources) {
+    skill.resources = parseResourceList(resources.body);
+  }
+}
+function splitSections(body) {
+  const lines = body.split(/\r?\n/);
+  const sections = [];
+  let current = null;
+  for (const line of lines) {
+    const m = /^(#{1,6})\s+(.*)$/.exec(line);
+    if (m) {
+      if (current)
+        sections.push(current);
+      current = { heading: { level: m[1].length, text: m[2] }, body: "" };
+    } else if (current) {
+      current.body += line + "\n";
+    }
+  }
+  if (current)
+    sections.push(current);
+  return sections;
+}
+function parseList(body) {
+  return body.split(/\r?\n/).map((l) => l.trim()).filter((l) => l.startsWith("- ") || l.startsWith("* ")).map((l) => l.replace(/^[-*]\s+/, "").trim()).filter(Boolean);
+}
+function parseResourceList(body) {
+  const resources = [];
+  for (const raw of body.split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line.startsWith("-"))
+      continue;
+    const text = line.replace(/^[-*]\s+/, "").trim();
+    const m = /^\*\*([^*]+)\*\*\s*\(([^)]+)\)\s*:\s*(.*)$/.exec(text);
+    if (m) {
+      const [, name, kind, description] = m;
+      if (ALLOWED_RESOURCE_KINDS2.includes(kind.trim())) {
+        resources.push({
+          id: slugify(name.trim()),
+          name: name.trim(),
+          kind: kind.trim(),
+          description: description.trim()
+        });
+      }
+    }
+  }
+  return resources;
+}
+function parseSimpleYaml(yaml) {
+  const result = {};
+  const lines = yaml.split(/\r?\n/);
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) {
+      i += 1;
+      continue;
+    }
+    const m = /^([\w."'-]+)\s*:\s*(.*)$/.exec(trimmed);
+    if (!m) {
+      i += 1;
+      continue;
+    }
+    const [, key, value] = m;
+    if (value === "") {
+      const list = [];
+      let j = i + 1;
+      for (; j < lines.length; j += 1) {
+        const next = lines[j];
+        const nextTrim = next.trim();
+        if (nextTrim.startsWith("- ")) {
+          list.push(parseScalar(nextTrim.replace(/^-\s+/, "").trim()));
+        } else if (nextTrim === "" || nextTrim.startsWith("#")) {
+          continue;
+        } else {
+          break;
+        }
+      }
+      if (list.length > 0) {
+        result[key] = list;
+        i = j;
+        continue;
+      }
+      result[key] = "";
+      i += 1;
+    } else {
+      result[key] = parseScalar(value.trim());
+      i += 1;
+    }
+  }
+  return result;
+}
+function parseScalar(raw) {
+  if (raw === "true")
+    return true;
+  if (raw === "false")
+    return false;
+  if (raw.startsWith('"') && raw.endsWith('"') || raw.startsWith("'") && raw.endsWith("'")) {
+    return raw.slice(1, -1);
+  }
+  if (/^-?\d+$/.test(raw))
+    return Number(raw);
+  return raw;
+}
+function detectDuplicate(skill, existing) {
+  if (!skill.id)
+    return { kind: "none" };
+  const found = existing.find((s) => s.id === skill.id);
+  if (!found)
+    return { kind: "none" };
+  if (!skill.version || !SEMVER_PATTERN2.test(skill.version)) {
+    return { kind: "same-version", existingId: found.id, existingVersion: found.version };
+  }
+  const cmp = compareSemver(skill.version, found.version);
+  if (cmp === 0)
+    return { kind: "same-version", existingId: found.id, existingVersion: found.version };
+  if (cmp < 0)
+    return { kind: "newer-existing", existingId: found.id, existingVersion: found.version };
+  return { kind: "older-existing", existingId: found.id, existingVersion: found.version };
+}
+function compareSemver(a, b) {
+  const pa = a.split(".").map((p) => parseInt(p, 10));
+  const pb = b.split(".").map((p) => parseInt(p, 10));
+  for (let i = 0; i < 3; i += 1) {
+    const diff = (pa[i] ?? 0) - (pb[i] ?? 0);
+    if (diff !== 0)
+      return diff;
+  }
+  return 0;
+}
+function slugify(value) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "untitled";
+}
+function resourceFileName(r) {
+  const ext = r.kind === "script" ? ".sh" : ".md";
+  const base = slugify(r.name || r.id);
+  return `${base}${ext}`;
+}
+function resourceStub(r) {
+  return `# ${r.name}
+
+Kind: ${r.kind}
+
+${r.description}
+
+This resource file is a placeholder generated by AgentForge. Replace its contents with the actual resource.
+`;
+}
+
+// src/skills/install/platforms.ts
+var import_fs = require("fs");
+var path2 = __toESM(require("path"));
+
+// src/skills/install/adapters.ts
+var path = __toESM(require("path"));
+var SimulatedInstallAdapter = class {
+  constructor() {
+    this.supported = false;
+  }
+  async check(files, target) {
+    const existing = files.filter((f) => this.existsSync(path.join(target.root, f.relativePath))).map((f) => f.relativePath);
+    return { existing, supported: this.supported };
+  }
+  async install(files, target) {
+    return {
+      platform: this.platform,
+      scope: target.scope,
+      root: target.root,
+      files: files.map((f) => f.relativePath),
+      installedAt: (/* @__PURE__ */ new Date()).toISOString(),
+      simulated: true
+    };
+  }
+  async uninstall(_artifact) {
+    return false;
+  }
+  existsSync(_absPath) {
+    return false;
+  }
+};
+var FileInstallAdapter = class {
+  constructor() {
+    this.supported = true;
+  }
+  async check(files, target) {
+    const existing = [];
+    for (const f of files) {
+      const abs = this.safeJoin(target.root, f.relativePath);
+      if (abs && this.exists(abs))
+        existing.push(f.relativePath);
+    }
+    return { existing, supported: this.supported };
+  }
+  async install(files, target) {
+    const written = [];
+    for (const f of files) {
+      const abs = this.safeJoin(target.root, f.relativePath);
+      if (!abs)
+        throw new Error(`Refusing to write outside install root: ${f.relativePath}`);
+      await this.writeFile(abs, f.content);
+      written.push(f.relativePath);
+    }
+    return {
+      platform: this.platform,
+      scope: target.scope,
+      root: target.root,
+      files: written,
+      installedAt: (/* @__PURE__ */ new Date()).toISOString(),
+      simulated: false
+    };
+  }
+  async uninstall(artifact) {
+    let removed = false;
+    for (const rel of artifact.files) {
+      const abs = this.safeJoin(artifact.root, rel);
+      if (!abs)
+        continue;
+      try {
+        await this.removeFile(abs);
+        removed = true;
+      } catch {
+      }
+    }
+    return removed;
+  }
+  safeJoin(root, relativePath) {
+    if (path.isAbsolute(relativePath))
+      return null;
+    const joined = path.resolve(root, relativePath);
+    const normalizedRoot = path.resolve(root);
+    if (joined !== normalizedRoot && !joined.startsWith(normalizedRoot + path.sep)) {
+      return null;
+    }
+    return joined;
+  }
+};
+
+// src/skills/install/platforms.ts
+var CopilotInstallAdapter = class extends SimulatedInstallAdapter {
+  constructor() {
+    super(...arguments);
+    this.platform = "copilot";
+    this.displayName = "GitHub Copilot";
+  }
+  resolveTarget(scope) {
+    if (scope === "user") {
+      return {
+        platform: "copilot",
+        scope: "user",
+        root: "<user home>/.copilot/skills",
+        displayPath: "~/.copilot/skills (simulated)"
+      };
+    }
+    return {
+      platform: "copilot",
+      scope: "workspace",
+      root: "<workspace>/.copilot/skills",
+      displayPath: "<workspace>/.copilot/skills (simulated)"
+    };
+  }
+  existsSync() {
+    return false;
+  }
+};
+var ClaudeInstallAdapter = class extends SimulatedInstallAdapter {
+  constructor() {
+    super(...arguments);
+    this.platform = "claude";
+    this.displayName = "Claude / Claude Code";
+  }
+  resolveTarget(scope) {
+    if (scope === "user") {
+      return {
+        platform: "claude",
+        scope: "user",
+        root: "<user home>/.claude/skills",
+        displayPath: "~/.claude/skills (simulated)"
+      };
+    }
+    return {
+      platform: "claude",
+      scope: "workspace",
+      root: "<workspace>/.claude/skills",
+      displayPath: "<workspace>/.claude/skills (simulated)"
+    };
+  }
+};
+var OpenAiInstallAdapter = class extends SimulatedInstallAdapter {
+  constructor() {
+    super(...arguments);
+    this.platform = "openai";
+    this.displayName = "OpenAI";
+  }
+  resolveTarget(scope) {
+    if (scope === "user")
+      return void 0;
+    return {
+      platform: "openai",
+      scope: "workspace",
+      root: "<workspace>/.openai/skills",
+      displayPath: "<workspace>/.openai/skills (simulated)"
+    };
+  }
+};
+var NeutralInstallAdapter = class extends FileInstallAdapter {
+  constructor(approvedRoot) {
+    super();
+    this.approvedRoot = approvedRoot;
+    this.platform = "neutral";
+    this.displayName = "Local skill directory";
+  }
+  resolveTarget(scope) {
+    if (scope === "user")
+      return void 0;
+    const root = path2.join(this.approvedRoot, "workspace-skills");
+    return {
+      platform: "neutral",
+      scope: "workspace",
+      root,
+      displayPath: root
+    };
+  }
+  exists(absPath) {
+    return (0, import_fs.existsSync)(absPath);
+  }
+  async writeFile(absPath, content) {
+    await import_fs.promises.mkdir(path2.dirname(absPath), { recursive: true });
+    await import_fs.promises.writeFile(absPath, content, "utf8");
+  }
+  async removeFile(absPath) {
+    await import_fs.promises.rm(absPath, { force: true });
+  }
+};
+
+// src/skills/install/installationService.ts
+var InMemoryArtifactsStore = class {
+  constructor() {
+    this.map = /* @__PURE__ */ new Map();
+  }
+  list() {
+    return [...this.map.values()].flat();
+  }
+  listForSkill(skillId) {
+    return [...this.map.get(skillId) ?? []];
+  }
+  add(skillId, artifact) {
+    const arr = this.map.get(skillId) ?? [];
+    const idx = arr.findIndex((a) => a.platform === artifact.platform && a.scope === artifact.scope);
+    if (idx >= 0)
+      arr[idx] = artifact;
+    else
+      arr.push(artifact);
+    this.map.set(skillId, arr);
+  }
+  remove(skillId, platform2, scope) {
+    const arr = this.map.get(skillId) ?? [];
+    const idx = arr.findIndex((a) => a.platform === platform2 && a.scope === scope);
+    if (idx < 0)
+      return void 0;
+    const [removed] = arr.splice(idx, 1);
+    this.map.set(skillId, arr);
+    return removed;
+  }
+  clearForSkill(skillId) {
+    const arr = this.map.get(skillId) ?? [];
+    this.map.delete(skillId);
+    return arr;
+  }
+};
+function createInstallRegistry(neutralApprovedRoot) {
+  const adapters = [
+    new CopilotInstallAdapter(),
+    new ClaudeInstallAdapter(),
+    new OpenAiInstallAdapter()
+  ];
+  if (neutralApprovedRoot) {
+    adapters.push(new NeutralInstallAdapter(neutralApprovedRoot));
+  }
+  const byPlatform = new Map(adapters.map((a) => [a.platform, a]));
+  return {
+    adapters: () => [...adapters],
+    adapterFor: (platform2) => byPlatform.get(platform2),
+    targetsFor: (platform2) => {
+      const adapter = byPlatform.get(platform2);
+      if (!adapter)
+        return [];
+      const out = [];
+      const user = adapter.resolveTarget("user");
+      if (user)
+        out.push({ scope: "user", target: user });
+      const workspace = adapter.resolveTarget("workspace");
+      if (workspace)
+        out.push({ scope: "workspace", target: workspace });
+      return out;
+    }
+  };
+}
+var InstallationService = class {
+  constructor(registry, artifacts) {
+    this.registry = registry;
+    this.artifacts = artifacts;
+  }
+  listAdapters() {
+    return this.registry.adapters();
+  }
+  targetsFor(platform2) {
+    return this.registry.targetsFor(platform2);
+  }
+  async plan(skillId, platform2, scope, files) {
+    const adapter = this.registry.adapterFor(platform2);
+    if (!adapter)
+      throw new Error(`Unsupported platform: ${platform2}`);
+    const target = adapter.resolveTarget(scope);
+    if (!target)
+      throw new Error(`Platform ${platform2} does not support scope "${scope}".`);
+    const check = await adapter.check(files, target);
+    return {
+      target,
+      files,
+      existing: check.existing,
+      supported: check.supported,
+      simulated: !check.supported
+    };
+  }
+  async install(skillId, plan) {
+    const adapter = this.registry.adapterFor(plan.target.platform);
+    if (!adapter)
+      throw new Error(`Unsupported platform: ${plan.target.platform}`);
+    const artifact = await adapter.install(plan.files, plan.target);
+    this.artifacts.add(skillId, artifact);
+    return artifact;
+  }
+  artifactsFor(skillId) {
+    return this.artifacts.listForSkill(skillId);
+  }
+  async uninstall(skillId, platform2, scope) {
+    const artifact = this.artifacts.remove(skillId, platform2, scope);
+    if (!artifact) {
+      return { artifact: this.emptyArtifact(platform2, scope), diskRemoved: false, recordRemoved: false };
+    }
+    const adapter = this.registry.adapterFor(platform2);
+    let diskRemoved = false;
+    if (adapter && !artifact.simulated) {
+      diskRemoved = await adapter.uninstall(artifact);
+    }
+    return { artifact, diskRemoved, recordRemoved: true };
+  }
+  /** Remove all artifacts for a skill (used when a skill is deleted). Returns count. */
+  async uninstallAll(skillId) {
+    const all = this.artifacts.clearForSkill(skillId);
+    let diskRemoved = 0;
+    for (const artifact of all) {
+      const adapter = this.registry.adapterFor(artifact.platform);
+      if (adapter && !artifact.simulated) {
+        if (await adapter.uninstall(artifact))
+          diskRemoved += 1;
+      }
+    }
+    return diskRemoved;
+  }
+  emptyArtifact(platform2, scope) {
+    return {
+      platform: platform2,
+      scope,
+      root: "",
+      files: [],
+      installedAt: (/* @__PURE__ */ new Date()).toISOString(),
+      simulated: true
+    };
+  }
+};
+
 // src/providers/AgentForgeViewProvider.ts
 var APP_VERSION = "0.1.0";
 var AgentForgeViewProvider = class {
-  constructor(context, repo, channel) {
-    this.context = context;
-    this.repo = repo;
+  constructor(context2, repo2, channel) {
+    this.context = context2;
+    this.repo = repo2;
     this.channel = channel;
-    this.skills = new SkillService({ store: repo, history: repo.getHistoryStore() });
+    this.packages = new SkillPackageService(repo);
+    this.artifactsStore = new InMemoryArtifactsStore();
+    this.installRegistry = createInstallRegistry(
+      context.globalStorageUri?.fsPath ?? null
+    );
+    this.installation = new InstallationService(this.installRegistry, this.artifactsStore);
+    this.importPreviews = /* @__PURE__ */ new Map();
+    this.skills = new SkillService({ store: repo2, history: repo2.getHistoryStore() });
   }
   static {
     this.viewType = "agentforge.view";
@@ -688,6 +1618,96 @@ var AgentForgeViewProvider = class {
         const payload = msg.payload;
         return this.skills.diff(payload.id, payload.skill);
       }
+      case "skills.export": {
+        const payload = msg.payload;
+        const result = await this.packages.exportSkill(payload.id, payload.format);
+        return serializeExport(result);
+      }
+      case "skills.importPreview": {
+        const payload = msg.payload;
+        const preview = await this.packages.previewImport({
+          manifest: payload.content,
+          files: payload.files,
+          skillMd: payload.skillMd
+        }).catch(async () => {
+          return this.packages.previewImport(payload.content);
+        });
+        const key = msg.id;
+        this.importPreviews.set(key, preview);
+        return serializeImportPreview(preview);
+      }
+      case "skills.importSave": {
+        const key = msg.id;
+        const preview = this.importPreviews.get(key);
+        if (!preview)
+          throw new Error("Import preview not found. Please re-open the import dialog.");
+        const result = await this.packages.saveImport(preview);
+        this.importPreviews.delete(key);
+        return {
+          skill: result.skill,
+          updated: result.updated,
+          files: result.files
+        };
+      }
+      case "skills.installTargets": {
+        const payload = msg.payload;
+        return this.installation.targetsFor(payload.platform);
+      }
+      case "skills.installPlan": {
+        const payload = msg.payload;
+        const pkg = await this.packages.buildPackage(payload.id);
+        const files = [{ relativePath: "SKILL.md", content: pkg.skillMd, overwriteSafe: true }];
+        for (const f of pkg.files) {
+          files.push({ relativePath: f.path, content: f.content });
+        }
+        const plan = await this.installation.plan(
+          payload.id,
+          payload.platform,
+          payload.scope,
+          files
+        );
+        return {
+          target: plan.target,
+          existing: plan.existing,
+          supported: plan.supported,
+          simulated: plan.simulated,
+          files: plan.files.map((f) => f.relativePath)
+        };
+      }
+      case "skills.install": {
+        const payload = msg.payload;
+        const pkg = await this.packages.buildPackage(payload.id);
+        const files = [{ relativePath: "SKILL.md", content: pkg.skillMd, overwriteSafe: true }];
+        for (const f of pkg.files) {
+          files.push({ relativePath: f.path, content: f.content });
+        }
+        const plan = await this.installation.plan(
+          payload.id,
+          payload.platform,
+          payload.scope,
+          files
+        );
+        const artifact = await this.installation.install(payload.id, plan);
+        return artifact;
+      }
+      case "skills.installations": {
+        const payload = msg.payload;
+        return this.installation.artifactsFor(payload.id);
+      }
+      case "skills.uninstall": {
+        const payload = msg.payload;
+        const result = await this.installation.uninstall(
+          payload.id,
+          payload.platform,
+          payload.scope
+        );
+        return {
+          recordRemoved: result.recordRemoved,
+          diskRemoved: result.diskRemoved,
+          simulated: result.artifact.simulated,
+          message: payload.removeFromDisk ? result.artifact.simulated ? "Removed AgentForge record. No files were written during the (simulated) install, so nothing was removed from disk." : `Removed AgentForge record and ${result.diskRemoved ? "removed installed files" : "no files needed removal"}.` : "Removed only the AgentForge installation record. Installed files on disk were left untouched."
+        };
+      }
       case "agents.list":
         return this.repo.listAgents();
       case "workflows.list":
@@ -762,7 +1782,7 @@ var AgentForgeViewProvider = class {
   }
   assetExists(uri) {
     try {
-      (0, import_fs.statSync)(uri.fsPath);
+      (0, import_fs2.statSync)(uri.fsPath);
       return true;
     } catch {
       return false;
@@ -785,6 +1805,30 @@ function getNonce() {
     nonce += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return nonce;
+}
+function serializeExport(result) {
+  return {
+    format: result.format,
+    skillId: result.skillId,
+    skillName: result.skillName,
+    version: result.version,
+    fileName: result.fileName,
+    primaryContent: result.primaryContent,
+    files: result.files,
+    manifest: result.manifest,
+    validation: result.validation
+  };
+}
+function serializeImportPreview(preview) {
+  return {
+    valid: preview.valid,
+    skill: preview.skill,
+    files: preview.files,
+    duplicate: preview.duplicate,
+    validation: preview.validation,
+    warnings: preview.warnings,
+    errors: preview.errors
+  };
 }
 
 // src/storage/sampleData.ts
@@ -1371,25 +2415,25 @@ var DEFAULT_SETTINGS = {
 };
 
 // src/storage/safeStorage.ts
-var fs = __toESM(require("fs"));
-var path = __toESM(require("path"));
+var fs2 = __toESM(require("fs"));
+var path3 = __toESM(require("path"));
 var os = __toESM(require("os"));
 var diskBackend = {
   async writeAtomic(filePath, contents) {
-    const dir = path.dirname(filePath);
-    await fs.promises.mkdir(dir, { recursive: true });
-    const tmp = path.join(dir, `.${path.basename(filePath)}.${process.pid}.${Date.now()}.tmp`);
+    const dir = path3.dirname(filePath);
+    await fs2.promises.mkdir(dir, { recursive: true });
+    const tmp = path3.join(dir, `.${path3.basename(filePath)}.${process.pid}.${Date.now()}.tmp`);
     try {
-      await fs.promises.writeFile(tmp, contents, { encoding: "utf8" });
+      await fs2.promises.writeFile(tmp, contents, { encoding: "utf8" });
       if (os.platform() === "win32") {
         try {
-          await fs.promises.unlink(filePath).catch(() => void 0);
+          await fs2.promises.unlink(filePath).catch(() => void 0);
         } catch {
         }
       }
-      await fs.promises.rename(tmp, filePath);
+      await fs2.promises.rename(tmp, filePath);
     } catch (err) {
-      await fs.promises.unlink(tmp).catch(() => void 0);
+      await fs2.promises.unlink(tmp).catch(() => void 0);
       throw err;
     }
   }
@@ -1405,8 +2449,8 @@ function serializeJson(value) {
 // src/storage/LocalRepository.ts
 var STORAGE_KEY = "agentforge.state";
 var LocalRepository = class {
-  constructor(context) {
-    this.context = context;
+  constructor(context2) {
+    this.context = context2;
     this.state = this.load();
     this.history = createHistoryStore();
     for (const h of this.state.history) {
@@ -1696,7 +2740,7 @@ var LocalRepository = class {
 
 // src/commands/openAgentForge.ts
 var vscode2 = __toESM(require("vscode"));
-function registerCommands(context, repo) {
+function registerCommands(context2, repo2) {
   const focusView = () => {
     vscode2.commands.executeCommand("agentforge.view.focus");
   };
@@ -1704,7 +2748,7 @@ function registerCommands(context, repo) {
   const openFromSidebar = vscode2.commands.registerCommand("agentforge.openFromSidebar", focusView);
   const reset = vscode2.commands.registerCommand("agentforge.resetDemoData", async () => {
     try {
-      await repo.resetDemoData();
+      await repo2.resetDemoData();
       vscode2.window.showInformationMessage("AgentForge demo data has been reset.");
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -1714,10 +2758,10 @@ function registerCommands(context, repo) {
   const status = vscode2.commands.registerCommand("agentforge.showStatus", async () => {
     try {
       const [skills, agents, workflows, executions] = await Promise.all([
-        repo.listSkills(),
-        repo.listAgents(),
-        repo.listWorkflows(),
-        repo.listExecutions()
+        repo2.listSkills(),
+        repo2.listAgents(),
+        repo2.listWorkflows(),
+        repo2.listExecutions()
       ]);
       const detail = `${skills.length} skills, ${agents.length} agents, ${workflows.length} pipelines, ${executions.length} runs stored locally.`;
       const action = await vscode2.window.showInformationMessage(
@@ -1732,23 +2776,23 @@ function registerCommands(context, repo) {
       vscode2.window.showErrorMessage(`AgentForge status check failed: ${message}`);
     }
   });
-  context.subscriptions.push(open, openFromSidebar, reset, status);
+  context2.subscriptions.push(open, openFromSidebar, reset, status);
 }
 
 // src/extension.ts
-function activate(context) {
+function activate(context2) {
   const channel = vscode3.window.createOutputChannel("AgentForge");
-  context.subscriptions.push(channel);
+  context2.subscriptions.push(channel);
   try {
-    const repo = new LocalRepository(context);
-    const provider = new AgentForgeViewProvider(context, repo, channel);
-    context.subscriptions.push(
+    const repo2 = new LocalRepository(context2);
+    const provider = new AgentForgeViewProvider(context2, repo2, channel);
+    context2.subscriptions.push(
       vscode3.window.registerWebviewViewProvider(AgentForgeViewProvider.viewType, provider, {
         webviewOptions: { retainContextWhenHidden: true }
       })
     );
-    registerCommands(context, repo);
-    channel.appendLine(`AgentForge activated (version ${context.extension.packageJSON?.version ?? "unknown"})`);
+    registerCommands(context2, repo2);
+    channel.appendLine(`AgentForge activated (version ${context2.extension.packageJSON?.version ?? "unknown"})`);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     channel.appendLine(`Activation failed: ${message}`);

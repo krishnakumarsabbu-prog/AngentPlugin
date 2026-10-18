@@ -117,6 +117,83 @@ export interface AppState {
   settings: AppSettings;
 }
 
+export type InstallScope = "user" | "workspace";
+
+export interface InstallTarget {
+  platform: PlatformCompatibility;
+  scope: InstallScope;
+  root: string;
+  displayPath: string;
+}
+
+export interface InstalledArtifact {
+  platform: PlatformCompatibility;
+  scope: InstallScope;
+  root: string;
+  files: string[];
+  installedAt: string;
+  simulated: boolean;
+}
+
+export interface InstallPlanSummary {
+  target: InstallTarget;
+  existing: string[];
+  supported: boolean;
+  simulated: boolean;
+  files: string[];
+}
+
+export interface UninstallSummary {
+  recordRemoved: boolean;
+  diskRemoved: boolean;
+  simulated: boolean;
+  message: string;
+}
+
+export interface PackageFile {
+  path: string;
+  content: string;
+}
+
+export interface PackageManifest {
+  kind: "agentforge-skill";
+  skillId: string;
+  skillName: string;
+  version: string;
+  exportedAt: string;
+  files: string[];
+}
+
+export interface ExportResult {
+  format: "skill-md" | "package";
+  skillId: string;
+  skillName: string;
+  version: string;
+  fileName: string;
+  primaryContent: string;
+  files: PackageFile[];
+  manifest?: PackageManifest;
+  validation: { valid: boolean; errors: unknown[]; warnings: unknown[]; suggestions: unknown[] };
+}
+
+export type DuplicateKind = "none" | "same-version" | "older-existing" | "newer-existing";
+
+export interface ImportPreview {
+  valid: boolean;
+  skill: Partial<Skill>;
+  files: PackageFile[];
+  duplicate: { kind: DuplicateKind; existingId?: string; existingVersion?: string };
+  validation: { valid: boolean; errors: unknown[]; warnings: unknown[]; suggestions: unknown[] };
+  warnings: string[];
+  errors: string[];
+}
+
+export interface ImportSaveResult {
+  skill: Skill;
+  updated: boolean;
+  files: PackageFile[];
+}
+
 export type MessageType =
   | "app.ready"
   | "app.getState"
@@ -130,6 +207,14 @@ export type MessageType =
   | "skills.validate"
   | "skills.history"
   | "skills.diff"
+  | "skills.export"
+  | "skills.importPreview"
+  | "skills.importSave"
+  | "skills.installTargets"
+  | "skills.installPlan"
+  | "skills.install"
+  | "skills.installations"
+  | "skills.uninstall"
   | "agents.list"
   | "workflows.list"
   | "executions.list"

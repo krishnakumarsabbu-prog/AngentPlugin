@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { Sparkles, Search, X, Plus, Pencil, Copy, Trash as Trash2, ArrowUp, ArrowDown, PackageCheck, PackageOpen, RefreshCw } from "lucide-react";
+import { Sparkles, Search, X, Plus, Pencil, Copy, Trash as Trash2, ArrowUp, ArrowDown, PackageCheck, PackageOpen, RefreshCw, Upload } from "lucide-react";
 import type { Skill, PlatformCompatibility, InstallationState } from "../../types";
-import { EmptyState } from "../../components/EmptyState";import { StatusBadge } from "../../components/StatusBadge";
+import { EmptyState } from "../../components/EmptyState";
+import { StatusBadge } from "../../components/StatusBadge";
 import { ConfirmDialog } from "../../components/ui/Dialog";
 import { getSkillsStore, type SkillSortKey } from "../../services/skillsService";
+import { SkillPackagesDialog } from "./SkillPackagesDialog";
 
 interface SkillsStudioPageProps {
   onNavigate: (route: string) => void;
@@ -66,6 +68,7 @@ export function SkillsStudioPage({
   const [sortKey, setSortKey] = useState<SkillSortKey>("updatedAt");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [pendingDelete, setPendingDelete] = useState<Skill | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -187,6 +190,9 @@ export function SkillsStudioPage({
           no skills have been installed into external platforms.
         </p>
         <div className="page-actions">
+          <button className="btn secondary" onClick={() => setImportOpen(true)}>
+            <Upload size={14} /> Import
+          </button>
           <button className="btn primary" onClick={() => onNavigate("skill-new")}>
             <Plus size={14} /> Create Skill
           </button>
@@ -282,7 +288,10 @@ export function SkillsStudioPage({
             title="No skills yet"
             text="Create your first skill to bundle instructions and procedures for AI platforms."
           />
-          <div style={{ display: "flex", justifyContent: "center" }}>
+          <div style={{ display: "flex", justifyContent: "center", gap: 8 }}>
+            <button className="btn secondary" onClick={() => setImportOpen(true)}>
+              <Upload size={14} /> Import skill
+            </button>
             <button className="btn primary" onClick={() => onNavigate("skill-new")}>
               <Plus size={14} /> Create Skill
             </button>
@@ -388,6 +397,15 @@ export function SkillsStudioPage({
         busy={busy}
         onConfirm={confirmDelete}
         onCancel={() => setPendingDelete(null)}
+      />
+
+      <SkillPackagesDialog
+        open={importOpen}
+        skill={null}
+        onClose={() => setImportOpen(false)}
+        onToast={onToast}
+        onSkillsChanged={onSkillsChanged}
+        onImportedSkill={(id) => onOpenSkill(id)}
       />
     </div>
   );
