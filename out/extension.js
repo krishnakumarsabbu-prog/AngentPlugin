@@ -51,6 +51,9 @@ var REQUEST_TYPES = [
   "skills.update",
   "skills.duplicate",
   "skills.delete",
+  "skills.validate",
+  "skills.history",
+  "skills.diff",
   "agents.list",
   "workflows.list",
   "executions.list",
@@ -94,7 +97,8 @@ function validatePayload(type, payload) {
       return null;
     case "skills.get":
     case "skills.duplicate":
-    case "skills.delete": {
+    case "skills.delete":
+    case "skills.history": {
       const p = payload;
       if (!p || typeof p.id !== "string" || p.id.length === 0 || p.id.length > 128) {
         return "Invalid skill id";
@@ -112,6 +116,26 @@ function validatePayload(type, payload) {
         if (typeof rec.id !== "string" || rec.id.length === 0 || rec.id.length > 128) {
           return "Invalid skill id";
         }
+      }
+      return null;
+    }
+    case "skills.validate": {
+      const p = payload;
+      if (!p || typeof p.skill !== "object" || p.skill === null) {
+        return "Invalid skill payload";
+      }
+      if (p.id !== void 0 && (typeof p.id !== "string" || p.id.length === 0 || p.id.length > 128)) {
+        return "Invalid skill id";
+      }
+      return null;
+    }
+    case "skills.diff": {
+      const p = payload;
+      if (!p || typeof p.id !== "string" || p.id.length === 0 || p.id.length > 128) {
+        return "Invalid skill id";
+      }
+      if (!p || typeof p.skill !== "object" || p.skill === null) {
+        return "Invalid skill payload";
       }
       return null;
     }
@@ -152,6 +176,416 @@ function unsupportedResponse(requestId, feature) {
   return makeResponse(requestId, false, void 0, `${feature} is not yet implemented`);
 }
 
+// src/skills/SkillValidator.ts
+var ID_PATTERN = /^[a-z0-9][a-z0-9-]*$/;
+var SEMVER_PATTERN = /^\d+\.\d+\.\d+(?:-[\w.]+)?$/;
+var ALLOWED_PLATFORMS = ["copilot", "claude", "openai", "neutral"];
+var ALLOWED_STATUSES = ["Draft", "Ready", "Deprecated"];
+var ALLOWED_RESOURCE_KINDS = ["file", "script", "template", "reference", "example", "test"];
+var ALLOWED_INSTALLATION_STATES = ["not-installed", "installed", "outdated"];
+var YAML_KEY_PATTERN = /^[\w."'-]+\s*:/;
+var YAML_LIST_PATTERN = /^-\s+/;
+var YAML_BLOCK_SCALAR_PATTERN = /:\s*(\||>)\s*$/;
+var FORBIDDEN_DECLARATIONS = [
+  "import ",
+  "require(",
+  "eval(",
+  "function ",
+  "process.env",
+  "child_process",
+  "fs.readFileSync",
+  "fetch(",
+  "curl ",
+  "wget ",
+  "shell_exec",
+  "exec("
+];
+function defaultValidationContext() {
+  return {
+    existingIds: /* @__PURE__ */ new Set(),
+    knownResourceKinds: new Set(ALLOWED_RESOURCE_KINDS)
+  };
+}
+function validateSkill(skill, ctx = defaultValidationContext()) {
+  const errors = [];
+  const warnings = [];
+  const suggestions = [];
+  const name = typeof skill.name === "string" ? skill.name.trim() : "";
+  if (!name) {
+    errors.push({ severity: "error", field: "name", message: "Name is required." });
+  } else if (name.length > 96) {
+    errors.push({ severity: "error", field: "name", message: "Name must be 96 characters or fewer." });
+  }
+  const id = typeof skill.id === "string" ? skill.id.trim() : "";
+  if (!id) {
+    errors.push({ severity: "error", field: "id", message: "Identifier is required." });
+  } else if (!ID_PATTERN.test(id)) {
+    errors.push({
+      severity: "error",
+      field: "id",
+      message: "Identifier must be lowercase letters, digits, and dashes only, and start with a letter or digit."
+    });
+  } else if (id.length > 64) {
+    errors.push({ severity: "error", field: "id", message: "Identifier must be 64 characters or fewer." });
+  } else if (ctx.existingIds.has(id) && ctx.selfId !== id) {
+    errors.push({ severity: "error", field: "id", message: `A skill with identifier "${id}" already exists.` });
+  }
+  const description = typeof skill.description === "string" ? skill.description.trim() : "";
+  if (!description) {
+    errors.push({ severity: "error", field: "description", message: "Description is required." });
+  } else if (description.length > 512) {
+    warnings.push({ severity: "warning", field: "description", message: "Description is long; consider trimming for dashboards." });
+  }
+  const version = typeof skill.version === "string" ? skill.version.trim() : "";
+  if (!version) {
+    errors.push({ severity: "error", field: "version", message: "Version is required." });
+  } else if (!SEMVER_PATTERN.test(version)) {
+    errors.push({ severity: "error", field: "version", message: "Version must follow semantic versioning, e.g. 1.0.0." });
+  }
+  const instructions = typeof skill.instructions === "string" ? skill.instructions : "";
+  if (!instructions.trim()) {
+    errors.push({ severity: "error", field: "instructions", message: "Instructions are required." });
+  } else if (instructions.trim().length < 20) {
+    suggestions.push({ severity: "suggestion", field: "instructions", message: "Instructions are short; describe steps, inputs, and expected outputs for reliable execution." });
+  }
+  if (skill.frontmatter && skill.frontmatter.trim()) {
+    const fmErrors = validateFrontmatter(skill.frontmatter);
+    warnings.push(...fmErrors);
+  }
+  if (Array.isArray(skill.resources)) {
+    const seenResourceIds = /* @__PURE__ */ new Set();
+    for (const [i, r] of skill.resources.entries()) {
+      const findings = validateResource(r, i, seenResourceIds, ctx);
+      errors.push(...findings.filter((f) => f.severity === "error"));
+      warnings.push(...findings.filter((f) => f.severity === "warning"));
+      suggestions.push(...findings.filter((f) => f.severity === "suggestion"));
+    }
+  }
+  if (Array.isArray(skill.compatibility)) {
+    for (const p of skill.compatibility) {
+      if (!ALLOWED_PLATFORMS.includes(p)) {
+        errors.push({ severity: "error", field: "compatibility", message: `Unsupported platform: "${p}".` });
+      }
+    }
+    if (skill.compatibility.includes("openai")) {
+      warnings.push({ severity: "warning", field: "compatibility", message: "OpenAI targets are honored only where the consuming application supports a compatible skill mechanism." });
+    }
+  }
+  if (skill.status && !ALLOWED_STATUSES.includes(skill.status)) {
+    errors.push({ severity: "error", field: "status", message: `Invalid status: "${skill.status}".` });
+  }
+  if (skill.installationState && !ALLOWED_INSTALLATION_STATES.includes(skill.installationState)) {
+    errors.push({ severity: "error", field: "installationState", message: `Invalid installation state: "${skill.installationState}".` });
+  }
+  if (Array.isArray(skill.tags)) {
+    for (const tag of skill.tags) {
+      if (typeof tag !== "string" || !tag.trim()) {
+        warnings.push({ severity: "warning", field: "tags", message: "Empty tags are ignored." });
+      }
+    }
+  }
+  const requiredTools = Array.isArray(skill.requiredTools) ? skill.requiredTools : [];
+  const permissions = Array.isArray(skill.permissions) ? skill.permissions : [];
+  if (requiredTools.length === 0 && instructions.trim()) {
+    suggestions.push({ severity: "suggestion", field: "requiredTools", message: "No required tools declared. Add at least one so consumers know what capabilities the skill expects." });
+  }
+  if (permissions.length === 0 && instructions.trim()) {
+    suggestions.push({ severity: "suggestion", field: "permissions", message: "No permissions declared. Explicit permissions make review and governance easier." });
+  }
+  const declarationFindings = scanUnsupportedDeclarations(instructions);
+  errors.push(...declarationFindings.filter((f) => f.severity === "error"));
+  warnings.push(...declarationFindings.filter((f) => f.severity === "warning"));
+  if (!skill.author || !skill.author.trim()) {
+    suggestions.push({ severity: "suggestion", field: "author", message: "Author is empty; adding an author aids governance and change attribution." });
+  }
+  if (!skill.changelog || !skill.changelog.trim()) {
+    suggestions.push({ severity: "suggestion", field: "changelog", message: "Changelog is empty; record version changes for traceability." });
+  }
+  return {
+    valid: errors.length === 0,
+    errors,
+    warnings,
+    suggestions
+  };
+}
+function validateResource(resource, index, seen, ctx) {
+  const findings = [];
+  const path2 = `resources[${index}]`;
+  if (!resource || typeof resource !== "object") {
+    findings.push({ severity: "error", field: path2, message: "Resource is malformed." });
+    return findings;
+  }
+  if (!resource.id || !resource.id.trim()) {
+    findings.push({ severity: "error", field: `${path2}.id`, message: "Resource id is required." });
+  } else if (seen.has(resource.id)) {
+    findings.push({ severity: "error", field: `${path2}.id`, message: `Duplicate resource id: "${resource.id}".` });
+  } else {
+    seen.add(resource.id);
+  }
+  if (!resource.name || !resource.name.trim()) {
+    findings.push({ severity: "error", field: `${path2}.name`, message: "Resource name is required." });
+  }
+  if (!resource.kind || !ctx.knownResourceKinds.has(resource.kind)) {
+    findings.push({ severity: "error", field: `${path2}.kind`, message: `Unsupported resource kind: "${resource.kind}".` });
+  }
+  if (!resource.description || !resource.description.trim()) {
+    findings.push({ severity: "warning", field: `${path2}.description`, message: "Resource description is empty." });
+  }
+  return findings;
+}
+function validateFrontmatter(raw) {
+  const findings = [];
+  const text = raw.trim();
+  if (text.startsWith("---") && text.endsWith("---")) {
+    return findings;
+  }
+  const lines = text.split(/\r?\n/);
+  let bad = 0;
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#"))
+      continue;
+    const ok = YAML_KEY_PATTERN.test(trimmed) || YAML_LIST_PATTERN.test(trimmed) || YAML_BLOCK_SCALAR_PATTERN.test(trimmed);
+    if (!ok)
+      bad += 1;
+  }
+  if (bad > 0) {
+    findings.push({
+      severity: "warning",
+      field: "frontmatter",
+      message: `${bad} line(s) do not look like YAML key:value or list entries; they will be preserved verbatim.`
+    });
+  }
+  return findings;
+}
+function scanUnsupportedDeclarations(instructions) {
+  const findings = [];
+  if (!instructions)
+    return findings;
+  const lines = instructions.split(/\r?\n/);
+  let inFence = false;
+  for (const [i, line] of lines.entries()) {
+    const stripped = line.trim();
+    if (stripped.startsWith("```")) {
+      inFence = !inFence;
+      continue;
+    }
+    if (inFence)
+      continue;
+    for (const decl of FORBIDDEN_DECLARATIONS) {
+      if (stripped.toLowerCase().includes(decl)) {
+        findings.push({
+          severity: "warning",
+          field: `instructions:${i + 1}`,
+          message: `Possible unsupported declaration "${decl.trim()}" in instructions. Use fenced code blocks for examples and avoid executable runtime calls.`
+        });
+        break;
+      }
+    }
+  }
+  return findings;
+}
+function compareDraftToStored(draft, stored) {
+  if (!stored) {
+    return { changed: true, changes: [] };
+  }
+  const fields = [
+    "name",
+    "description",
+    "version",
+    "author",
+    "category",
+    "instructions",
+    "frontmatter",
+    "changelog",
+    "requirements",
+    "status"
+  ];
+  const changes = [];
+  for (const field of fields) {
+    const from = stored[field];
+    const to = draft[field];
+    if ((from ?? "") !== (to ?? "")) {
+      changes.push({ field, from, to });
+    }
+  }
+  for (const field of ["tags", "compatibility", "otherTargets", "requiredTools", "permissions"]) {
+    const fromArr = Array.isArray(stored[field]) ? stored[field] : [];
+    const toArr = Array.isArray(draft[field]) ? draft[field] : [];
+    if (fromArr.length !== toArr.length || fromArr.some((v, i) => v !== toArr[i])) {
+      changes.push({ field, from: fromArr, to: toArr });
+    }
+  }
+  const fromRes = stored.resources.map((r) => `${r.id}:${r.name}:${r.kind}`).join("|");
+  const toRes = Array.isArray(draft.resources) ? draft.resources.map((r) => `${r.id}:${r.name}:${r.kind}`).join("|") : "";
+  if (fromRes !== toRes) {
+    changes.push({ field: "resources", from: fromRes, to: toRes });
+  }
+  return { changed: changes.length > 0, changes };
+}
+
+// src/skills/SkillHistory.ts
+function createHistoryStore() {
+  const map = /* @__PURE__ */ new Map();
+  return {
+    get(id) {
+      return map.get(id);
+    },
+    list() {
+      return [...map.values()].map(cloneHistory);
+    },
+    record(skill, summary) {
+      const existing = map.get(skill.id);
+      const entry = {
+        version: skill.version,
+        timestamp: skill.updatedAt,
+        summary: summary ?? `Saved version ${skill.version}`,
+        snapshot: cloneSkill(skill)
+      };
+      if (!existing) {
+        map.set(skill.id, {
+          id: skill.id,
+          currentVersion: skill.version,
+          entries: [entry]
+        });
+        return;
+      }
+      if (existing.entries.length > 0 && existing.entries[0].version === skill.version) {
+        existing.entries[0] = entry;
+      } else {
+        existing.entries.unshift(entry);
+        if (existing.entries.length > 20) {
+          existing.entries.length = 20;
+        }
+      }
+      existing.currentVersion = skill.version;
+    },
+    remove(id) {
+      map.delete(id);
+    }
+  };
+}
+function appendChangelog(existing, version, note) {
+  const header = `${version} \u2014 ${note}`;
+  if (!existing.trim())
+    return header;
+  if (existing.includes(`${version} \u2014`))
+    return existing;
+  return `${header}
+${existing}`;
+}
+function cloneSkill(skill) {
+  return {
+    ...skill,
+    tags: [...skill.tags],
+    resources: skill.resources.map((r) => ({ ...r })),
+    compatibility: [...skill.compatibility],
+    otherTargets: [...skill.otherTargets],
+    requiredTools: [...skill.requiredTools],
+    permissions: [...skill.permissions]
+  };
+}
+function cloneHistory(history) {
+  return {
+    id: history.id,
+    currentVersion: history.currentVersion,
+    entries: history.entries.map((e) => ({ ...e, snapshot: cloneSkill(e.snapshot) }))
+  };
+}
+
+// src/skills/SkillService.ts
+var SkillService = class {
+  constructor(deps) {
+    this.deps = deps;
+  }
+  async list() {
+    return this.deps.store.list();
+  }
+  async summaries() {
+    return this.deps.store.summaries();
+  }
+  async get(id) {
+    return this.deps.store.getSkill(id);
+  }
+  async create(input) {
+    const all = await this.deps.store.list();
+    const report = validateSkill(input, {
+      ...defaultValidationContext(),
+      existingIds: new Set(all.map((s) => s.id))
+    });
+    if (!report.valid) {
+      throw new SkillValidationError(report);
+    }
+    const skill = await this.deps.store.createSkill(input);
+    this.deps.history.record(skill, `Created ${skill.version}`);
+    return { skill, report };
+  }
+  async update(id, patch) {
+    const existing = await this.deps.store.getSkill(id);
+    if (!existing) {
+      throw new Error(`Skill not found: ${id}`);
+    }
+    const merged = { ...existing, ...patch, id };
+    const all = await this.deps.store.list();
+    const report = validateSkill(merged, {
+      ...defaultValidationContext(),
+      existingIds: new Set(all.map((s) => s.id)),
+      selfId: id
+    });
+    if (!report.valid) {
+      throw new SkillValidationError(report);
+    }
+    const versionChanged = (patch.version ?? existing.version) !== existing.version;
+    const enrichedPatch = versionChanged ? { ...patch, changelog: appendChangelog(patch.changelog ?? existing.changelog, patch.version ?? existing.version, `Updated`) } : patch;
+    const skill = await this.deps.store.updateSkill(id, enrichedPatch);
+    this.deps.history.record(skill, `Saved ${skill.version}`);
+    return { skill, report };
+  }
+  async duplicate(id) {
+    const copy = await this.deps.store.duplicateSkill(id);
+    this.deps.history.record(copy, `Duplicated from ${id}`);
+    return copy;
+  }
+  async remove(id) {
+    await this.deps.store.deleteSkill(id);
+    this.deps.history.remove(id);
+  }
+  validate(draft, selfId) {
+    return this.withContext(draft, selfId).then((ctx) => validateSkill(draft, ctx));
+  }
+  async withContext(draft, selfId) {
+    const all = await this.deps.store.list();
+    return {
+      ...defaultValidationContext(),
+      existingIds: new Set(all.map((s) => s.id)),
+      selfId
+    };
+  }
+  async hasUnsavedChanges(id, draft) {
+    const stored = await this.deps.store.getSkill(id);
+    return compareDraftToStored(draft, stored).changed;
+  }
+  async diff(id, draft) {
+    const stored = await this.deps.store.getSkill(id);
+    return compareDraftToStored(draft, stored);
+  }
+  history(id) {
+    return this.deps.history.get(id);
+  }
+};
+var SkillValidationError = class extends Error {
+  constructor(report) {
+    super(formatFindings(report.errors));
+    this.report = report;
+    this.name = "SkillValidationError";
+  }
+};
+function formatFindings(findings) {
+  if (findings.length === 0)
+    return "Validation failed";
+  return findings.map((f) => `[${f.field}] ${f.message}`).join("; ");
+}
+
 // src/providers/AgentForgeViewProvider.ts
 var APP_VERSION = "0.1.0";
 var AgentForgeViewProvider = class {
@@ -159,6 +593,7 @@ var AgentForgeViewProvider = class {
     this.context = context;
     this.repo = repo;
     this.channel = channel;
+    this.skills = new SkillService({ store: repo, history: repo.getHistoryStore() });
   }
   static {
     this.viewType = "agentforge.view";
@@ -223,21 +658,35 @@ var AgentForgeViewProvider = class {
       }
       case "skills.create": {
         const payload = msg.payload;
-        return this.repo.createSkill(payload.skill);
+        const { skill } = await this.skills.create(payload.skill);
+        return skill;
       }
       case "skills.update": {
         const payload = msg.payload;
         const rec = payload.skill;
-        return this.repo.updateSkill(rec.id, payload.skill);
+        const { skill } = await this.skills.update(rec.id, payload.skill);
+        return skill;
       }
       case "skills.duplicate": {
         const payload = msg.payload;
-        return this.repo.duplicateSkill(payload.id);
+        return this.skills.duplicate(payload.id);
       }
       case "skills.delete": {
         const payload = msg.payload;
-        await this.repo.deleteSkill(payload.id);
+        await this.skills.remove(payload.id);
         return { ok: true };
+      }
+      case "skills.validate": {
+        const payload = msg.payload;
+        return this.skills.validate(payload.skill, payload.id);
+      }
+      case "skills.history": {
+        const payload = msg.payload;
+        return this.repo.getHistory(payload.id);
+      }
+      case "skills.diff": {
+        const payload = msg.payload;
+        return this.skills.diff(payload.id, payload.skill);
       }
       case "agents.list":
         return this.repo.listAgents();
@@ -848,8 +1297,70 @@ var sampleIntegrations = [
   }
 ];
 
+// src/storage/migrations.ts
+var CURRENT_SCHEMA_VERSION = 2;
+var MIGRATIONS = [
+  {
+    from: 1,
+    to: 2,
+    migrate(state) {
+      const v1 = state;
+      const v2 = {
+        ...v1,
+        schemaVersion: 2,
+        history: v1.skills.map((s) => ({
+          id: s.id,
+          currentVersion: s.version,
+          entries: [
+            {
+              version: s.version,
+              timestamp: s.updatedAt,
+              summary: `Imported from schema v1`,
+              snapshot: s
+            }
+          ]
+        }))
+      };
+      return v2;
+    }
+  }
+];
+function migrateToCurrent(raw) {
+  if (!raw || typeof raw !== "object") {
+    return freshState();
+  }
+  let state = raw;
+  if (typeof state.schemaVersion !== "number") {
+    return freshState();
+  }
+  let current = state.schemaVersion;
+  if (current > CURRENT_SCHEMA_VERSION) {
+    return freshState();
+  }
+  while (current < CURRENT_SCHEMA_VERSION) {
+    const migration = MIGRATIONS.find((m) => m.from === current);
+    if (!migration) {
+      return freshState();
+    }
+    state = migration.migrate(state);
+    current = state.schemaVersion;
+  }
+  return state;
+}
+function freshState() {
+  return {
+    schemaVersion: CURRENT_SCHEMA_VERSION,
+    settings: { ...DEFAULT_SETTINGS },
+    skills: [],
+    agents: [],
+    workflows: [],
+    executions: [],
+    history: []
+  };
+}
+
 // src/storage/settingsDefaults.ts
-var STORAGE_SCHEMA_VERSION = 1;
+var STORAGE_SCHEMA_VERSION = CURRENT_SCHEMA_VERSION;
 var DEFAULT_SETTINGS = {
   schemaVersion: STORAGE_SCHEMA_VERSION,
   theme: "light",
@@ -859,33 +1370,107 @@ var DEFAULT_SETTINGS = {
   recentRoute: "dashboard"
 };
 
+// src/storage/safeStorage.ts
+var fs = __toESM(require("fs"));
+var path = __toESM(require("path"));
+var os = __toESM(require("os"));
+var diskBackend = {
+  async writeAtomic(filePath, contents) {
+    const dir = path.dirname(filePath);
+    await fs.promises.mkdir(dir, { recursive: true });
+    const tmp = path.join(dir, `.${path.basename(filePath)}.${process.pid}.${Date.now()}.tmp`);
+    try {
+      await fs.promises.writeFile(tmp, contents, { encoding: "utf8" });
+      if (os.platform() === "win32") {
+        try {
+          await fs.promises.unlink(filePath).catch(() => void 0);
+        } catch {
+        }
+      }
+      await fs.promises.rename(tmp, filePath);
+    } catch (err) {
+      await fs.promises.unlink(tmp).catch(() => void 0);
+      throw err;
+    }
+  }
+};
+function createSafeStorage(backend = diskBackend) {
+  return backend;
+}
+var safeStorage = createSafeStorage();
+function serializeJson(value) {
+  return JSON.stringify(value, null, 2);
+}
+
 // src/storage/LocalRepository.ts
+var STORAGE_KEY = "agentforge.state";
 var LocalRepository = class {
   constructor(context) {
     this.context = context;
     this.state = this.load();
+    this.history = createHistoryStore();
+    for (const h of this.state.history) {
+      for (const entry of h.entries) {
+        this.history.record(entry.snapshot, entry.summary);
+      }
+    }
   }
   load() {
-    const raw = this.context.globalState.get("agentforge.state");
-    if (raw && raw.schemaVersion === STORAGE_SCHEMA_VERSION && raw.settings) {
-      return raw;
+    const raw = this.context.globalState.get(STORAGE_KEY);
+    const migrated = migrateToCurrent(raw);
+    if (raw && raw.schemaVersion === CURRENT_SCHEMA_VERSION) {
+      return { ...migrated };
     }
-    const fresh = {
-      schemaVersion: STORAGE_SCHEMA_VERSION,
+    const seeded = {
+      schemaVersion: CURRENT_SCHEMA_VERSION,
       settings: { ...DEFAULT_SETTINGS },
       skills: [...sampleSkills],
       agents: [...sampleAgents],
       workflows: [...sampleWorkflows],
-      executions: [...sampleExecutions]
+      executions: [...sampleExecutions],
+      history: migrated.history
     };
-    this.context.globalState.update("agentforge.state", fresh);
-    return fresh;
+    this.context.globalState.update(STORAGE_KEY, seeded);
+    return seeded;
   }
   persist() {
-    this.context.globalState.update("agentforge.state", this.state);
+    const snapshot = {
+      ...this.state,
+      history: this.history.list().map((h) => ({
+        id: h.id,
+        currentVersion: h.currentVersion,
+        entries: h.entries.map((e) => ({ ...e, snapshot: e.snapshot }))
+      }))
+    };
+    this.state = snapshot;
+    this.context.globalState.update(STORAGE_KEY, snapshot);
+  }
+  async writeBackupFile(filePath) {
+    const payload = serializeJson({
+      schemaVersion: this.state.schemaVersion,
+      exportedAt: (/* @__PURE__ */ new Date()).toISOString(),
+      skills: this.state.skills,
+      history: this.history.list()
+    });
+    await safeStorage.writeAtomic(filePath, payload);
+  }
+  async list() {
+    return [...this.state.skills];
+  }
+  async summaries() {
+    return this.state.skills.map((s) => ({
+      id: s.id,
+      name: s.name,
+      status: s.status,
+      version: s.version,
+      updatedAt: s.updatedAt
+    }));
   }
   async listSkills() {
-    return [...this.state.skills];
+    return this.list();
+  }
+  async get(id) {
+    return this.getSkill(id);
   }
   async getSkill(id) {
     return this.state.skills.find((s) => s.id === id);
@@ -912,7 +1497,7 @@ var LocalRepository = class {
       otherTargets: input.otherTargets ?? [],
       requiredTools: input.requiredTools ?? [],
       permissions: input.permissions ?? [],
-      changelog: input.changelog ?? "",
+      changelog: input.changelog ?? appendChangelog("", input.version ?? "0.1.0", "Initial version"),
       requirements: input.requirements ?? "",
       status: this.sanitizeStatus(input.status),
       installationState: "not-installed",
@@ -920,6 +1505,7 @@ var LocalRepository = class {
       updatedAt: now
     };
     this.state.skills = [skill, ...this.state.skills];
+    this.history.record(skill, `Created ${skill.version}`);
     this.persist();
     return skill;
   }
@@ -928,6 +1514,8 @@ var LocalRepository = class {
     if (!existing) {
       throw new Error(`Skill not found: ${id}`);
     }
+    const newVersion = patch.version ?? existing.version;
+    const versionChanged = newVersion !== existing.version;
     const updated = {
       ...existing,
       ...patch,
@@ -945,7 +1533,11 @@ var LocalRepository = class {
       createdAt: existing.createdAt,
       updatedAt: (/* @__PURE__ */ new Date()).toISOString()
     };
+    if (versionChanged) {
+      updated.changelog = appendChangelog(updated.changelog, newVersion, `Updated ${(/* @__PURE__ */ new Date()).toISOString().slice(0, 10)}`);
+    }
     this.state.skills = this.state.skills.map((s) => s.id === id ? updated : s);
+    this.history.record(updated, versionChanged ? `Version ${newVersion}` : `Saved edit`);
     this.persist();
     return updated;
   }
@@ -963,11 +1555,12 @@ var LocalRepository = class {
       installationState: "not-installed",
       resources: existing.resources.map((r, i) => ({ ...r, id: `${r.id}-copy-${i + 1}` })),
       frontmatter: "",
-      changelog: existing.changelog ? existing.changelog + "\n- Duplicated from original skill" : "",
+      changelog: appendChangelog(existing.changelog, existing.version, "Duplicated from original skill"),
       createdAt: now,
       updatedAt: now
     };
     this.state.skills = [copy, ...this.state.skills];
+    this.history.record(copy, `Duplicated from ${existing.id}`);
     this.persist();
     return copy;
   }
@@ -977,7 +1570,17 @@ var LocalRepository = class {
     if (this.state.skills.length === before) {
       throw new Error(`Skill not found: ${id}`);
     }
+    this.history.remove(id);
     this.persist();
+  }
+  getHistory(id) {
+    return this.history.get(id);
+  }
+  listHistory() {
+    return this.history.list();
+  }
+  getHistoryStore() {
+    return this.history;
   }
   sanitizeStatus(value) {
     return value === "Ready" || value === "Deprecated" ? value : "Draft";
@@ -1013,7 +1616,7 @@ var LocalRepository = class {
     return { ...this.state.settings };
   }
   async updateSettings(patch) {
-    this.state.settings = { ...this.state.settings, ...patch, schemaVersion: STORAGE_SCHEMA_VERSION };
+    this.state.settings = { ...this.state.settings, ...patch, schemaVersion: CURRENT_SCHEMA_VERSION };
     this.persist();
     return { ...this.state.settings };
   }
@@ -1074,14 +1677,16 @@ var LocalRepository = class {
     return new Set(this.state.skills.map((s) => s.category)).size + this.state.workflows.length;
   }
   async resetDemoData() {
+    const fresh = freshState();
     this.state = {
-      schemaVersion: STORAGE_SCHEMA_VERSION,
+      ...fresh,
       settings: { ...DEFAULT_SETTINGS },
       skills: [...sampleSkills],
       agents: [...sampleAgents],
       workflows: [...sampleWorkflows],
       executions: [...sampleExecutions]
     };
+    this.history = createHistoryStore();
     this.persist();
   }
   getSettingsSync() {

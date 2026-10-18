@@ -3,10 +3,12 @@ import { Skill, SkillStatus, PlatformCompatibility } from "../domain/skills/type
 import { Agent } from "../domain/agents/types";
 import { Workflow } from "../domain/workflows/types";
 import { ExecutionRecord } from "../domain/executions/types";
-import { AppSettings, DashboardData, ActivityEntry } from "../services/interfaces";
+import { AppSettings, DashboardData, ActivityEntry, ISkillsStore, SkillSummary } from "../services/interfaces";
 import { sampleSkills, sampleAgents, sampleWorkflows, sampleExecutions, sampleIntegrations } from "./sampleData";
-
-import { DEFAULT_SETTINGS, STORAGE_SCHEMA_VERSION } from "./settingsDefaults";
+import { DEFAULT_SETTINGS } from "./settingsDefaults";
+import { migrateToCurrent, PersistedStateV2, CURRENT_SCHEMA_VERSION, freshState } from "./migrations";
+import { safeStorage, serializeJson } from "./safeStorage";
+import { HistoryStore, createHistoryStore, appendChangelog } from "../skills/SkillHistory";
 
 export interface PersistedState {
   schemaVersion: number;
@@ -15,38 +17,87 @@ export interface PersistedState {
   agents: Agent[];
   workflows: Workflow[];
   executions: ExecutionRecord[];
+  history: PersistedStateV2["history"];
 }
 
-export class LocalRepository {
+const STORAGE_KEY = "agentforge.state";
+
+export class LocalRepository implements ISkillsStore {
   private state: PersistedState;
+  private history: HistoryStore;
 
   constructor(private context: vscode.ExtensionContext) {
     this.state = this.load();
+    this.history = createHistoryStore();
+    for (const h of this.state.history) {
+      for (const entry of h.entries) {
+        this.history.record(entry.snapshot, entry.summary);
+      }
+    }
   }
 
   private load(): PersistedState {
-    const raw = this.context.globalState.get<PersistedState>("agentforge.state");
-    if (raw && raw.schemaVersion === STORAGE_SCHEMA_VERSION && raw.settings) {
-      return raw;
+    const raw = this.context.globalState.get<unknown>(STORAGE_KEY);
+    const migrated = migrateToCurrent(raw);
+    if (raw && (raw as { schemaVersion?: number }).schemaVersion === CURRENT_SCHEMA_VERSION) {
+      return { ...migrated };
     }
-    const fresh: PersistedState = {
-      schemaVersion: STORAGE_SCHEMA_VERSION,
+    const seeded: PersistedState = {
+      schemaVersion: CURRENT_SCHEMA_VERSION,
       settings: { ...DEFAULT_SETTINGS },
       skills: [...sampleSkills],
       agents: [...sampleAgents],
       workflows: [...sampleWorkflows],
       executions: [...sampleExecutions],
+      history: migrated.history,
     };
-    this.context.globalState.update("agentforge.state", fresh);
-    return fresh;
+    this.context.globalState.update(STORAGE_KEY, seeded);
+    return seeded;
   }
 
   private persist(): void {
-    this.context.globalState.update("agentforge.state", this.state);
+    const snapshot: PersistedState = {
+      ...this.state,
+      history: this.history.list().map((h) => ({
+        id: h.id,
+        currentVersion: h.currentVersion,
+        entries: h.entries.map((e) => ({ ...e, snapshot: e.snapshot })),
+      })),
+    };
+    this.state = snapshot;
+    this.context.globalState.update(STORAGE_KEY, snapshot);
+  }
+
+  async writeBackupFile(filePath: string): Promise<void> {
+    const payload = serializeJson({
+      schemaVersion: this.state.schemaVersion,
+      exportedAt: new Date().toISOString(),
+      skills: this.state.skills,
+      history: this.history.list(),
+    });
+    await safeStorage.writeAtomic(filePath, payload);
+  }
+
+  async list(): Promise<Skill[]> {
+    return [...this.state.skills];
+  }
+
+  async summaries(): Promise<SkillSummary[]> {
+    return this.state.skills.map((s) => ({
+      id: s.id,
+      name: s.name,
+      status: s.status,
+      version: s.version,
+      updatedAt: s.updatedAt,
+    }));
   }
 
   async listSkills(): Promise<Skill[]> {
-    return [...this.state.skills];
+    return this.list();
+  }
+
+  async get(id: string): Promise<Skill | undefined> {
+    return this.getSkill(id);
   }
 
   async getSkill(id: string): Promise<Skill | undefined> {
@@ -55,8 +106,7 @@ export class LocalRepository {
 
   async createSkill(input: Partial<Skill>): Promise<Skill> {
     const now = new Date().toISOString();
-    const requestedId =
-      typeof input.id === "string" && input.id.trim() ? input.id.trim() : undefined;
+    const requestedId = typeof input.id === "string" && input.id.trim() ? input.id.trim() : undefined;
     const id = requestedId ?? this.uniqueSkillId(input.name ?? "skill");
     if (this.state.skills.some((s) => s.id === id)) {
       throw new Error(`A skill with id "${id}" already exists.`);
@@ -76,7 +126,7 @@ export class LocalRepository {
       otherTargets: input.otherTargets ?? [],
       requiredTools: input.requiredTools ?? [],
       permissions: input.permissions ?? [],
-      changelog: input.changelog ?? "",
+      changelog: input.changelog ?? appendChangelog("", input.version ?? "0.1.0", "Initial version"),
       requirements: input.requirements ?? "",
       status: this.sanitizeStatus(input.status),
       installationState: "not-installed",
@@ -84,6 +134,7 @@ export class LocalRepository {
       updatedAt: now,
     };
     this.state.skills = [skill, ...this.state.skills];
+    this.history.record(skill, `Created ${skill.version}`);
     this.persist();
     return skill;
   }
@@ -93,6 +144,8 @@ export class LocalRepository {
     if (!existing) {
       throw new Error(`Skill not found: ${id}`);
     }
+    const newVersion = patch.version ?? existing.version;
+    const versionChanged = newVersion !== existing.version;
     const updated: Skill = {
       ...existing,
       ...patch,
@@ -110,7 +163,11 @@ export class LocalRepository {
       createdAt: existing.createdAt,
       updatedAt: new Date().toISOString(),
     };
+    if (versionChanged) {
+      updated.changelog = appendChangelog(updated.changelog, newVersion, `Updated ${new Date().toISOString().slice(0, 10)}`);
+    }
     this.state.skills = this.state.skills.map((s) => (s.id === id ? updated : s));
+    this.history.record(updated, versionChanged ? `Version ${newVersion}` : `Saved edit`);
     this.persist();
     return updated;
   }
@@ -129,11 +186,12 @@ export class LocalRepository {
       installationState: "not-installed",
       resources: existing.resources.map((r, i) => ({ ...r, id: `${r.id}-copy-${i + 1}` })),
       frontmatter: "",
-      changelog: existing.changelog ? existing.changelog + "\n- Duplicated from original skill" : "",
+      changelog: appendChangelog(existing.changelog, existing.version, "Duplicated from original skill"),
       createdAt: now,
       updatedAt: now,
     };
     this.state.skills = [copy, ...this.state.skills];
+    this.history.record(copy, `Duplicated from ${existing.id}`);
     this.persist();
     return copy;
   }
@@ -144,7 +202,20 @@ export class LocalRepository {
     if (this.state.skills.length === before) {
       throw new Error(`Skill not found: ${id}`);
     }
+    this.history.remove(id);
     this.persist();
+  }
+
+  getHistory(id: string) {
+    return this.history.get(id);
+  }
+
+  listHistory() {
+    return this.history.list();
+  }
+
+  getHistoryStore(): HistoryStore {
+    return this.history;
   }
 
   private sanitizeStatus(value: unknown): SkillStatus {
@@ -187,7 +258,7 @@ export class LocalRepository {
   }
 
   async updateSettings(patch: Partial<AppSettings>): Promise<AppSettings> {
-    this.state.settings = { ...this.state.settings, ...patch, schemaVersion: STORAGE_SCHEMA_VERSION };
+    this.state.settings = { ...this.state.settings, ...patch, schemaVersion: CURRENT_SCHEMA_VERSION };
     this.persist();
     return { ...this.state.settings };
   }
@@ -263,14 +334,16 @@ export class LocalRepository {
   }
 
   async resetDemoData(): Promise<void> {
+    const fresh = freshState();
     this.state = {
-      schemaVersion: STORAGE_SCHEMA_VERSION,
+      ...fresh,
       settings: { ...DEFAULT_SETTINGS },
       skills: [...sampleSkills],
       agents: [...sampleAgents],
       workflows: [...sampleWorkflows],
       executions: [...sampleExecutions],
     };
+    this.history = createHistoryStore();
     this.persist();
   }
 

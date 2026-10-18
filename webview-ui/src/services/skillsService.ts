@@ -1,6 +1,7 @@
 import { sendRequest, hasVsCodeApi } from "./vscodeApi";
 import { demoSkillsStore } from "../data/demoData";
 import type { Skill } from "../types";
+import type { ValidationReport } from "../components/validationTypes";
 
 export type SkillSortKey = "name" | "updatedAt" | "version" | "category";
 
@@ -19,6 +20,7 @@ export interface SkillsStore {
   update(id: string, patch: Partial<Skill>): Promise<Skill>;
   duplicate(id: string): Promise<Skill>;
   remove(id: string): Promise<void>;
+  validate(input: Partial<Skill>, id?: string): Promise<ValidationReport>;
 }
 
 function requireSkill(skill: unknown, context: string): Skill {
@@ -54,6 +56,9 @@ const hostStore: SkillsStore = {
   async remove(id) {
     await sendRequest("skills.delete", { id });
   },
+  async validate(input, id) {
+    return sendRequest<ValidationReport>("skills.validate", { skill: input, id });
+  },
 };
 
 const browserStore: SkillsStore = {
@@ -76,6 +81,9 @@ const browserStore: SkillsStore = {
   },
   async remove(id) {
     demoSkillsStore.remove(id);
+  },
+  async validate() {
+    return { valid: true, errors: [], warnings: [], suggestions: [] };
   },
 };
 

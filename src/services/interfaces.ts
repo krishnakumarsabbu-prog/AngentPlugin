@@ -1,4 +1,5 @@
 import { Skill, SkillSummary } from "../domain/skills/types";
+export type { SkillSummary } from "../domain/skills/types";
 import { Agent, AgentSummary } from "../domain/agents/types";
 import { Workflow, WorkflowSummary } from "../domain/workflows/types";
 import { ExecutionRecord } from "../domain/executions/types";
@@ -57,10 +58,11 @@ export interface IRepository<TSummary, TEntity> {
 }
 
 export interface ISkillsStore extends IRepository<SkillSummary, Skill> {
-  create(input: Partial<Skill>): Promise<Skill>;
-  update(id: string, patch: Partial<Skill>): Promise<Skill>;
-  duplicate(id: string): Promise<Skill>;
-  remove(id: string): Promise<void>;
+  createSkill(input: Partial<Skill>): Promise<Skill>;
+  updateSkill(id: string, patch: Partial<Skill>): Promise<Skill>;
+  duplicateSkill(id: string): Promise<Skill>;
+  deleteSkill(id: string): Promise<void>;
+  getSkill(id: string): Promise<Skill | undefined>;
 }
 
 export type SkillsRepository = ISkillsStore;

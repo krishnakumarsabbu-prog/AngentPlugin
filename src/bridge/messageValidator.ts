@@ -1,4 +1,4 @@
-import { BaseMessage, isBaseMessage, MessageType, NavigatePayload, SettingsUpdatePayload, IdPayload, SkillWritePayload } from "./messages";
+import { BaseMessage, isBaseMessage, MessageType, NavigatePayload, SettingsUpdatePayload, IdPayload, SkillWritePayload, SkillValidatePayload, SkillDiffPayload } from "./messages";
 
 export type ValidationResult =
   | { ok: true; message: BaseMessage }
@@ -30,7 +30,8 @@ export function validatePayload(type: MessageType, payload: unknown): string | n
       return null;
     case "skills.get":
     case "skills.duplicate":
-    case "skills.delete": {
+    case "skills.delete":
+    case "skills.history": {
       const p = payload as IdPayload | undefined;
       if (!p || typeof p.id !== "string" || p.id.length === 0 || p.id.length > 128) {
         return "Invalid skill id";
@@ -48,6 +49,26 @@ export function validatePayload(type: MessageType, payload: unknown): string | n
         if (typeof rec.id !== "string" || rec.id.length === 0 || rec.id.length > 128) {
           return "Invalid skill id";
         }
+      }
+      return null;
+    }
+    case "skills.validate": {
+      const p = payload as SkillValidatePayload | undefined;
+      if (!p || typeof p.skill !== "object" || p.skill === null) {
+        return "Invalid skill payload";
+      }
+      if (p.id !== undefined && (typeof p.id !== "string" || p.id.length === 0 || p.id.length > 128)) {
+        return "Invalid skill id";
+      }
+      return null;
+    }
+    case "skills.diff": {
+      const p = payload as SkillDiffPayload | undefined;
+      if (!p || typeof p.id !== "string" || p.id.length === 0 || p.id.length > 128) {
+        return "Invalid skill id";
+      }
+      if (!p || typeof p.skill !== "object" || p.skill === null) {
+        return "Invalid skill payload";
       }
       return null;
     }

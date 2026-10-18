@@ -8,6 +8,9 @@ export type MessageType =
   | "skills.update"
   | "skills.duplicate"
   | "skills.delete"
+  | "skills.validate"
+  | "skills.history"
+  | "skills.diff"
   | "agents.list"
   | "workflows.list"
   | "executions.list"
@@ -50,6 +53,16 @@ export interface SkillWritePayload {
   skill: Record<string, unknown>;
 }
 
+export interface SkillValidatePayload {
+  skill: Record<string, unknown>;
+  id?: string;
+}
+
+export interface SkillDiffPayload {
+  id: string;
+  skill: Record<string, unknown>;
+}
+
 export const REQUEST_TYPES: ReadonlyArray<MessageType> = [
   "app.ready",
   "app.getState",
@@ -60,6 +73,9 @@ export const REQUEST_TYPES: ReadonlyArray<MessageType> = [
   "skills.update",
   "skills.duplicate",
   "skills.delete",
+  "skills.validate",
+  "skills.history",
+  "skills.diff",
   "agents.list",
   "workflows.list",
   "executions.list",

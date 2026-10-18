@@ -11,6 +11,8 @@ import {
 } from "../../services/skillMd";
 import { renderMarkdown } from "../../services/markdown";
 import { getSkillsStore } from "../../services/skillsService";
+import { ValidationPanel } from "../../components/ValidationPanel";
+import type { ValidationFinding, ValidationReport } from "../../components/validationTypes";
 
 interface SkillFormPageProps {
   skillId: string | null;
@@ -117,6 +119,8 @@ export function SkillFormPage({ skillId, onNavigate, onSkillsChanged, onToast, o
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [validated, setValidated] = useState(false);
+  const [hostReport, setHostReport] = useState<ValidationReport | null>(null);
+  const [validating, setValidating] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [existingIds, setExistingIds] = useState<Set<string>>(new Set());
   const [confirmDiscard, setConfirmDiscard] = useState(false);
@@ -165,6 +169,9 @@ export function SkillFormPage({ skillId, onNavigate, onSkillsChanged, onToast, o
   }, [dirty, onDirtyChange]);
   const { errors, warnings } = useMemo(() => validateDraft(draft), [draft]);
   const issues = [...errors, ...warnings];
+  const hostFindings: ValidationFinding[] = hostReport
+    ? [...hostReport.errors, ...hostReport.warnings, ...hostReport.suggestions]
+    : [];
 
   const preview = useMemo(
     () => (showPreview ? buildSkillMarkdown(draftToSkill(draft)) : ""),
@@ -213,13 +220,23 @@ export function SkillFormPage({ skillId, onNavigate, onSkillsChanged, onToast, o
     }
     if (mode === "validate-only") {
       setValidated(true);
-      if (!hasBlockingErrors) {
-        onToast(
-          warnings.length > 0
-            ? "Validation passed with warnings."
-            : "Validation passed. Ready to save.",
-          warnings.length > 0 ? "error" : "success",
-        );
+      if (hasBlockingErrors) return;
+      setValidating(true);
+      try {
+        const report = await store.validate(draftToSkill(draft), isEdit && skillId ? skillId : undefined);
+        setHostReport(report);
+        if (report.valid && report.warnings.length === 0) {
+          onToast("Validation passed. Ready to save.", "success");
+        } else if (report.valid) {
+          onToast("Validation passed with warnings.", "error");
+        } else {
+          const count = report.errors.length;
+          onToast(`Validation found ${count} error${count === 1 ? "" : "s"}.`, "error");
+        }
+      } catch (e) {
+        onToast(e instanceof Error ? e.message : "Validation failed", "error");
+      } finally {
+        setValidating(false);
       }
       return;
     }
@@ -315,6 +332,10 @@ export function SkillFormPage({ skillId, onNavigate, onSkillsChanged, onToast, o
           </button>
         </div>
       </div>
+
+      {validated && (
+        <ValidationPanel findings={hostFindings} validated={validated} saving={validating} />
+      )}
 
       {validated && hasBlockingErrors && (
         <div className="card validation-banner error">
@@ -635,6 +656,3 @@ export function SkillFormPage({ skillId, onNavigate, onSkillsChanged, onToast, o
     </div>
   );
 }
-
-
-export { SkillFormPage }

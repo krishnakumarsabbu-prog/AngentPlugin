@@ -1,6 +1,7 @@
 import { AppSettings } from "../services/interfaces";
+import { CURRENT_SCHEMA_VERSION } from "./migrations";
 
-export const STORAGE_SCHEMA_VERSION = 1;
+export const STORAGE_SCHEMA_VERSION = CURRENT_SCHEMA_VERSION;
 
 export const DEFAULT_SETTINGS: AppSettings = {
   schemaVersion: STORAGE_SCHEMA_VERSION,

@@ -2,7 +2,8 @@ import * as vscode from "vscode";
 import { statSync } from "fs";
 import { LocalRepository } from "../storage/LocalRepository";
 import { validateIncomingMessage, makeResponse, unsupportedResponse } from "../bridge/messageValidator";
-import { BaseMessage, ResponseMessage, IdPayload, SkillWritePayload } from "../bridge/messages";
+import { BaseMessage, ResponseMessage, IdPayload, SkillWritePayload, SkillValidatePayload, SkillDiffPayload } from "../bridge/messages";
+import { SkillService } from "../skills/SkillService";
 
 const APP_VERSION = "0.1.0";
 
@@ -13,7 +14,11 @@ export class AgentForgeViewProvider implements vscode.WebviewViewProvider {
     private readonly context: vscode.ExtensionContext,
     private readonly repo: LocalRepository,
     private readonly channel: vscode.OutputChannel,
-  ) {}
+  ) {
+    this.skills = new SkillService({ store: repo, history: repo.getHistoryStore() });
+  }
+
+  private readonly skills: SkillService;
 
   public resolveWebviewView(webviewView: vscode.WebviewView): void {
     webviewView.webview.options = {
@@ -80,21 +85,35 @@ export class AgentForgeViewProvider implements vscode.WebviewViewProvider {
       }
       case "skills.create": {
         const payload = msg.payload as SkillWritePayload;
-        return this.repo.createSkill(payload.skill as Record<string, never>);
+        const { skill } = await this.skills.create(payload.skill as Record<string, unknown> as Partial<import("../domain/skills/types").Skill>);
+        return skill;
       }
       case "skills.update": {
         const payload = msg.payload as SkillWritePayload;
         const rec = payload.skill as { id: string };
-        return this.repo.updateSkill(rec.id, payload.skill as Record<string, never>);
+        const { skill } = await this.skills.update(rec.id, payload.skill as Record<string, unknown> as Partial<import("../domain/skills/types").Skill>);
+        return skill;
       }
       case "skills.duplicate": {
         const payload = msg.payload as IdPayload;
-        return this.repo.duplicateSkill(payload.id);
+        return this.skills.duplicate(payload.id);
       }
       case "skills.delete": {
         const payload = msg.payload as IdPayload;
-        await this.repo.deleteSkill(payload.id);
+        await this.skills.remove(payload.id);
         return { ok: true };
+      }
+      case "skills.validate": {
+        const payload = msg.payload as SkillValidatePayload;
+        return this.skills.validate(payload.skill as Partial<import("../domain/skills/types").Skill>, payload.id);
+      }
+      case "skills.history": {
+        const payload = msg.payload as IdPayload;
+        return this.repo.getHistory(payload.id);
+      }
+      case "skills.diff": {
+        const payload = msg.payload as SkillDiffPayload;
+        return this.skills.diff(payload.id, payload.skill as Partial<import("../domain/skills/types").Skill>);
       }
       case "agents.list":
         return this.repo.listAgents();

@@ -37,4 +37,29 @@ describe("messageValidator", () => {
     const result = validateIncomingMessage("not-a-message");
     expect(result.ok).toBe(false);
   });
+
+  it("accepts skills.validate with skill payload", () => {
+    const result = validateIncomingMessage({ type: "skills.validate", id: "r6", payload: { skill: { id: "x" } } });
+    expect(result.ok).toBe(true);
+  });
+
+  it("rejects skills.validate without a skill object", () => {
+    const result = validateIncomingMessage({ type: "skills.validate", id: "r7", payload: { skill: "nope" } });
+    expect(result.ok).toBe(false);
+  });
+
+  it("accepts skills.history with an id", () => {
+    const result = validateIncomingMessage({ type: "skills.history", id: "r8", payload: { id: "skill-a" } });
+    expect(result.ok).toBe(true);
+  });
+
+  it("accepts skills.diff with id and skill", () => {
+    const result = validateIncomingMessage({ type: "skills.diff", id: "r9", payload: { id: "skill-a", skill: { id: "skill-a" } } });
+    expect(result.ok).toBe(true);
+  });
+
+  it("rejects skills.diff with missing skill", () => {
+    const result = validateIncomingMessage({ type: "skills.diff", id: "r10", payload: { id: "skill-a" } });
+    expect(result.ok).toBe(false);
+  });
 });
