@@ -51,6 +51,7 @@ var REQUEST_TYPES = [
   "executions.list",
   "settings.get",
   "settings.update",
+  "app.resetDemoData",
   "app.navigate"
 ];
 function isMessageType(value) {
@@ -89,6 +90,7 @@ function validatePayload(type, payload) {
     case "workflows.list":
     case "executions.list":
     case "settings.get":
+    case "app.resetDemoData":
       return null;
     case "app.navigate": {
       const p = payload;
@@ -195,6 +197,9 @@ var AgentForgeViewProvider = class {
         const payload = msg.payload;
         return this.repo.updateSettings(payload.settings);
       }
+      case "app.resetDemoData":
+        await this.repo.resetDemoData();
+        return this.repo.getDashboardData();
       case "app.navigate": {
         const payload = msg.payload;
         return { ok: true, route: payload.route };

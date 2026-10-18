@@ -8,6 +8,7 @@ export type MessageType =
   | "executions.list"
   | "settings.get"
   | "settings.update"
+  | "app.resetDemoData"
   | "app.navigate";
 
 export interface BaseMessage {
@@ -46,6 +47,7 @@ export const REQUEST_TYPES: ReadonlyArray<MessageType> = [
   "executions.list",
   "settings.get",
   "settings.update",
+  "app.resetDemoData",
   "app.navigate",
 ];
 

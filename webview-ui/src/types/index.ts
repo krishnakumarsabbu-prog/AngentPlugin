@@ -109,6 +109,7 @@ export type MessageType =
   | "executions.list"
   | "settings.get"
   | "settings.update"
+  | "app.resetDemoData"
   | "app.navigate";
 
 export interface RequestMessage {

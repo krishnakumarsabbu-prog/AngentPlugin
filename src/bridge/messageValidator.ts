@@ -31,6 +31,7 @@ export function validatePayload(type: MessageType, payload: unknown): string | n
     case "workflows.list":
     case "executions.list":
     case "settings.get":
+    case "app.resetDemoData":
       return null;
     case "app.navigate": {
       const p = payload as NavigatePayload | undefined;

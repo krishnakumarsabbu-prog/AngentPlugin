@@ -1,4 +1,5 @@
 import { PanelLeftClose, PanelLeftOpen, RefreshCw } from "lucide-react";
+import { Breadcrumbs, type Crumb } from "./ui/Breadcrumbs";
 
 interface HeaderProps {
   title: string;
@@ -8,9 +9,11 @@ interface HeaderProps {
 }
 
 export function Header({ title, collapsed, onToggleCollapse, onRefresh }: HeaderProps) {
+  const crumbs: Crumb[] = [{ label: "AgentForge" }, { label: title }];
+
   return (
     <header className="header" role="banner">
-      <div className="header-left">
+      <div className="header-left" style={{ gap: 12 }}>
         <button
           className="collapse-btn"
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -19,7 +22,7 @@ export function Header({ title, collapsed, onToggleCollapse, onRefresh }: Header
         >
           {collapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
         </button>
-        <span className="header-title" title={title}>{title}</span>
+        <Breadcrumbs items={crumbs} />
       </div>
       <div className="header-right">
         {onRefresh && (

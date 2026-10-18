@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Sidebar } from "../components/Sidebar";
 import { Header } from "../components/Header";
 import { DashboardPage } from "../features/dashboard/DashboardPage";
+import { SettingsPage } from "../features/settings/SettingsPage";
 import { PlaceholderPage } from "../features/PlaceholderPage";
 import { findNavItem, ALL_NAV_ITEMS } from "../navigation/registry";
 
@@ -28,6 +29,8 @@ export function AppLayout({ route, onNavigate, dashboardData }: AppLayoutProps) 
         <main className="content">
           {item.id === "dashboard" ? (
             <DashboardPage data={dashboardData} onNavigate={onNavigate} />
+          ) : item.id === "settings" ? (
+            <SettingsPage />
           ) : (
             <PlaceholderPage item={item} />
           )}

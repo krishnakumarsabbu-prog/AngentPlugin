@@ -84,6 +84,9 @@ export class AgentForgeViewProvider implements vscode.WebviewViewProvider {
         const payload = msg.payload as { settings: Partial<Record<string, unknown>> };
         return this.repo.updateSettings(payload.settings as Record<string, unknown>);
       }
+      case "app.resetDemoData":
+        await this.repo.resetDemoData();
+        return this.repo.getDashboardData();
       case "app.navigate": {
         const payload = msg.payload as { route: string };
         return { ok: true, route: payload.route };
