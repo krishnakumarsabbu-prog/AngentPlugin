@@ -1,5 +1,22 @@
-import { useMemo } from "react";
-import { Sparkles, Bot, Workflow, CirclePlay as PlayCircle, CircleCheck as CheckCircle2, Circle as XCircle, Package, Activity, ArrowRight, Plus, Bot as BotIcon, Workflow as WorkflowIcon, Clock } from "lucide-react";
+import { useMemo, useState } from "react";
+import {
+  Sparkles,
+  Bot,
+  Workflow,
+  CirclePlay as PlayCircle,
+  CircleCheck as CheckCircle2,
+  Circle as XCircle,
+  Package,
+  Activity,
+  ArrowRight,
+  Plus,
+  Bot as BotIcon,
+  Workflow as WorkflowIcon,
+  Clock,
+  Search,
+  X,
+  PackagePlus,
+} from "lucide-react";
 import type { DashboardData } from "../../types";
 import { MetricCard } from "../../components/MetricCard";
 import { StatusBadge } from "../../components/StatusBadge";
@@ -21,10 +38,35 @@ function formatDate(iso: string): string {
   });
 }
 
+type ActivityFilter = "all" | "skill" | "agent" | "execution";
+
+const FILTERS: { id: ActivityFilter; label: string }[] = [
+  { id: "all", label: "All" },
+  { id: "skill", label: "Skills" },
+  { id: "agent", label: "Agents" },
+  { id: "execution", label: "Runs" },
+];
+
 export function DashboardPage({ data, onNavigate }: DashboardPageProps) {
   const metrics = data?.metrics;
+  const [activityFilter, setActivityFilter] = useState<ActivityFilter>("all");
+  const [search, setSearch] = useState("");
 
-  const recentActivity = useMemo(() => data?.recentActivity ?? [], [data]);
+  const filteredActivity = useMemo(() => {
+    const list = data?.recentActivity ?? [];
+    return activityFilter === "all" ? list : list.filter((a) => a.kind === activityFilter);
+  }, [data, activityFilter]);
+
+  const searchResults = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q || !data) return null;
+    return {
+      skills: data.recentSkills.filter((s) => s.name.toLowerCase().includes(q)),
+      agents: data.recentAgents.filter(
+        (a) => a.name.toLowerCase().includes(q) || a.role.toLowerCase().includes(q),
+      ),
+    };
+  }, [search, data]);
 
   if (!data || !metrics) {
     return (
@@ -54,6 +96,9 @@ export function DashboardPage({ data, onNavigate }: DashboardPageProps) {
           <button className="btn secondary" onClick={() => onNavigate("harness-pipeline")}>
             <WorkflowIcon size={14} /> Design Pipeline
           </button>
+          <button className="btn secondary" onClick={() => onNavigate("package-manager")}>
+            <PackagePlus size={14} /> Import Package
+          </button>
         </div>
       </div>
 
@@ -73,15 +118,55 @@ export function DashboardPage({ data, onNavigate }: DashboardPageProps) {
             <h2 className="card-title">Recent Activity</h2>
             <Activity size={14} style={{ color: "var(--text-secondary)" }} />
           </div>
-          {recentActivity.length === 0 ? (
-            <EmptyState title="No recent activity" text="Updates to skills, agents, and pipelines will appear here." />
+
+          <div className="activity-toolbar">
+            <div className="chip-row" role="group" aria-label="Filter activity by type">
+              {FILTERS.map((f) => (
+                <button
+                  key={f.id}
+                  type="button"
+                  className={`chip${activityFilter === f.id ? " active" : ""}`}
+                  onClick={() => setActivityFilter(f.id)}
+                  aria-pressed={activityFilter === f.id}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+            <div className="search-inline">
+              <Search size={13} />
+              <input
+                className="search-input"
+                placeholder="Search skills and agents…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                aria-label="Search skills and agents"
+              />
+              {search && (
+                <button className="toast-close" aria-label="Clear search" onClick={() => setSearch("")}>
+                  <X size={12} />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {filteredActivity.length === 0 ? (
+            <EmptyState
+              title="No matching activity"
+              text={activityFilter === "all"
+                ? "Updates to skills, agents, and pipelines will appear here."
+                : "Try a different filter."}
+            />
           ) : (
             <div className="section-list">
-              {recentActivity.map((a) => (
+              {filteredActivity.map((a) => (
                 <div className="list-row" key={a.id} onClick={() => onNavigate(kindToRoute(a.kind))}>
                   <div className="list-row-main">
                     <span className="list-row-title">{a.label}</span>
-                    <span className="list-row-sub"><Clock size={11} style={{ marginRight: 4, verticalAlign: "middle" }} />{formatDate(a.timestamp)}</span>
+                    <span className="list-row-sub">
+                      <Clock size={11} style={{ marginRight: 4, verticalAlign: "middle" }} />
+                      {formatDate(a.timestamp)}
+                    </span>
                   </div>
                   {a.status && <StatusBadge status={a.status} />}
                 </div>
@@ -89,6 +174,41 @@ export function DashboardPage({ data, onNavigate }: DashboardPageProps) {
             </div>
           )}
         </section>
+
+        {searchResults && (
+          <section className="card">
+            <div className="card-header">
+              <h2 className="card-title">Search Results</h2>
+              <span className="list-row-sub">
+                {searchResults.skills.length + searchResults.agents.length} matches
+              </span>
+            </div>
+            {searchResults.skills.length + searchResults.agents.length === 0 ? (
+              <EmptyState title="No matches" text={`Nothing found for "${search}".`} />
+            ) : (
+              <div className="section-list">
+                {searchResults.skills.map((s) => (
+                  <div className="list-row" key={s.id} onClick={() => onNavigate("skills-studio")}>
+                    <div className="list-row-main">
+                      <span className="list-row-title">{s.name}</span>
+                      <span className="list-row-sub">Skill · v{s.version}</span>
+                    </div>
+                    <StatusBadge status={s.status} />
+                  </div>
+                ))}
+                {searchResults.agents.map((a) => (
+                  <div className="list-row" key={a.id} onClick={() => onNavigate("agent-studio")}>
+                    <div className="list-row-main">
+                      <span className="list-row-title">{a.name}</span>
+                      <span className="list-row-sub">Agent · {a.role}</span>
+                    </div>
+                    <StatusBadge status={a.status} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
 
         <section className="card">
           <div className="card-header">
@@ -180,15 +300,19 @@ export function DashboardPage({ data, onNavigate }: DashboardPageProps) {
           </div>
           <div className="section-list">
             <div className="list-row" onClick={() => onNavigate("skills-studio")}>
-              <div className="list-row-main"><span className="list-row-title">Open Skills Studio</span></div>
+              <div className="list-row-main"><span className="list-row-title">Create Skill</span></div>
               <ArrowRight size={14} style={{ color: "var(--text-secondary)" }} />
             </div>
             <div className="list-row" onClick={() => onNavigate("agent-studio")}>
-              <div className="list-row-main"><span className="list-row-title">Open Agent Studio</span></div>
+              <div className="list-row-main"><span className="list-row-title">Create Agent</span></div>
               <ArrowRight size={14} style={{ color: "var(--text-secondary)" }} />
             </div>
             <div className="list-row" onClick={() => onNavigate("harness-pipeline")}>
-              <div className="list-row-main"><span className="list-row-title">Design a Pipeline</span></div>
+              <div className="list-row-main"><span className="list-row-title">Design Pipeline</span></div>
+              <ArrowRight size={14} style={{ color: "var(--text-secondary)" }} />
+            </div>
+            <div className="list-row" onClick={() => onNavigate("package-manager")}>
+              <div className="list-row-main"><span className="list-row-title">Import Package</span></div>
               <ArrowRight size={14} style={{ color: "var(--text-secondary)" }} />
             </div>
             <div className="list-row" onClick={() => onNavigate("settings")}>
@@ -216,3 +340,6 @@ function kindToRoute(kind: "skill" | "agent" | "workflow" | "execution" | "syste
     default: return "dashboard";
   }
 }
+
+
+export { DashboardPage }
