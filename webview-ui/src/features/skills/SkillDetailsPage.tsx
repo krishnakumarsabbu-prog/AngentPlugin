@@ -80,7 +80,6 @@ export function SkillDetailsPage({ skillId, onNavigate, onSkillsChanged, onToast
     return () => {
       active = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skillId]);
 
   const handleDelete = async () => {

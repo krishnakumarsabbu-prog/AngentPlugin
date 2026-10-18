@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Sparkles, Search, X, Plus, Pencil, Copy, Trash as Trash2, ArrowUpDown, ArrowUp, ArrowDown, PackageCheck, PackageOpen, RefreshCw } from "lucide-react";
+import { Sparkles, Search, X, Plus, Pencil, Copy, Trash as Trash2, ArrowUp, ArrowDown, PackageCheck, PackageOpen, RefreshCw } from "lucide-react";
 import type { Skill, PlatformCompatibility, InstallationState } from "../../types";
 import { EmptyState } from "../../components/EmptyState";import { StatusBadge } from "../../components/StatusBadge";
 import { ConfirmDialog } from "../../components/ui/Dialog";
@@ -125,8 +125,6 @@ export function SkillsStudioPage({
       }
     });
   }, [skills, search, categoryFilter, platformFilter, sortKey, sortDirection]);
-
-  const filtersActive = !!categoryFilter || !!platformFilter || search.trim().length > 0;
 
   const toggleSortDirection = () => {
     setSortDirection((d) => (d === "asc" ? "desc" : "asc"));

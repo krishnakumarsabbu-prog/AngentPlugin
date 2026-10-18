@@ -348,6 +348,13 @@ var sampleSkills = [
     version: "1.2.0",
     category: "Security",
     tags: ["security", "audit", "owasp"],
+    author: "AgentForge",
+    frontmatter: "",
+    otherTargets: [],
+    requiredTools: ["read_files"],
+    permissions: ["filesystem:read"],
+    changelog: "1.2.0 \u2014 Updated severity ranking.\n1.0.0 \u2014 Initial version.",
+    requirements: "",
     instructions: "Analyze source files for injection, auth flaws, and secret leakage. Produce a severity-ranked report.",
     resources: [
       { id: "res-audit-checklist", name: "owasp-checklist.md", kind: "reference", description: "OWASP Top 10 review checklist." },
@@ -366,6 +373,13 @@ var sampleSkills = [
     version: "0.9.4",
     category: "Review",
     tags: ["review", "quality"],
+    author: "AgentForge",
+    frontmatter: "",
+    otherTargets: [],
+    requiredTools: ["read_files"],
+    permissions: ["filesystem:read"],
+    changelog: "0.9.4 \u2014 Rubric refined.\n0.9.0 \u2014 Initial version.",
+    requirements: "",
     instructions: "Review diffs for readability, complexity, and naming. Suggest non-blocking improvements.",
     resources: [
       { id: "res-review-rubric", name: "review-rubric.md", kind: "reference", description: "Scoring rubric for structural review." }
@@ -383,6 +397,13 @@ var sampleSkills = [
     version: "0.4.1",
     category: "Optimization",
     tags: ["tokens", "cost"],
+    author: "AgentForge",
+    frontmatter: "",
+    otherTargets: [],
+    requiredTools: ["read_files"],
+    permissions: ["filesystem:read"],
+    changelog: "0.4.1 \u2014 Benchmarks refreshed.",
+    requirements: "",
     instructions: "Compress prompts while preserving intent. Report estimated token savings.",
     resources: [
       { id: "res-token-baseline", name: "baseline-prompts.md", kind: "template", description: "Baseline prompts used for compression benchmarks." }
@@ -400,6 +421,13 @@ var sampleSkills = [
     version: "1.0.0",
     category: "Testing",
     tags: ["testing", "unit"],
+    author: "AgentForge",
+    frontmatter: "",
+    otherTargets: [],
+    requiredTools: ["read_files", "run_tests"],
+    permissions: ["filesystem:read", "filesystem:write"],
+    changelog: "1.0.0 \u2014 Initial version.",
+    requirements: "",
     instructions: "Generate focused unit tests covering public APIs and edge cases.",
     resources: [
       { id: "res-test-conventions", name: "test-conventions.md", kind: "reference", description: "Project test naming and layout conventions." },
@@ -418,6 +446,13 @@ var sampleSkills = [
     version: "0.6.2",
     category: "Architecture",
     tags: ["architecture", "coupling"],
+    author: "AgentForge",
+    frontmatter: "",
+    otherTargets: [],
+    requiredTools: ["read_files"],
+    permissions: ["filesystem:read"],
+    changelog: "0.6.2 \u2014 Graph script hardened.",
+    requirements: "Graphviz (optional)",
     instructions: "Build a dependency graph and flag circular dependencies and layer violations.",
     resources: [
       { id: "res-arch-layer-map", name: "layer-map.md", kind: "reference", description: "Expected layering rules between modules." },
@@ -857,16 +892,28 @@ var LocalRepository = class {
   }
   async createSkill(input) {
     const now = (/* @__PURE__ */ new Date()).toISOString();
+    const requestedId = typeof input.id === "string" && input.id.trim() ? input.id.trim() : void 0;
+    const id = requestedId ?? this.uniqueSkillId(input.name ?? "skill");
+    if (this.state.skills.some((s) => s.id === id)) {
+      throw new Error(`A skill with id "${id}" already exists.`);
+    }
     const skill = {
-      id: this.uniqueSkillId(input.name ?? "skill"),
+      id,
       name: input.name?.trim() || "Untitled Skill",
       description: input.description ?? "",
       version: input.version ?? "0.1.0",
+      author: input.author ?? "",
       category: input.category ?? "General",
       tags: input.tags ?? [],
       instructions: input.instructions ?? "",
+      frontmatter: input.frontmatter ?? "",
       resources: input.resources ?? [],
       compatibility: this.sanitizeCompatibility(input.compatibility),
+      otherTargets: input.otherTargets ?? [],
+      requiredTools: input.requiredTools ?? [],
+      permissions: input.permissions ?? [],
+      changelog: input.changelog ?? "",
+      requirements: input.requirements ?? "",
       status: this.sanitizeStatus(input.status),
       installationState: "not-installed",
       createdAt: now,
@@ -885,6 +932,13 @@ var LocalRepository = class {
       ...existing,
       ...patch,
       id: existing.id,
+      author: patch.author ?? existing.author,
+      frontmatter: patch.frontmatter ?? existing.frontmatter,
+      otherTargets: patch.otherTargets ?? existing.otherTargets,
+      requiredTools: patch.requiredTools ?? existing.requiredTools,
+      permissions: patch.permissions ?? existing.permissions,
+      changelog: patch.changelog ?? existing.changelog,
+      requirements: patch.requirements ?? existing.requirements,
       compatibility: this.sanitizeCompatibility(patch.compatibility ?? existing.compatibility),
       status: this.sanitizeStatus(patch.status ?? existing.status),
       installationState: existing.installationState,
@@ -908,6 +962,8 @@ var LocalRepository = class {
       status: "Draft",
       installationState: "not-installed",
       resources: existing.resources.map((r, i) => ({ ...r, id: `${r.id}-copy-${i + 1}` })),
+      frontmatter: "",
+      changelog: existing.changelog ? existing.changelog + "\n- Duplicated from original skill" : "",
       createdAt: now,
       updatedAt: now
     };

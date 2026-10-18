@@ -1,4 +1,4 @@
-import { Skill, SkillResource } from "../domain/skills/types";
+import { Skill } from "../domain/skills/types";
 import { Agent } from "../domain/agents/types";
 import { Workflow, WorkflowNode, WorkflowEdge } from "../domain/workflows/types";
 import { ExecutionRecord } from "../domain/executions/types";
@@ -14,6 +14,13 @@ export const sampleSkills: Skill[] = [
     version: "1.2.0",
     category: "Security",
     tags: ["security", "audit", "owasp"],
+    author: "AgentForge",
+    frontmatter: "",
+    otherTargets: [],
+    requiredTools: ["read_files"],
+    permissions: ["filesystem:read"],
+    changelog: "1.2.0 — Updated severity ranking.\n1.0.0 — Initial version.",
+    requirements: "",
     instructions: "Analyze source files for injection, auth flaws, and secret leakage. Produce a severity-ranked report.",
     resources: [
       { id: "res-audit-checklist", name: "owasp-checklist.md", kind: "reference", description: "OWASP Top 10 review checklist." },
@@ -32,6 +39,13 @@ export const sampleSkills: Skill[] = [
     version: "0.9.4",
     category: "Review",
     tags: ["review", "quality"],
+    author: "AgentForge",
+    frontmatter: "",
+    otherTargets: [],
+    requiredTools: ["read_files"],
+    permissions: ["filesystem:read"],
+    changelog: "0.9.4 — Rubric refined.\n0.9.0 — Initial version.",
+    requirements: "",
     instructions: "Review diffs for readability, complexity, and naming. Suggest non-blocking improvements.",
     resources: [
       { id: "res-review-rubric", name: "review-rubric.md", kind: "reference", description: "Scoring rubric for structural review." },
@@ -49,6 +63,13 @@ export const sampleSkills: Skill[] = [
     version: "0.4.1",
     category: "Optimization",
     tags: ["tokens", "cost"],
+    author: "AgentForge",
+    frontmatter: "",
+    otherTargets: [],
+    requiredTools: ["read_files"],
+    permissions: ["filesystem:read"],
+    changelog: "0.4.1 — Benchmarks refreshed.",
+    requirements: "",
     instructions: "Compress prompts while preserving intent. Report estimated token savings.",
     resources: [
       { id: "res-token-baseline", name: "baseline-prompts.md", kind: "template", description: "Baseline prompts used for compression benchmarks." },
@@ -66,6 +87,13 @@ export const sampleSkills: Skill[] = [
     version: "1.0.0",
     category: "Testing",
     tags: ["testing", "unit"],
+    author: "AgentForge",
+    frontmatter: "",
+    otherTargets: [],
+    requiredTools: ["read_files", "run_tests"],
+    permissions: ["filesystem:read", "filesystem:write"],
+    changelog: "1.0.0 — Initial version.",
+    requirements: "",
     instructions: "Generate focused unit tests covering public APIs and edge cases.",
     resources: [
       { id: "res-test-conventions", name: "test-conventions.md", kind: "reference", description: "Project test naming and layout conventions." },
@@ -84,6 +112,13 @@ export const sampleSkills: Skill[] = [
     version: "0.6.2",
     category: "Architecture",
     tags: ["architecture", "coupling"],
+    author: "AgentForge",
+    frontmatter: "",
+    otherTargets: [],
+    requiredTools: ["read_files"],
+    permissions: ["filesystem:read"],
+    changelog: "0.6.2 — Graph script hardened.",
+    requirements: "Graphviz (optional)",
     instructions: "Build a dependency graph and flag circular dependencies and layer violations.",
     resources: [
       { id: "res-arch-layer-map", name: "layer-map.md", kind: "reference", description: "Expected layering rules between modules." },

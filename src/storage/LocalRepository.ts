@@ -55,16 +55,29 @@ export class LocalRepository {
 
   async createSkill(input: Partial<Skill>): Promise<Skill> {
     const now = new Date().toISOString();
+    const requestedId =
+      typeof input.id === "string" && input.id.trim() ? input.id.trim() : undefined;
+    const id = requestedId ?? this.uniqueSkillId(input.name ?? "skill");
+    if (this.state.skills.some((s) => s.id === id)) {
+      throw new Error(`A skill with id "${id}" already exists.`);
+    }
     const skill: Skill = {
-      id: this.uniqueSkillId(input.name ?? "skill"),
+      id,
       name: input.name?.trim() || "Untitled Skill",
       description: input.description ?? "",
       version: input.version ?? "0.1.0",
+      author: input.author ?? "",
       category: input.category ?? "General",
       tags: input.tags ?? [],
       instructions: input.instructions ?? "",
+      frontmatter: input.frontmatter ?? "",
       resources: input.resources ?? [],
       compatibility: this.sanitizeCompatibility(input.compatibility),
+      otherTargets: input.otherTargets ?? [],
+      requiredTools: input.requiredTools ?? [],
+      permissions: input.permissions ?? [],
+      changelog: input.changelog ?? "",
+      requirements: input.requirements ?? "",
       status: this.sanitizeStatus(input.status),
       installationState: "not-installed",
       createdAt: now,
@@ -84,6 +97,13 @@ export class LocalRepository {
       ...existing,
       ...patch,
       id: existing.id,
+      author: patch.author ?? existing.author,
+      frontmatter: patch.frontmatter ?? existing.frontmatter,
+      otherTargets: patch.otherTargets ?? existing.otherTargets,
+      requiredTools: patch.requiredTools ?? existing.requiredTools,
+      permissions: patch.permissions ?? existing.permissions,
+      changelog: patch.changelog ?? existing.changelog,
+      requirements: patch.requirements ?? existing.requirements,
       compatibility: this.sanitizeCompatibility(patch.compatibility ?? existing.compatibility),
       status: this.sanitizeStatus(patch.status ?? existing.status),
       installationState: existing.installationState,
@@ -108,6 +128,8 @@ export class LocalRepository {
       status: "Draft",
       installationState: "not-installed",
       resources: existing.resources.map((r, i) => ({ ...r, id: `${r.id}-copy-${i + 1}` })),
+      frontmatter: "",
+      changelog: existing.changelog ? existing.changelog + "\n- Duplicated from original skill" : "",
       createdAt: now,
       updatedAt: now,
     };

@@ -9,7 +9,7 @@ export type IntegrationState = "Not Connected" | "Mock" | "Connected";
 export interface SkillResource {
   id: string;
   name: string;
-  kind: "file" | "script" | "template" | "reference";
+  kind: "file" | "script" | "template" | "reference" | "example" | "test";
   description: string;
 }
 
@@ -18,11 +18,18 @@ export interface Skill {
   name: string;
   description: string;
   version: string;
+  author: string;
   category: string;
   tags: string[];
   instructions: string;
+  frontmatter: string;
   resources: SkillResource[];
   compatibility: PlatformCompatibility[];
+  otherTargets: string[];
+  requiredTools: string[];
+  permissions: string[];
+  changelog: string;
+  requirements: string;
   status: SkillStatus;
   installationState: InstallationState;
   createdAt: string;

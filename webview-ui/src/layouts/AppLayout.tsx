@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Sidebar } from "../components/Sidebar";
 import { Header } from "../components/Header";
 import { DashboardPage } from "../features/dashboard/DashboardPage";
@@ -20,9 +20,8 @@ export function AppLayout({ route, onNavigate, dashboardData }: AppLayoutProps) 
   const [collapsed, setCollapsed] = useState(false);
   const [skillsRefresh, setSkillsRefresh] = useState(0);
   const [toasts, setToasts] = useState<ToastItem[]>([]);
-
-  const item = findNavItem(route) ?? ALL_NAV_ITEMS[0];
-  const title = item.label;
+  const [formDirty, setFormDirty] = useState(false);
+  const [pendingRoute, setPendingRoute] = useState<string | null>(null);
 
   const pushToast = useCallback((message: string, tone: "success" | "error" = "success") => {
     const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
@@ -33,6 +32,27 @@ export function AppLayout({ route, onNavigate, dashboardData }: AppLayoutProps) 
     setSkillsRefresh((n) => n + 1);
   }, []);
 
+  useEffect(() => {
+    if (route.startsWith("skill-new") || route.startsWith("skill-edit:")) {
+      setFormDirty(false);
+    }
+  }, [route]);
+
+  const guardedNavigate = useCallback(
+    (next: string) => {
+      const onForm =
+        (route.startsWith("skill-new") || route.startsWith("skill-edit:")) &&
+        !next.startsWith("skill-new") &&
+        !next.startsWith("skill-edit:");
+      if (onForm && formDirty) {
+        setPendingRoute(next);
+        return;
+      }
+      onNavigate(next);
+    },
+    [route, formDirty, onNavigate],
+  );
+
   const parseSkillRoute = (): { kind: "new" | "edit" | "details"; skillId?: string } | null => {
     if (route === "skill-new") return { kind: "new" };
     if (route.startsWith("skill-edit:")) return { kind: "edit", skillId: route.slice("skill-edit:".length) };
@@ -41,10 +61,12 @@ export function AppLayout({ route, onNavigate, dashboardData }: AppLayoutProps) 
   };
 
   const skillRoute = parseSkillRoute();
+  const item = findNavItem(route) ?? ALL_NAV_ITEMS[0];
+  const title = skillRoute && skillRoute.kind !== "details" ? (skillRoute.kind === "new" ? "Create Skill" : "Edit Skill") : item.label;
 
   return (
     <div className="app">
-      <Sidebar activeId={item.id} collapsed={collapsed} onNavigate={onNavigate} />
+      <Sidebar activeId={item.id} collapsed={collapsed} onNavigate={guardedNavigate} />
       <div className="main">
         <Header
           title={title}
@@ -55,34 +77,36 @@ export function AppLayout({ route, onNavigate, dashboardData }: AppLayoutProps) 
           {skillRoute?.kind === "new" ? (
             <SkillFormPage
               skillId={null}
-              onNavigate={onNavigate}
+              onNavigate={guardedNavigate}
               onSkillsChanged={handleSkillsChanged}
               onToast={pushToast}
+              onDirtyChange={setFormDirty}
             />
           ) : skillRoute?.kind === "edit" ? (
             <SkillFormPage
               skillId={skillRoute.skillId ?? null}
-              onNavigate={onNavigate}
+              onNavigate={guardedNavigate}
               onSkillsChanged={handleSkillsChanged}
               onToast={pushToast}
+              onDirtyChange={setFormDirty}
             />
           ) : skillRoute?.kind === "details" ? (
             <SkillDetailsPage
               skillId={skillRoute.skillId ?? ""}
-              onNavigate={onNavigate}
+              onNavigate={guardedNavigate}
               onSkillsChanged={handleSkillsChanged}
               onToast={pushToast}
             />
           ) : item.id === "skills-studio" ? (
             <SkillsStudioPage
-              onNavigate={onNavigate}
-              onOpenSkill={(id) => onNavigate(`skill-details:${id}`)}
+              onNavigate={guardedNavigate}
+              onOpenSkill={(id) => guardedNavigate(`skill-details:${id}`)}
               refreshSignal={skillsRefresh}
               onSkillsChanged={handleSkillsChanged}
               onToast={pushToast}
             />
           ) : item.id === "dashboard" ? (
-            <DashboardPage data={dashboardData} onNavigate={onNavigate} />
+            <DashboardPage data={dashboardData} onNavigate={guardedNavigate} />
           ) : item.id === "settings" ? (
             <SettingsPage />
           ) : (
@@ -91,6 +115,40 @@ export function AppLayout({ route, onNavigate, dashboardData }: AppLayoutProps) 
         </main>
       </div>
       <ToastRegion toasts={toasts} onDismiss={(id) => setToasts((prev) => prev.filter((t) => t.id !== id))} />
+
+      {pendingRoute && (
+        <div
+          className="dialog-overlay"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setPendingRoute(null);
+          }}
+        >
+          <div className="dialog" role="dialog" aria-modal="true" aria-label="Unsaved changes">
+            <div className="dialog-header">
+              <h2 className="dialog-title">Discard unsaved changes?</h2>
+            </div>
+            <div className="dialog-body">
+              You have unsaved edits on this skill. Leaving now will discard them.
+            </div>
+            <div className="dialog-footer">
+              <button className="btn secondary" onClick={() => setPendingRoute(null)}>
+                Keep editing
+              </button>
+              <button
+                className="btn danger"
+                onClick={() => {
+                  const target = pendingRoute;
+                  setPendingRoute(null);
+                  setFormDirty(false);
+                  if (target) onNavigate(target);
+                }}
+              >
+                Discard changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

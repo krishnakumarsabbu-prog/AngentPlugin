@@ -1,4 +1,4 @@
-import type { DashboardData, Skill, Agent, Workflow, ExecutionRecord, IntegrationStatus, SkillResource, InstallationState } from "../types";
+import type { DashboardData, Skill, Agent, Workflow, ExecutionRecord, IntegrationStatus } from "../types";
 
 export const demoSkills: Skill[] = [
   {
@@ -8,6 +8,13 @@ export const demoSkills: Skill[] = [
     version: "1.2.0",
     category: "Security",
     tags: ["security", "audit", "owasp"],
+    author: "AgentForge Demo",
+    frontmatter: "",
+    otherTargets: [],
+    requiredTools: [],
+    permissions: [],
+    changelog: "",
+    requirements: "",
     instructions: "",
     resources: [
       {
@@ -36,6 +43,13 @@ export const demoSkills: Skill[] = [
     version: "0.9.4",
     category: "Review",
     tags: ["review", "quality"],
+    author: "AgentForge Demo",
+    frontmatter: "",
+    otherTargets: [],
+    requiredTools: [],
+    permissions: [],
+    changelog: "",
+    requirements: "",
     instructions: "",
     resources: [
       {
@@ -58,6 +72,13 @@ export const demoSkills: Skill[] = [
     version: "0.4.1",
     category: "Optimization",
     tags: ["tokens", "cost"],
+    author: "AgentForge Demo",
+    frontmatter: "",
+    otherTargets: [],
+    requiredTools: [],
+    permissions: [],
+    changelog: "",
+    requirements: "",
     instructions: "",
     resources: [
       {
@@ -80,6 +101,13 @@ export const demoSkills: Skill[] = [
     version: "1.0.0",
     category: "Testing",
     tags: ["testing", "unit"],
+    author: "AgentForge Demo",
+    frontmatter: "",
+    otherTargets: [],
+    requiredTools: [],
+    permissions: [],
+    changelog: "",
+    requirements: "",
     instructions: "",
     resources: [
       {
@@ -108,6 +136,13 @@ export const demoSkills: Skill[] = [
     version: "0.6.2",
     category: "Architecture",
     tags: ["architecture", "coupling"],
+    author: "AgentForge Demo",
+    frontmatter: "",
+    otherTargets: [],
+    requiredTools: [],
+    permissions: [],
+    changelog: "",
+    requirements: "",
     instructions: "",
     resources: [
       {
@@ -356,6 +391,9 @@ const clone = (skill: Skill): Skill => ({
   tags: [...skill.tags],
   resources: skill.resources.map((r) => ({ ...r })),
   compatibility: [...skill.compatibility],
+  otherTargets: [...skill.otherTargets],
+  requiredTools: [...skill.requiredTools],
+  permissions: [...skill.permissions],
 });
 
 function createDemoSkillsStore(initial: Skill[]): DemoSkillsStore {
@@ -384,11 +422,18 @@ function createDemoSkillsStore(initial: Skill[]): DemoSkillsStore {
         name: input.name?.trim() || "Untitled Skill",
         description: input.description ?? "",
         version: input.version ?? "0.1.0",
+        author: input.author ?? "",
         category: input.category ?? "General",
         tags: [...(input.tags ?? [])],
         instructions: input.instructions ?? "",
+        frontmatter: input.frontmatter ?? "",
         resources: (input.resources ?? []).map((r) => ({ ...r })),
         compatibility: [...(input.compatibility ?? [])],
+        otherTargets: [...(input.otherTargets ?? [])],
+        requiredTools: [...(input.requiredTools ?? [])],
+        permissions: [...(input.permissions ?? [])],
+        changelog: input.changelog ?? "",
+        requirements: input.requirements ?? "",
         status: input.status ?? "Draft",
         installationState: "not-installed",
         createdAt: ts,
@@ -404,6 +449,13 @@ function createDemoSkillsStore(initial: Skill[]): DemoSkillsStore {
         ...items[idx],
         ...patch,
         id: items[idx].id,
+        author: patch.author ?? items[idx].author,
+        frontmatter: patch.frontmatter ?? items[idx].frontmatter,
+        otherTargets: patch.otherTargets ?? items[idx].otherTargets,
+        requiredTools: patch.requiredTools ?? items[idx].requiredTools,
+        permissions: patch.permissions ?? items[idx].permissions,
+        changelog: patch.changelog ?? items[idx].changelog,
+        requirements: patch.requirements ?? items[idx].requirements,
         installationState: items[idx].installationState,
         createdAt: items[idx].createdAt,
         updatedAt: now(),
@@ -421,6 +473,10 @@ function createDemoSkillsStore(initial: Skill[]): DemoSkillsStore {
         name: `${items[idx].name} (Copy)`,
         status: "Draft",
         installationState: "not-installed",
+        frontmatter: "",
+        changelog: items[idx].changelog
+          ? items[idx].changelog + "\n- Duplicated from original skill"
+          : "",
         createdAt: ts,
         updatedAt: ts,
       };
