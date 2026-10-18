@@ -1,0 +1,80 @@
+{
+  "name": "agentforge",
+  "displayName": "AgentForge",
+  "description": "Universal AI Skills, Agents & Harness Pipeline Engineering Platform",
+  "version": "0.1.0",
+  "publisher": "agentforge",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "agentforge",
+          "title": "AgentForge",
+          "icon": "media/agentforge.svg"
+        }
+      ]
+    },
+    "views": {
+      "agentforge": [
+        {
+          "id": "agentforge.view",
+          "name": "AgentForge"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "agentforge.open",
+        "title": "AgentForge: Open"
+      },
+      {
+        "command": "agentforge.openFromSidebar",
+        "title": "AgentForge: Open Workbench"
+      },
+      {
+        "command": "agentforge.resetDemoData",
+        "title": "AgentForge: Reset Demo Data"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "agentforge.openFromSidebar",
+          "when": "view == agentforge.view",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "npm run build:webview && npm run build:extension",
+    "build:webview": "cd webview-ui && npm install && npm run build",
+    "build:extension": "node esbuild.js",
+    "compile": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "npm run compile && cd webview-ui && npm run typecheck",
+    "test": "vitest run",
+    "dev:webview": "cd webview-ui && npm run dev",
+    "package:vsix": "npx @vscode/vsce package --no-dependencies --allow-missing-repository"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.80.0",
+    "@vscode/vsce": "^2.24.0",
+    "esbuild": "^0.20.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.4.0"
+  },
+  "dependencies": {}
+}

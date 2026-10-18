@@ -1,0 +1,16 @@
+.vscode/**
+.vscode-test/**
+src/**
+webview-ui/src/**
+webview-ui/node_modules/**
+webview-ui/package-lock.json
+node_modules/**
+tests/**
+esbuild.js
+tsconfig.json
+.gitignore
+First.txt
+.env
+.v3/**
+**/*.map
+**/*.ts
