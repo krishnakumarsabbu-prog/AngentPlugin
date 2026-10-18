@@ -340,6 +340,3 @@ function kindToRoute(kind: "skill" | "agent" | "workflow" | "execution" | "syste
     default: return "dashboard";
   }
 }
-
-
-export { DashboardPage }

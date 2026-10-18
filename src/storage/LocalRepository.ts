@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { Skill } from "../domain/skills/types";
+import { Skill, SkillStatus, PlatformCompatibility } from "../domain/skills/types";
 import { Agent } from "../domain/agents/types";
 import { Workflow } from "../domain/workflows/types";
 import { ExecutionRecord } from "../domain/executions/types";
@@ -47,6 +47,105 @@ export class LocalRepository {
 
   async listSkills(): Promise<Skill[]> {
     return [...this.state.skills];
+  }
+
+  async getSkill(id: string): Promise<Skill | undefined> {
+    return this.state.skills.find((s) => s.id === id);
+  }
+
+  async createSkill(input: Partial<Skill>): Promise<Skill> {
+    const now = new Date().toISOString();
+    const skill: Skill = {
+      id: this.uniqueSkillId(input.name ?? "skill"),
+      name: input.name?.trim() || "Untitled Skill",
+      description: input.description ?? "",
+      version: input.version ?? "0.1.0",
+      category: input.category ?? "General",
+      tags: input.tags ?? [],
+      instructions: input.instructions ?? "",
+      resources: input.resources ?? [],
+      compatibility: this.sanitizeCompatibility(input.compatibility),
+      status: this.sanitizeStatus(input.status),
+      installationState: "not-installed",
+      createdAt: now,
+      updatedAt: now,
+    };
+    this.state.skills = [skill, ...this.state.skills];
+    this.persist();
+    return skill;
+  }
+
+  async updateSkill(id: string, patch: Partial<Skill>): Promise<Skill> {
+    const existing = await this.getSkill(id);
+    if (!existing) {
+      throw new Error(`Skill not found: ${id}`);
+    }
+    const updated: Skill = {
+      ...existing,
+      ...patch,
+      id: existing.id,
+      compatibility: this.sanitizeCompatibility(patch.compatibility ?? existing.compatibility),
+      status: this.sanitizeStatus(patch.status ?? existing.status),
+      installationState: existing.installationState,
+      createdAt: existing.createdAt,
+      updatedAt: new Date().toISOString(),
+    };
+    this.state.skills = this.state.skills.map((s) => (s.id === id ? updated : s));
+    this.persist();
+    return updated;
+  }
+
+  async duplicateSkill(id: string): Promise<Skill> {
+    const existing = await this.getSkill(id);
+    if (!existing) {
+      throw new Error(`Skill not found: ${id}`);
+    }
+    const now = new Date().toISOString();
+    const copy: Skill = {
+      ...existing,
+      id: this.uniqueSkillId(existing.name),
+      name: `${existing.name} (Copy)`,
+      status: "Draft",
+      installationState: "not-installed",
+      resources: existing.resources.map((r, i) => ({ ...r, id: `${r.id}-copy-${i + 1}` })),
+      createdAt: now,
+      updatedAt: now,
+    };
+    this.state.skills = [copy, ...this.state.skills];
+    this.persist();
+    return copy;
+  }
+
+  async deleteSkill(id: string): Promise<void> {
+    const before = this.state.skills.length;
+    this.state.skills = this.state.skills.filter((s) => s.id !== id);
+    if (this.state.skills.length === before) {
+      throw new Error(`Skill not found: ${id}`);
+    }
+    this.persist();
+  }
+
+  private sanitizeStatus(value: unknown): SkillStatus {
+    return value === "Ready" || value === "Deprecated" ? value : "Draft";
+  }
+
+  private sanitizeCompatibility(value: unknown): PlatformCompatibility[] {
+    if (!Array.isArray(value)) return [];
+    const allowed: PlatformCompatibility[] = ["copilot", "claude", "openai", "neutral"];
+    return value.filter((v): v is PlatformCompatibility =>
+      typeof v === "string" && (allowed as string[]).includes(v),
+    );
+  }
+
+  private uniqueSkillId(name: string): string {
+    const base = `skill-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "untitled"}`;
+    let candidate = base;
+    let n = 2;
+    while (this.state.skills.some((s) => s.id === candidate)) {
+      candidate = `${base}-${n}`;
+      n += 1;
+    }
+    return candidate;
   }
 
   async listAgents(): Promise<Agent[]> {

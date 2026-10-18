@@ -1,4 +1,4 @@
-import { Skill } from "../domain/skills/types";
+import { Skill, SkillResource } from "../domain/skills/types";
 import { Agent } from "../domain/agents/types";
 import { Workflow, WorkflowNode, WorkflowEdge } from "../domain/workflows/types";
 import { ExecutionRecord } from "../domain/executions/types";
@@ -15,8 +15,13 @@ export const sampleSkills: Skill[] = [
     category: "Security",
     tags: ["security", "audit", "owasp"],
     instructions: "Analyze source files for injection, auth flaws, and secret leakage. Produce a severity-ranked report.",
+    resources: [
+      { id: "res-audit-checklist", name: "owasp-checklist.md", kind: "reference", description: "OWASP Top 10 review checklist." },
+      { id: "res-audit-severity", name: "severity-matrix.md", kind: "reference", description: "Severity ranking matrix for findings." },
+    ],
     compatibility: ["copilot", "claude", "openai"],
     status: "Ready",
+    installationState: "installed",
     createdAt: iso("2026-09-01T10:00:00Z"),
     updatedAt: iso("2026-10-12T14:22:00Z"),
   },
@@ -28,8 +33,12 @@ export const sampleSkills: Skill[] = [
     category: "Review",
     tags: ["review", "quality"],
     instructions: "Review diffs for readability, complexity, and naming. Suggest non-blocking improvements.",
+    resources: [
+      { id: "res-review-rubric", name: "review-rubric.md", kind: "reference", description: "Scoring rubric for structural review." },
+    ],
     compatibility: ["copilot", "claude"],
     status: "Ready",
+    installationState: "installed",
     createdAt: iso("2026-09-04T09:30:00Z"),
     updatedAt: iso("2026-10-11T08:10:00Z"),
   },
@@ -41,8 +50,12 @@ export const sampleSkills: Skill[] = [
     category: "Optimization",
     tags: ["tokens", "cost"],
     instructions: "Compress prompts while preserving intent. Report estimated token savings.",
+    resources: [
+      { id: "res-token-baseline", name: "baseline-prompts.md", kind: "template", description: "Baseline prompts used for compression benchmarks." },
+    ],
     compatibility: ["openai", "claude"],
     status: "Draft",
+    installationState: "not-installed",
     createdAt: iso("2026-09-22T16:00:00Z"),
     updatedAt: iso("2026-10-09T12:00:00Z"),
   },
@@ -54,8 +67,13 @@ export const sampleSkills: Skill[] = [
     category: "Testing",
     tags: ["testing", "unit"],
     instructions: "Generate focused unit tests covering public APIs and edge cases.",
+    resources: [
+      { id: "res-test-conventions", name: "test-conventions.md", kind: "reference", description: "Project test naming and layout conventions." },
+      { id: "res-test-scaffold", name: "scaffold-test.ts", kind: "template", description: "Starter template for generated test files." },
+    ],
     compatibility: ["copilot", "claude", "openai"],
     status: "Ready",
+    installationState: "installed",
     createdAt: iso("2026-09-10T11:15:00Z"),
     updatedAt: iso("2026-10-08T17:45:00Z"),
   },
@@ -67,8 +85,13 @@ export const sampleSkills: Skill[] = [
     category: "Architecture",
     tags: ["architecture", "coupling"],
     instructions: "Build a dependency graph and flag circular dependencies and layer violations.",
+    resources: [
+      { id: "res-arch-layer-map", name: "layer-map.md", kind: "reference", description: "Expected layering rules between modules." },
+      { id: "res-arch-graph", name: "build-graph.sh", kind: "script", description: "Script that emits a module dependency graph." },
+    ],
     compatibility: ["claude", "openai"],
     status: "Ready",
+    installationState: "outdated",
     createdAt: iso("2026-09-14T13:20:00Z"),
     updatedAt: iso("2026-10-07T10:30:00Z"),
   },

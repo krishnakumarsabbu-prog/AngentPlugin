@@ -56,7 +56,14 @@ export interface IRepository<TSummary, TEntity> {
   summaries(): Promise<TSummary[]>;
 }
 
-export type SkillsRepository = IRepository<SkillSummary, Skill>;
+export interface ISkillsStore extends IRepository<SkillSummary, Skill> {
+  create(input: Partial<Skill>): Promise<Skill>;
+  update(id: string, patch: Partial<Skill>): Promise<Skill>;
+  duplicate(id: string): Promise<Skill>;
+  remove(id: string): Promise<void>;
+}
+
+export type SkillsRepository = ISkillsStore;
 export type AgentsRepository = IRepository<AgentSummary, Agent>;
 export type WorkflowsRepository = IRepository<WorkflowSummary, Workflow>;
 

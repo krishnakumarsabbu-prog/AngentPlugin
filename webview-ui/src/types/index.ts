@@ -1,8 +1,17 @@
 export type SkillStatus = "Draft" | "Ready" | "Deprecated";
+export type PlatformCompatibility = "copilot" | "claude" | "openai" | "neutral";
+export type InstallationState = "not-installed" | "installed" | "outdated";
 export type AgentStatus = "Draft" | "Ready" | "Experimental";
 export type WorkflowStatus = "Draft" | "Ready" | "Active";
 export type ExecutionStatus = "Running" | "Succeeded" | "Failed" | "Cancelled" | "Pending";
 export type IntegrationState = "Not Connected" | "Mock" | "Connected";
+
+export interface SkillResource {
+  id: string;
+  name: string;
+  kind: "file" | "script" | "template" | "reference";
+  description: string;
+}
 
 export interface Skill {
   id: string;
@@ -12,8 +21,10 @@ export interface Skill {
   category: string;
   tags: string[];
   instructions: string;
-  compatibility: string[];
+  resources: SkillResource[];
+  compatibility: PlatformCompatibility[];
   status: SkillStatus;
+  installationState: InstallationState;
   createdAt: string;
   updatedAt: string;
 }
@@ -104,6 +115,11 @@ export type MessageType =
   | "app.getState"
   | "app.getDashboardData"
   | "skills.list"
+  | "skills.get"
+  | "skills.create"
+  | "skills.update"
+  | "skills.duplicate"
+  | "skills.delete"
   | "agents.list"
   | "workflows.list"
   | "executions.list"

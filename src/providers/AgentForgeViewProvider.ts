@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { statSync } from "fs";
 import { LocalRepository } from "../storage/LocalRepository";
 import { validateIncomingMessage, makeResponse, unsupportedResponse } from "../bridge/messageValidator";
-import { BaseMessage, ResponseMessage } from "../bridge/messages";
+import { BaseMessage, ResponseMessage, IdPayload, SkillWritePayload } from "../bridge/messages";
 
 const APP_VERSION = "0.1.0";
 
@@ -72,6 +72,30 @@ export class AgentForgeViewProvider implements vscode.WebviewViewProvider {
         return this.repo.getDashboardData();
       case "skills.list":
         return this.repo.listSkills();
+      case "skills.get": {
+        const payload = msg.payload as IdPayload;
+        const skill = await this.repo.getSkill(payload.id);
+        if (!skill) throw new Error(`Skill not found: ${payload.id}`);
+        return skill;
+      }
+      case "skills.create": {
+        const payload = msg.payload as SkillWritePayload;
+        return this.repo.createSkill(payload.skill as Record<string, never>);
+      }
+      case "skills.update": {
+        const payload = msg.payload as SkillWritePayload;
+        const rec = payload.skill as { id: string };
+        return this.repo.updateSkill(rec.id, payload.skill as Record<string, never>);
+      }
+      case "skills.duplicate": {
+        const payload = msg.payload as IdPayload;
+        return this.repo.duplicateSkill(payload.id);
+      }
+      case "skills.delete": {
+        const payload = msg.payload as IdPayload;
+        await this.repo.deleteSkill(payload.id);
+        return { ok: true };
+      }
       case "agents.list":
         return this.repo.listAgents();
       case "workflows.list":

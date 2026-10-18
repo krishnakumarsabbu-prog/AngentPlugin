@@ -3,6 +3,11 @@ export type MessageType =
   | "app.getState"
   | "app.getDashboardData"
   | "skills.list"
+  | "skills.get"
+  | "skills.create"
+  | "skills.update"
+  | "skills.duplicate"
+  | "skills.delete"
   | "agents.list"
   | "workflows.list"
   | "executions.list"
@@ -37,11 +42,24 @@ export interface SettingsUpdatePayload {
   settings: Record<string, unknown>;
 }
 
+export interface IdPayload {
+  id: string;
+}
+
+export interface SkillWritePayload {
+  skill: Record<string, unknown>;
+}
+
 export const REQUEST_TYPES: ReadonlyArray<MessageType> = [
   "app.ready",
   "app.getState",
   "app.getDashboardData",
   "skills.list",
+  "skills.get",
+  "skills.create",
+  "skills.update",
+  "skills.duplicate",
+  "skills.delete",
   "agents.list",
   "workflows.list",
   "executions.list",

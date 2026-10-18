@@ -1,4 +1,4 @@
-import { BaseMessage, isBaseMessage, MessageType, NavigatePayload, SettingsUpdatePayload } from "./messages";
+import { BaseMessage, isBaseMessage, MessageType, NavigatePayload, SettingsUpdatePayload, IdPayload, SkillWritePayload } from "./messages";
 
 export type ValidationResult =
   | { ok: true; message: BaseMessage }
@@ -27,6 +27,30 @@ export function validatePayload(type: MessageType, payload: unknown): string | n
     case "app.getState":
     case "app.getDashboardData":
     case "skills.list":
+      return null;
+    case "skills.get":
+    case "skills.duplicate":
+    case "skills.delete": {
+      const p = payload as IdPayload | undefined;
+      if (!p || typeof p.id !== "string" || p.id.length === 0 || p.id.length > 128) {
+        return "Invalid skill id";
+      }
+      return null;
+    }
+    case "skills.create":
+    case "skills.update": {
+      const p = payload as SkillWritePayload | undefined;
+      if (!p || typeof p.skill !== "object" || p.skill === null) {
+        return "Invalid skill payload";
+      }
+      if (type === "skills.update") {
+        const rec = p.skill as Record<string, unknown>;
+        if (typeof rec.id !== "string" || rec.id.length === 0 || rec.id.length > 128) {
+          return "Invalid skill id";
+        }
+      }
+      return null;
+    }
     case "agents.list":
     case "workflows.list":
     case "executions.list":

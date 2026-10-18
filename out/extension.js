@@ -46,6 +46,11 @@ var REQUEST_TYPES = [
   "app.getState",
   "app.getDashboardData",
   "skills.list",
+  "skills.get",
+  "skills.create",
+  "skills.update",
+  "skills.duplicate",
+  "skills.delete",
   "agents.list",
   "workflows.list",
   "executions.list",
@@ -86,6 +91,30 @@ function validatePayload(type, payload) {
     case "app.getState":
     case "app.getDashboardData":
     case "skills.list":
+      return null;
+    case "skills.get":
+    case "skills.duplicate":
+    case "skills.delete": {
+      const p = payload;
+      if (!p || typeof p.id !== "string" || p.id.length === 0 || p.id.length > 128) {
+        return "Invalid skill id";
+      }
+      return null;
+    }
+    case "skills.create":
+    case "skills.update": {
+      const p = payload;
+      if (!p || typeof p.skill !== "object" || p.skill === null) {
+        return "Invalid skill payload";
+      }
+      if (type === "skills.update") {
+        const rec = p.skill;
+        if (typeof rec.id !== "string" || rec.id.length === 0 || rec.id.length > 128) {
+          return "Invalid skill id";
+        }
+      }
+      return null;
+    }
     case "agents.list":
     case "workflows.list":
     case "executions.list":
@@ -185,6 +214,31 @@ var AgentForgeViewProvider = class {
         return this.repo.getDashboardData();
       case "skills.list":
         return this.repo.listSkills();
+      case "skills.get": {
+        const payload = msg.payload;
+        const skill = await this.repo.getSkill(payload.id);
+        if (!skill)
+          throw new Error(`Skill not found: ${payload.id}`);
+        return skill;
+      }
+      case "skills.create": {
+        const payload = msg.payload;
+        return this.repo.createSkill(payload.skill);
+      }
+      case "skills.update": {
+        const payload = msg.payload;
+        const rec = payload.skill;
+        return this.repo.updateSkill(rec.id, payload.skill);
+      }
+      case "skills.duplicate": {
+        const payload = msg.payload;
+        return this.repo.duplicateSkill(payload.id);
+      }
+      case "skills.delete": {
+        const payload = msg.payload;
+        await this.repo.deleteSkill(payload.id);
+        return { ok: true };
+      }
       case "agents.list":
         return this.repo.listAgents();
       case "workflows.list":
@@ -295,8 +349,13 @@ var sampleSkills = [
     category: "Security",
     tags: ["security", "audit", "owasp"],
     instructions: "Analyze source files for injection, auth flaws, and secret leakage. Produce a severity-ranked report.",
+    resources: [
+      { id: "res-audit-checklist", name: "owasp-checklist.md", kind: "reference", description: "OWASP Top 10 review checklist." },
+      { id: "res-audit-severity", name: "severity-matrix.md", kind: "reference", description: "Severity ranking matrix for findings." }
+    ],
     compatibility: ["copilot", "claude", "openai"],
     status: "Ready",
+    installationState: "installed",
     createdAt: iso("2026-09-01T10:00:00Z"),
     updatedAt: iso("2026-10-12T14:22:00Z")
   },
@@ -308,8 +367,12 @@ var sampleSkills = [
     category: "Review",
     tags: ["review", "quality"],
     instructions: "Review diffs for readability, complexity, and naming. Suggest non-blocking improvements.",
+    resources: [
+      { id: "res-review-rubric", name: "review-rubric.md", kind: "reference", description: "Scoring rubric for structural review." }
+    ],
     compatibility: ["copilot", "claude"],
     status: "Ready",
+    installationState: "installed",
     createdAt: iso("2026-09-04T09:30:00Z"),
     updatedAt: iso("2026-10-11T08:10:00Z")
   },
@@ -321,8 +384,12 @@ var sampleSkills = [
     category: "Optimization",
     tags: ["tokens", "cost"],
     instructions: "Compress prompts while preserving intent. Report estimated token savings.",
+    resources: [
+      { id: "res-token-baseline", name: "baseline-prompts.md", kind: "template", description: "Baseline prompts used for compression benchmarks." }
+    ],
     compatibility: ["openai", "claude"],
     status: "Draft",
+    installationState: "not-installed",
     createdAt: iso("2026-09-22T16:00:00Z"),
     updatedAt: iso("2026-10-09T12:00:00Z")
   },
@@ -334,8 +401,13 @@ var sampleSkills = [
     category: "Testing",
     tags: ["testing", "unit"],
     instructions: "Generate focused unit tests covering public APIs and edge cases.",
+    resources: [
+      { id: "res-test-conventions", name: "test-conventions.md", kind: "reference", description: "Project test naming and layout conventions." },
+      { id: "res-test-scaffold", name: "scaffold-test.ts", kind: "template", description: "Starter template for generated test files." }
+    ],
     compatibility: ["copilot", "claude", "openai"],
     status: "Ready",
+    installationState: "installed",
     createdAt: iso("2026-09-10T11:15:00Z"),
     updatedAt: iso("2026-10-08T17:45:00Z")
   },
@@ -347,8 +419,13 @@ var sampleSkills = [
     category: "Architecture",
     tags: ["architecture", "coupling"],
     instructions: "Build a dependency graph and flag circular dependencies and layer violations.",
+    resources: [
+      { id: "res-arch-layer-map", name: "layer-map.md", kind: "reference", description: "Expected layering rules between modules." },
+      { id: "res-arch-graph", name: "build-graph.sh", kind: "script", description: "Script that emits a module dependency graph." }
+    ],
     compatibility: ["claude", "openai"],
     status: "Ready",
+    installationState: "outdated",
     createdAt: iso("2026-09-14T13:20:00Z"),
     updatedAt: iso("2026-10-07T10:30:00Z")
   }
@@ -774,6 +851,98 @@ var LocalRepository = class {
   }
   async listSkills() {
     return [...this.state.skills];
+  }
+  async getSkill(id) {
+    return this.state.skills.find((s) => s.id === id);
+  }
+  async createSkill(input) {
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    const skill = {
+      id: this.uniqueSkillId(input.name ?? "skill"),
+      name: input.name?.trim() || "Untitled Skill",
+      description: input.description ?? "",
+      version: input.version ?? "0.1.0",
+      category: input.category ?? "General",
+      tags: input.tags ?? [],
+      instructions: input.instructions ?? "",
+      resources: input.resources ?? [],
+      compatibility: this.sanitizeCompatibility(input.compatibility),
+      status: this.sanitizeStatus(input.status),
+      installationState: "not-installed",
+      createdAt: now,
+      updatedAt: now
+    };
+    this.state.skills = [skill, ...this.state.skills];
+    this.persist();
+    return skill;
+  }
+  async updateSkill(id, patch) {
+    const existing = await this.getSkill(id);
+    if (!existing) {
+      throw new Error(`Skill not found: ${id}`);
+    }
+    const updated = {
+      ...existing,
+      ...patch,
+      id: existing.id,
+      compatibility: this.sanitizeCompatibility(patch.compatibility ?? existing.compatibility),
+      status: this.sanitizeStatus(patch.status ?? existing.status),
+      installationState: existing.installationState,
+      createdAt: existing.createdAt,
+      updatedAt: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    this.state.skills = this.state.skills.map((s) => s.id === id ? updated : s);
+    this.persist();
+    return updated;
+  }
+  async duplicateSkill(id) {
+    const existing = await this.getSkill(id);
+    if (!existing) {
+      throw new Error(`Skill not found: ${id}`);
+    }
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    const copy = {
+      ...existing,
+      id: this.uniqueSkillId(existing.name),
+      name: `${existing.name} (Copy)`,
+      status: "Draft",
+      installationState: "not-installed",
+      resources: existing.resources.map((r, i) => ({ ...r, id: `${r.id}-copy-${i + 1}` })),
+      createdAt: now,
+      updatedAt: now
+    };
+    this.state.skills = [copy, ...this.state.skills];
+    this.persist();
+    return copy;
+  }
+  async deleteSkill(id) {
+    const before = this.state.skills.length;
+    this.state.skills = this.state.skills.filter((s) => s.id !== id);
+    if (this.state.skills.length === before) {
+      throw new Error(`Skill not found: ${id}`);
+    }
+    this.persist();
+  }
+  sanitizeStatus(value) {
+    return value === "Ready" || value === "Deprecated" ? value : "Draft";
+  }
+  sanitizeCompatibility(value) {
+    if (!Array.isArray(value))
+      return [];
+    const allowed = ["copilot", "claude", "openai", "neutral"];
+    return value.filter(
+      (v) => typeof v === "string" && allowed.includes(v)
+    );
+  }
+  uniqueSkillId(name) {
+    const base = `skill-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "untitled"}`;
+    let candidate = base;
+    let n = 2;
+    while (this.state.skills.some((s) => s.id === candidate)) {
+      candidate = `${base}-${n}`;
+      n += 1;
+    }
+    return candidate;
   }
   async listAgents() {
     return [...this.state.agents];
