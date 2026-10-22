@@ -1,0 +1,154 @@
+[
+  {
+    "verdict": "rejected",
+    "fingerprint": "auth-session-cookie-httponly-missing",
+    "title": "Session cookie allegedly missing HttpOnly flag in browser storage",
+    "description": "Inspection confirmed that although HttpOnly is not set in development mode mock configs, production sets SameSite=Strict and HttpOnly in security headers middleware.",
+    "claimed_root_cause": "Development config omitted HttpOnly, but production reverse proxy enforces Secure and HttpOnly flags on all Set-Cookie headers.",
+    "trace": [
+      {
+        "kind": "entrypoint",
+        "file": "src/server/auth.ts",
+        "line": 42,
+        "scope": "issueSessionCookie",
+        "description": "Configures session response headers."
+      }
+    ],
+    "evidence": [
+      {
+        "file": "src/server/middleware/security.ts",
+        "line": 18,
+        "description": "Production middleware forces HttpOnly and Secure on Set-Cookie."
+      }
+    ],
+    "reason": "Production reverse proxy enforces Secure and HttpOnly flags on all Set-Cookie headers, disproving cross-boundary exploitability."
+  },
+  {
+    "verdict": "confirmed",
+    "fingerprint": "billing-invoice-idor-unauthorized-access",
+    "title": "Insecure Direct Object Reference in invoice download endpoint",
+    "description": "Unprivileged authenticated tenants can download invoices belonging to other organizations by manipulating the invoice ID parameter.",
+    "root_cause": "getInvoiceHandler queries the invoice table solely by ID without joining against the authenticated user organization ID.",
+    "intended_behavior": "Tenants must only be permitted to query and retrieve invoices associated with their verified organization ID.",
+    "trace": [
+      {
+        "kind": "entrypoint",
+        "file": "src/api/routes/invoices.ts",
+        "line": 45,
+        "scope": "getInvoiceHandler",
+        "description": "Accepts invoiceId from request params."
+      },
+      {
+        "kind": "propagation",
+        "file": "src/services/invoiceService.ts",
+        "line": 88,
+        "scope": "fetchInvoiceById",
+        "description": "Forwards ID without tenant context."
+      },
+      {
+        "kind": "sink",
+        "file": "src/db/queries/invoices.ts",
+        "line": 112,
+        "scope": "queryInvoice",
+        "description": "Executes SELECT * FROM invoices WHERE id = :id."
+      }
+    ],
+    "evidence": [
+      {
+        "file": "src/api/routes/invoices.ts",
+        "line": 48,
+        "description": "Missing requireTenantOwnership validation call."
+      },
+      {
+        "file": "src/db/queries/invoices.ts",
+        "line": 115,
+        "description": "Query lacks tenant organization filter."
+      }
+    ],
+    "conditions": [
+      {
+        "kind": "authentication_level",
+        "description": "Attacker possesses valid credentials for any active tenant account."
+      }
+    ],
+    "execution": {
+      "attacker_perspective": "An authenticated unprivileged tenant user.",
+      "payloads": [
+        "GET /api/v1/invoices/inv_9988234 HTTP/1.1 with Bearer token of Org B"
+      ],
+      "instructions": [
+        "Authenticate as Organization B user.",
+        "Issue GET request to invoice endpoint passing invoice ID owned by Organization A.",
+        "Observe HTTP 200 with full invoice metadata and PDF attachment belonging to Organization A."
+      ],
+      "observed_result": "HTTP 200 returned containing Organization A billing details and line items."
+    },
+    "remediation": {
+      "strategy": "Enforce organization-scoped query filtering and ownership verification at the API boundary.",
+      "code_changes": [
+        {
+          "file_name": "src/db/queries/invoices.ts",
+          "fixed_code": "SELECT * FROM invoices WHERE id = :id AND org_id = :orgId;"
+        }
+      ]
+    },
+    "severity": {
+      "likelihood": {
+        "score": "high",
+        "reason": "Directly accessible via public authenticated API without complex preconditions."
+      },
+      "impact": {
+        "score": "high",
+        "reason": "Cross-tenant data disclosure exposing sensitive customer billing records and financial PII."
+      },
+      "overall_severity": "high"
+    },
+    "confidence": {
+      "score": "high",
+      "reason": "Direct source trace from router to query confirmed by independent verification."
+    }
+  },
+  {
+    "verdict": "needs_validation",
+    "fingerprint": "worker-task-queue-ssrf-unverified-callback",
+    "title": "Unvalidated webhook callback URL in background queue worker",
+    "description": "Background worker processes webhook payloads with user-specified target URLs, potentially allowing requests to cloud metadata services if egress firewall is absent.",
+    "claimed_root_cause": "dispatchWebhook function executes HTTP POST to customer URL without hostname allowlisting or private IP checks in source code.",
+    "trace": [
+      {
+        "kind": "entrypoint",
+        "file": "src/workers/webhookDispatcher.ts",
+        "line": 34,
+        "scope": "processTask",
+        "description": "Pulls job containing targetUrl from Redis queue."
+      },
+      {
+        "kind": "propagation",
+        "file": "src/workers/webhookDispatcher.ts",
+        "line": 62,
+        "scope": "dispatchWebhook",
+        "description": "Passes targetUrl to HTTP client."
+      },
+      {
+        "kind": "sink",
+        "file": "src/services/httpClient.ts",
+        "line": 20,
+        "scope": "post",
+        "description": "Initiates HTTP POST request."
+      }
+    ],
+    "evidence": [
+      {
+        "file": "src/workers/webhookDispatcher.ts",
+        "line": 65,
+        "description": "Source code contains no DNS pre-resolution or IP range validation."
+      }
+    ],
+    "blockers": [
+      "VPC egress firewall configuration and metadata service rules are external to this repository."
+    ],
+    "validation_plan": {
+      "deployment": "Inspect VPC security group egress rules in the infrastructure repository to verify if 169.254.169.254/32 and RFC1918 traffic is blocked at the hypervisor level."
+    }
+  }
+]

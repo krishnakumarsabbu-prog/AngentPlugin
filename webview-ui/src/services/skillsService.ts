@@ -90,3 +90,69 @@ const browserStore: SkillsStore = {
 export function getSkillsStore(): SkillsStore {
   return hasVsCodeApi() ? hostStore : browserStore;
 }
+
+export interface SkillResourceFile {
+  ok: boolean;
+  content: string;
+  path: string;
+  resourceName: string;
+  language: string;
+}
+
+export async function getSkillResourceContent(skillId: string, resourceName: string): Promise<SkillResourceFile> {
+  if (hasVsCodeApi()) {
+    try {
+      const res = await sendRequest<SkillResourceFile>("skills.getResourceContent", { skillId, resourceName });
+      if (res && typeof res.content === "string") {
+        return res;
+      }
+    } catch {
+      // fallback
+    }
+  }
+
+  // Fallback content when running in standalone browser dev preview
+  return {
+    ok: true,
+    content: `# ${resourceName}\n\n> [!NOTE]\n> Enterprise Security Audit supporting resource for **${skillId}**.\n\n## Overview\nThis document defines the methodology, attack surfaces, and verification contracts for **${resourceName}**.\n\n### Key Audit Areas\n- **Phase 1 Reconnaissance**: Architecture mapping and trust boundaries\n- **Phase 2 Hunting**: Coverage-led vulnerability investigation\n- **Phase 3 Candidate Validation**: Independent verifier challenges\n- **Phase 4 Structured Findings**: Deterministic findings schema adherence\n- **Phase 5 Verification**: Exact file path and line bounds validation\n- **Phase 6 Reporting**: Validated report generation\n\n\`\`\`json\n{\n  "resource": "${resourceName}",\n  "status": "active",\n  "verified": true\n}\n\`\`\`\n\n### Execution Rules\n1. Mode A (Repository-Local Static Audit) is enforced by default.\n2. No sandbox means zero target-controlled code execution.\n3. Discovered candidates without deterministic proof remain \`needs_validation\`.\n`,
+    path: `skills/${skillId}/${resourceName}`,
+    resourceName,
+    language: resourceName.endsWith(".json") ? "json" : resourceName.endsWith(".cjs") || resourceName.endsWith(".js") ? "javascript" : "markdown",
+  };
+}
+
+export async function saveSkillResourceContent(skillId: string, resourceName: string, content: string): Promise<void> {
+  if (hasVsCodeApi()) {
+    await sendRequest("skills.saveResourceContent", { skillId, resourceName, content });
+  }
+}
+
+export interface BatchInstallResult {
+  ok: boolean;
+  platform: string;
+  count: number;
+  results?: any[];
+}
+
+export async function installSkill(
+  id: string,
+  platform: "copilot" | "claude" | "openai" | "neutral",
+  scope: "workspace" | "user" = "workspace"
+): Promise<any> {
+  if (hasVsCodeApi()) {
+    return sendRequest<any>("skills.install", { id, platform, scope });
+  }
+  return { ok: true, platform, simulated: true };
+}
+
+export async function batchInstallSkills(
+  ids: string[],
+  platform: "copilot" | "claude" | "openai" | "neutral",
+  scope: "workspace" | "user" = "workspace"
+): Promise<BatchInstallResult> {
+  if (hasVsCodeApi()) {
+    return sendRequest<BatchInstallResult>("skills.batchInstall", { ids, platform, scope });
+  }
+  return { ok: true, platform, count: ids.length, results: [] };
+}
+

@@ -9,6 +9,7 @@ import {
   Plug,
   Package,
   ShieldCheck,
+  UserCheck,
   Settings,
   type LucideIcon,
 } from "lucide-react";
@@ -39,6 +40,20 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "Engineering Studio",
     items: [
+      {
+        id: "persona-studio",
+        label: "Persona Skill Studio",
+        icon: UserCheck,
+        group: "Engineering Studio",
+        description: "Engineer evidence-backed skills by combining engineering personas with deep repository analysis.",
+        future: [
+          "Universal & Repository-Adaptive modes",
+          "Deep 6-phase static crawl pipeline",
+          "Multi-persona composition engine",
+          "Intermediate Representation (IR) compiler",
+          "Deterministic quality scorecard",
+        ],
+      },
       {
         id: "skills-studio",
         label: "Skills Studio",

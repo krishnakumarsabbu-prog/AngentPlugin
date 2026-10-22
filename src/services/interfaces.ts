@@ -11,6 +11,29 @@ export interface AppSettings {
   telemetry: boolean;
   autoSave: boolean;
   recentRoute: string;
+  defaultStartPage?: string;
+  confirmDestructiveActions?: boolean;
+  skillExportPreferences?: {
+    format: "markdown" | "json" | "yaml";
+    includeMetadata: boolean;
+    prettyPrint: boolean;
+  };
+  installationScope?: "workspace" | "global";
+  agentPermissionDefaults?: {
+    fileSystem: "readonly" | "readwrite" | "none";
+    shell: boolean;
+    network: boolean;
+    humanApprovalRequired: boolean;
+  };
+  pipelineDefaults?: {
+    timeoutMs: number;
+    maxRetries: number;
+  };
+  approvalPreferences?: {
+    autoPauseOnGate: boolean;
+    requireNote: boolean;
+  };
+  storageLocation?: string;
 }
 
 export interface DashboardData {

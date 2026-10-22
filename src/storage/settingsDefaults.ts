@@ -10,4 +10,27 @@ export const DEFAULT_SETTINGS: AppSettings = {
   telemetry: false,
   autoSave: true,
   recentRoute: "dashboard",
+  defaultStartPage: "dashboard",
+  confirmDestructiveActions: true,
+  skillExportPreferences: {
+    format: "markdown",
+    includeMetadata: true,
+    prettyPrint: true,
+  },
+  installationScope: "workspace",
+  agentPermissionDefaults: {
+    fileSystem: "readonly",
+    shell: false,
+    network: false,
+    humanApprovalRequired: true,
+  },
+  pipelineDefaults: {
+    timeoutMs: 30000,
+    maxRetries: 2,
+  },
+  approvalPreferences: {
+    autoPauseOnGate: true,
+    requireNote: false,
+  },
+  storageLocation: ".agentforge/storage (Workspace)",
 };

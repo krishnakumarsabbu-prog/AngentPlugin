@@ -71,6 +71,7 @@ export function DashboardPage({ data, onNavigate }: DashboardPageProps) {
   if (!data || !metrics) {
     return (
       <EmptyState
+        variant="glass"
         title="No dashboard data available"
         text="Run the extension inside VS Code to load dashboard data, or reset demo data."
       />
@@ -87,7 +88,7 @@ export function DashboardPage({ data, onNavigate }: DashboardPageProps) {
           through a visual engineering workspace.
         </p>
         <div className="page-actions">
-          <button className="btn primary" onClick={() => onNavigate("skills-studio")}>
+          <button className="btn primary glow-cta" onClick={() => onNavigate("skills-studio")}>
             <Plus size={14} /> Create Skill
           </button>
           <button className="btn secondary" onClick={() => onNavigate("agent-studio")}>

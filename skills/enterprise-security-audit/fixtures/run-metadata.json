@@ -1,0 +1,32 @@
+{
+  "run_id": "run-synthetic-001",
+  "repo": "sample-target-project",
+  "target": "D:\\Git_Repository\\AngentPlugin\\skills\\enterprise-security-audit\\fixtures\\mock-repo",
+  "commit_sha": "e1f98c84d113edec49eaa6238ad5ff99",
+  "dirty_worktree": false,
+  "uncommitted_files": [],
+  "target_scope": [
+    "src/api",
+    "src/server",
+    "src/workers"
+  ],
+  "languages": [
+    "typescript",
+    "javascript",
+    "sql"
+  ],
+  "mode": "static-audit",
+  "sandbox_available": false,
+  "profile": "standard",
+  "orchestration": "single-agent-sequential",
+  "independent_verifier": false,
+  "run_status": "complete",
+  "incomplete_reason": null,
+  "scanners_executed": [
+    "eslint-security",
+    "regex-source-hunter"
+  ],
+  "scanners_unavailable": [],
+  "created_at": "2026-10-20T10:00:00Z",
+  "completed_at": "2026-10-20T10:15:00Z"
+}

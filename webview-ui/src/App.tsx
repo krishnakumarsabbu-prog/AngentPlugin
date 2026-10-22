@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { AppLayout } from "./layouts/AppLayout";
+import { ThemeProvider } from "./services/ThemeContext";
 import { sendRequest, hasVsCodeApi, postMessage } from "./services/vscodeApi";
 import { buildDemoDashboard } from "./data/demoData";
 import type { DashboardData, AppState } from "./types";
@@ -75,26 +76,28 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="app">
-        <div className="main">
-          <main className="content">
-            <div className="empty-state">
-              <div className="empty-state-title">Loading AgentForge…</div>
-            </div>
-          </main>
+      <ThemeProvider>
+        <div className="app theme-indigo">
+          <div className="main">
+            <main className="content">
+              <div className="empty-state">
+                <div className="empty-state-title">Loading AgentForge…</div>
+              </div>
+            </main>
+          </div>
         </div>
-      </div>
+      </ThemeProvider>
     );
   }
 
   return (
-    <>
+    <ThemeProvider>
       <AppLayout route={route} onNavigate={handleNavigate} dashboardData={dashboard} />
       {error && !inVsCode && (
         <div style={{ position: "fixed", bottom: 8, left: 8, right: 8, padding: "8px 12px", background: "#FEF2F2", color: "var(--error)", border: "1px solid var(--border)", borderRadius: 6, fontSize: 11 }}>
           Browser preview is using sample data. {error}
         </div>
       )}
-    </>
+    </ThemeProvider>
   );
 }

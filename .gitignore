@@ -12,3 +12,9 @@ vitest.config.cjs.timestamp-*.mjs
 vitest.config.ts.timestamp-*.mjs
 vitest.config.mts.timestamp-*.mjs
 vitest.config.cts.timestamp-*.mjs
+
+# AI & Workspace Configs
+.agents
+.claude
+.github
+.vscode

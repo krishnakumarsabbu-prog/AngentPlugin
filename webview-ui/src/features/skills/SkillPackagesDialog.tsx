@@ -30,6 +30,7 @@ import type {
 interface SkillPackagesDialogProps {
   open: boolean;
   skill: Skill | null;
+  initialTab?: TabId;
   onClose: () => void;
   onToast: (message: string, tone?: "success" | "error") => void;
   onSkillsChanged?: () => void;
@@ -50,16 +51,19 @@ type TabId = "export" | "import" | "install";
 export function SkillPackagesDialog({
   open,
   skill,
+  initialTab,
   onClose,
   onToast,
   onSkillsChanged,
   onImportedSkill,
 }: SkillPackagesDialogProps) {
-  const [tab, setTab] = useState<TabId>("export");
+  const [tab, setTab] = useState<TabId>(initialTab ?? (skill ? "export" : "import"));
 
   useEffect(() => {
-    if (open) setTab("export");
-  }, [open, skill?.id]);
+    if (open) {
+      setTab(initialTab ?? (skill ? "export" : "import"));
+    }
+  }, [open, skill?.id, initialTab]);
 
   return (
     <Dialog

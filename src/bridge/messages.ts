@@ -17,15 +17,75 @@ export type MessageType =
   | "skills.installTargets"
   | "skills.installPlan"
   | "skills.install"
+  | "skills.batchInstall"
   | "skills.installations"
   | "skills.uninstall"
+  | "skills.getResourceContent"
+  | "skills.saveResourceContent"
   | "agents.list"
+  | "agents.get"
+  | "agents.create"
+  | "agents.update"
+  | "agents.duplicate"
+  | "agents.delete"
+  | "agents.validate"
+  | "agents.export"
+  | "agents.compatibility"
+  | "agents.exportPlatform"
+  | "agents.installTargets"
+  | "agents.installPlan"
+  | "agents.install"
+  | "agents.batchInstall"
+  | "agents.installations"
+  | "agents.uninstall"
   | "workflows.list"
+  | "workflows.get"
+  | "workflows.create"
+  | "workflows.update"
+  | "workflows.duplicate"
+  | "workflows.delete"
+  | "workflows.validate"
+  | "workflows.exportPackage"
+  | "workflows.importPackage"
+  | "workflows.install"
   | "executions.list"
+  | "executions.get"
+  | "executions.start"
+  | "executions.resume"
+  | "executions.recover"
+  | "executions.cancel"
   | "settings.get"
   | "settings.update"
   | "app.resetDemoData"
-  | "app.navigate";
+  | "app.navigate"
+  | "app.clientError"
+  | "audit.list"
+  | "audit.record"
+  | "audit.clear"
+  | "packages.list"
+  | "packages.validate"
+  | "packages.install"
+  | "packages.uninstall"
+  | "packages.export"
+  | "packages.backups"
+  | "packages.restoreBackup"
+  | "integrations.list"
+  | "integrations.configure"
+  | "integrations.validate"
+  | "integrations.disconnect"
+  | "settings.exportAll"
+  | "settings.importAll"
+  | "persona.list"
+  | "persona.crawl"
+  | "persona.cancelCrawl"
+  | "persona.compile"
+  | "persona.evaluate"
+  | "persona.reCrawl"
+  | "persona.save"
+  | "persona.listWorkspaces"
+  | "persona.listVersions"
+  | "persona.rollbackVersion";
+
 
 export interface BaseMessage {
   type: MessageType;
@@ -61,6 +121,10 @@ export interface SkillWritePayload {
   skill: Record<string, unknown>;
 }
 
+export interface AgentWritePayload {
+  agent: Record<string, unknown>;
+}
+
 export interface SkillValidatePayload {
   skill: Record<string, unknown>;
   id?: string;
@@ -89,6 +153,17 @@ export interface SkillImportSavePayload {
   preview: unknown;
 }
 
+export interface SkillResourceContentPayload {
+  skillId: string;
+  resourceName: string;
+}
+
+export interface SkillSaveResourcePayload {
+  skillId: string;
+  resourceName: string;
+  content: string;
+}
+
 export interface SkillInstallTargetsPayload {
   platform: string;
 }
@@ -113,6 +188,74 @@ export interface SkillUninstallPayload {
   removeFromDisk?: boolean;
 }
 
+export interface AgentValidatePayload {
+  agent: Record<string, unknown>;
+  id?: string;
+}
+
+export interface AgentExportPayload {
+  id?: string;
+  agent?: Record<string, unknown>;
+  format: "agent-spec" | "copilot-instructions" | "claude-subagent" | "openai-assistant";
+}
+
+export interface AgentCompatibilityPayload {
+  id?: string;
+  agent?: Record<string, unknown>;
+}
+
+export interface AgentPlatformExportPayload {
+  id?: string;
+  agent?: Record<string, unknown>;
+  platform: "copilot" | "claude" | "openai" | "neutral";
+}
+
+export interface AgentInstallTargetsPayload {
+  platform: string;
+}
+
+export interface AgentInstallPlanPayload {
+  id: string;
+  platform: string;
+  scope: "user" | "workspace";
+}
+
+export interface AgentInstallPayload {
+  id: string;
+  platform: string;
+  scope: "user" | "workspace";
+  installRelatedSkills?: boolean;
+}
+
+export interface SkillBatchInstallPayload {
+  ids: string[];
+  platform: string;
+  scope?: "user" | "workspace";
+}
+
+export interface AgentBatchInstallPayload {
+  ids: string[];
+  platform: string;
+  scope?: "user" | "workspace";
+  installRelatedSkills?: boolean;
+}
+
+export interface AgentUninstallPayload {
+  id: string;
+  platform: string;
+  scope: "user" | "workspace";
+  removeFromDisk?: boolean;
+}
+
+export interface WorkflowWritePayload {
+  workflow: Record<string, unknown>;
+}
+
+export interface WorkflowValidatePayload {
+  workflow: Record<string, unknown>;
+  id?: string;
+}
+
 export const REQUEST_TYPES: ReadonlyArray<MessageType> = [
   "app.ready",
   "app.getState",
@@ -132,15 +275,48 @@ export const REQUEST_TYPES: ReadonlyArray<MessageType> = [
   "skills.installTargets",
   "skills.installPlan",
   "skills.install",
+  "skills.batchInstall",
   "skills.installations",
   "skills.uninstall",
+  "skills.getResourceContent",
+  "skills.saveResourceContent",
   "agents.list",
+  "agents.get",
+  "agents.create",
+  "agents.update",
+  "agents.duplicate",
+  "agents.delete",
+  "agents.validate",
+  "agents.export",
+  "agents.compatibility",
+  "agents.exportPlatform",
+  "agents.installTargets",
+  "agents.installPlan",
+  "agents.install",
+  "agents.batchInstall",
+  "agents.installations",
+  "agents.uninstall",
   "workflows.list",
+  "workflows.get",
+  "workflows.create",
+  "workflows.update",
+  "workflows.duplicate",
+  "workflows.delete",
+  "workflows.validate",
+  "workflows.exportPackage",
+  "workflows.importPackage",
+  "workflows.install",
   "executions.list",
+  "executions.get",
+  "executions.start",
+  "executions.resume",
+  "executions.recover",
+  "executions.cancel",
   "settings.get",
   "settings.update",
   "app.resetDemoData",
   "app.navigate",
+  "app.clientError",
 ];
 
 export function isMessageType(value: unknown): value is MessageType {

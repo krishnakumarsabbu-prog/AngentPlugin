@@ -57,14 +57,19 @@ export interface InstallRegistry {
   targetsFor(platform: PlatformId): { scope: InstallScope; target: InstallTarget }[];
 }
 
-export function createInstallRegistry(neutralApprovedRoot: string | null): InstallRegistry {
+export function createInstallRegistry(
+  neutralApprovedRoot: string | null,
+  workspaceRoot?: string | null,
+): InstallRegistry {
   const adapters: PlatformInstallAdapter[] = [
-    new CopilotInstallAdapter(),
-    new ClaudeInstallAdapter(),
-    new OpenAiInstallAdapter(),
+    new CopilotInstallAdapter(workspaceRoot ?? undefined),
+    new ClaudeInstallAdapter(workspaceRoot ?? undefined),
+    new OpenAiInstallAdapter(workspaceRoot ?? undefined),
   ];
-  if (neutralApprovedRoot) {
-    adapters.push(new NeutralInstallAdapter(neutralApprovedRoot));
+  if (neutralApprovedRoot || workspaceRoot) {
+    adapters.push(
+      new NeutralInstallAdapter(neutralApprovedRoot ?? workspaceRoot ?? "", workspaceRoot ?? undefined),
+    );
   }
   const byPlatform = new Map<PlatformId, PlatformInstallAdapter>(adapters.map((a) => [a.platform, a]));
 

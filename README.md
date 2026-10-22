@@ -2,255 +2,267 @@
 
 **Universal AI Skills, Agents & Harness Pipeline Engineering Platform**
 
-AgentForge is an enterprise VS Code extension that provides a React-based WebView workbench for
-designing reusable AI skills, configuring specialized agents, and orchestrating multi-agent
-harness pipelines. This repository contains the initial, runnable foundation that will be extended
-across subsequent implementation prompts.
-
-> No remote AI execution, API credentials, Docker, or separate backend server are required for this
-> initial version. Sample data is bundled locally and persisted through VS Code extension storage.
+AgentForge is an enterprise-grade VS Code extension and visual workbench for engineering reusable AI skills, configuring specialized agents, and orchestrating deterministic multi-agent harness pipelines. All capabilities run locally in VS Code with atomic persistence, least-privilege security guardrails, and audit logging.
 
 ---
 
-## Feature Overview
+## Table of Contents
 
-- **Enterprise light dashboard** with metrics derived from local sample records.
-- **Functional sidebar navigation** across Overview, Engineering Studio, Operations, Platform,
-  Governance, and Administration sections.
-- **Placeholder pages** for every future module, each describing its purpose and planned features.
-- **Typed domain models** for Skills, Agents, Workflows, Workflow Nodes, Execution Records, and
-  Settings.
-- **Secure WebView message bridge** with request/response tracking, payload validation, and unknown
-  message rejection.
-- **Extension-managed local storage** with schema versioning and reset-demo-data capability.
-- **Browser preview fallback** so the React UI can be developed outside VS Code using sample data.
-
-### Current limitations
-
-- Only the Dashboard is a fully featured page. All other modules show planned-feature placeholders.
-- No real AI execution, no external integrations, and no live platform connections.
-- Writes (create/update/delete) for skills, agents, and workflows are intentionally not implemented
-  yet; the bridge returns a clear unsupported response for those operations.
-- Pipeline editor, evaluation, governance audit, and package manager are scaffolded as navigation
-  entries only.
+- [Architectural Overview](#architectural-overview)
+- [Module Capabilities](#module-capabilities)
+- [Prerequisites](#prerequisites)
+- [Exact Development Commands](#exact-development-commands)
+- [Launching the VS Code Extension Development Host](#launching-the-vs-code-extension-development-host)
+- [Debugging Instructions](#debugging-instructions)
+- [Running Automated Tests](#running-automated-tests)
+- [VSIX Packaging & Installation](#vsix-packaging--installation)
+- [Data Storage Locations & Security](#data-storage-locations--security)
+- [Known Limitations & Simulated Features](#known-limitations--simulated-features)
 
 ---
 
-## Project Architecture
+## Architectural Overview
 
 ```
-agentforge/
-├── package.json            # Root: VS Code extension manifest + scripts
-├── tsconfig.json           # Extension host TS config
-├── esbuild.js              # Bundles src/extension.ts -> out/extension.js
-├── vitest.config.ts        # Test runner config
-├── media/agentforge.svg    # Activity bar icon
-├── src/                    # VS Code extension host (Node)
-│   ├── extension.ts
-│   ├── commands/openAgentForge.ts
-│   ├── providers/AgentForgeViewProvider.ts
-│   ├── bridge/             # Typed message bridge + validator
-│   ├── domain/             # Shared domain models (skills, agents, workflows, executions)
-│   ├── services/           # Repository + service interfaces
-│   └── storage/            # LocalRepository, sample data, settings defaults
-├── tests/                  # Vitest tests
-└── webview-ui/             # React + Vite WebView app
-    ├── package.json
-    ├── vite.config.ts
-    ├── tsconfig.json
-    └── src/
-        ├── main.tsx
-        ├── App.tsx
-        ├── types/
-        ├── services/vscodeApi.ts
-        ├── data/demoData.ts
-        ├── navigation/registry.ts
-        ├── layouts/AppLayout.tsx
-        ├── components/      # Sidebar, Header, MetricCard, StatusBadge, EmptyState
-        ├── features/        # DashboardPage + PlaceholderPage
-        └── styles/globals.css
+AgentForge Platform
+├── VS Code Extension Host (Node.js runtime)
+│   ├── src/extension.ts                  # Extension entry point & lifecycle
+│   ├── src/commands/openAgentForge.ts    # Palette commands & quick status
+│   ├── src/providers/AgentForgeViewProvider.ts  # Activity bar sidebar provider
+│   ├── src/panels/AgentForgePanel.ts     # Main workbench editor panel
+│   ├── src/bridge/AgentForgeBridge.ts    # Secure request/response message broker
+│   ├── src/domain/                       # Canonical domain models (Skills, Agents, Workflows, Runs, Packages)
+│   ├── src/skills/                       # Markdown frontmatter parsing, validation, multi-file packages
+│   ├── src/agents/                       # Agent schema validation, export adapters (Copilot, Claude, OpenAI)
+│   ├── src/workflows/                    # Graph validation, cycle detection, format import/export
+│   ├── src/executions/                   # Deterministic simulation engine, context handoffs, retry & approval
+│   ├── src/governance/                   # Secret scrubbing, path traversal defense, permission policy checker
+│   ├── src/packages/                     # Package manager, SHA-256 integrity, backup snapshots
+│   ├── src/integrations/                 # Platform integration registry, mock verification
+│   └── src/storage/                      # LocalRepository, safeStorage atomic writes, migrations, audit log
+│
+└── React WebView Workbench (Vite + React 18)
+    ├── webview-ui/src/layouts/AppLayout.tsx # Navigation router & layout shell
+    ├── webview-ui/src/navigation/registry.ts # 11 workbench navigation targets
+    └── webview-ui/src/features/          # Feature UI modules
+        ├── dashboard/                    # Real-time metrics, quick actions & activity feed
+        ├── skills/                       # Skills Studio (editing, preview, validation, import/export)
+        ├── agents/                       # Agent Studio (configuration, skills, permissions, adapter exports)
+        ├── workflows/                    # Harness Pipeline visual canvas (@xyflow/react)
+        ├── executions/                   # Execution History & node timeline inspector
+        ├── comparison/                   # Pipeline comparison diff (workflows and run comparisons)
+        ├── evaluation/                   # Test & Evaluation Studio (scorecards & deterministic suites)
+        ├── governance/                   # Audit activity log, permission guardrails, path sandbox
+        ├── packages/                     # Package Manager (inspect, integrity checks, backup snapshots)
+        ├── integrations/                 # Platform Integrations (Copilot, Claude, OpenAI with Mock Registry)
+        └── settings/                     # Platform configuration, export format, themes, workspace backup
 ```
 
-The extension host compiles to `out/extension.js`. The WebView builds into `dist/webview/`, which
-the extension loads via webview URIs. The production extension does not depend on a running Vite
-dev server.
+---
+
+## Module Capabilities
+
+1. **Dashboard**
+   - High-level platform health, live metric cards, recent skill/agent/pipeline summaries, and system activity feed.
+2. **Skills Studio**
+   - Author and edit `SKILL.md` files with live preview, YAML frontmatter validation, reference asset management, multi-platform compatibility checking, version history, and import/export.
+3. **Agent Studio**
+   - Build specialized agents with role, mission instructions, assigned skill sets, JSON Schema input/output contracts, and declared tool definitions.
+   - **Typed Export Adapters**: Native and simulated mapping for GitHub Copilot, Claude / Claude Code, and OpenAI API with capability matrix and compatibility warnings.
+4. **Harness Pipeline Visual Canvas**
+   - Full drag-and-drop workflow canvas built with `@xyflow/react`.
+   - 14 distinct node types: Start, Requirement Input, Skill Invocation, Agent Execution, Planning, Human Approval, Condition / Branch, Context Handoff, Parallel Execution, Merge Results, Validation, Retry, Artifact Output, and End.
+   - Visual edge routing, mini-map, zoom/pan controls, and deep node configuration panels.
+5. **Workflow Graph Validation & Format Persistence**
+   - Centralized validation detecting graph cycles, unreachable nodes, missing terminal nodes, invalid branch routing, and missing skill or agent references.
+   - Canonical `.agentforge.workflow.json` import and export.
+6. **Deterministic Local Simulation Engine**
+   - Validates workflow graphs before execution.
+   - Computes topological node dependency order and generates deterministic, simulated outputs for each step.
+   - Evaluates condition branch expressions, tracks retries with exponential backoff calculation, and halts cleanly at Human Approval gates.
+7. **Context Handoffs, Approval Gates & Run Inspector**
+   - Field-level context filtering between upstream and downstream nodes.
+   - Interactive human decision recording (Approve, Reject, Cancel) before execution continues.
+   - Deep inspection of step input, output, duration, and error traces.
+8. **Execution History & Pipeline Comparison**
+   - Filter and search past execution runs by status, date, or workflow name.
+   - Side-by-side visual and structural diff comparing two workflow versions or two run records (node changes, configuration diffs, duration metrics, failure points).
+9. **Test & Evaluation Studio**
+   - Automated evaluation scorecards across Skills, Agents, and Workflows without invoking external LLMs.
+   - Category-level pass/fail checks, actionable suggestions, and mock scenario evaluation.
+10. **Governance, Permissions & Audit Activity**
+    - Least-privilege defaults (read-only filesystem, shell disabled, network disabled, human approval gates).
+    - Extension-host path traversal protection (rejecting `..` and null-byte injection `%00`, `\0`).
+    - Sensitive secret scrubbing (OpenAI keys, GitHub tokens, Bearer headers, private keys) before persistence.
+    - Local audit event logging with retention caps and destructive action confirmation modals.
+11. **Package Manager & Platform Integrations**
+    - Browse, search, filter, install, update, and uninstall packages with SHA-256 integrity verification.
+    - Automated point-in-time backup snapshots before updates or removals.
+    - Strict security policy: **Imported scripts are never automatically executed**.
+    - Truthful platform integration status: uses a clearly labeled **Mock Registry** when live credentials are not verified in VS Code `SecretStorage`.
+12. **Settings & Administration**
+    - Configurable startup page, confirm destructive actions, skill export format (Markdown/JSON/YAML), installation scope, pipeline timeout/retries, full workspace backup JSON download/import, and light theme default.
 
 ---
 
 ## Prerequisites
 
-- Node.js 18+ (tested with Node 20/22)
-- npm 9+
-- VS Code 1.80+ (for running the extension)
+- **Node.js**: `v18.0.0` or higher (tested on Node `v20.x` and `v22.x`)
+- **npm**: `v9.0.0` or higher
+- **VS Code**: `1.80.0` or higher (for running the extension)
+- **Git** (optional, for version control)
 
 ---
 
-## Dependency Installation
+## Exact Development Commands
 
-From the project root:
+All commands are executed from the repository root:
 
 ```bash
+# 1. Install extension and webview dependencies
 npm install
 cd webview-ui && npm install && cd ..
-```
 
-The root `build:webview` script also installs WebView dependencies automatically.
+# 2. Compile TypeScript extension host (type-checking only)
+npm run compile
 
----
-
-## Development Commands
-
-### Run the WebView dev server (browser preview)
-
-```bash
-cd webview-ui
-npm run dev
-```
-
-When the WebView runs outside VS Code, it detects the missing `acquireVsCodeApi` and falls back to
-the bundled sample data so you can iterate on the UI.
-
-### Build everything (WebView + extension host)
-
-```bash
-npm run build
-```
-
-This runs `build:webview` (installs WebView deps and produces `dist/webview/`) and then
-`build:extension` (esbuild bundles the host to `out/extension.js`).
-
-### Compile / type-check
-
-```bash
+# 3. Perform full TypeScript type-checking across both root and webview
 npm run typecheck
-```
 
-Runs TypeScript with `noEmit` for both the extension host and the WebView.
-
-### Run tests
-
-```bash
-npm test
-```
-
-Runs Vitest against `tests/**/*.test.ts`.
-
-### Lint
-
-```bash
+# 4. Run linting across extension and webview
 npm run lint
 npm run lint:webview
-```
 
-Flat ESLint config lives in `eslint.config.mjs` and covers TypeScript sources in the extension
-host, tests, and WebView.
+# 5. Execute complete Vitest test suite (24 test files, 268 unit tests)
+npm test
+
+# 6. Build production bundles (both React webview and extension host)
+npm run build
+
+# 7. Package extension into installable VSIX archive
+npm run package:vsix
+```
 
 ---
 
 ## Launching the VS Code Extension Development Host
 
-1. Run a production build: `npm run build`
-2. Open the project folder in VS Code.
-3. Press `F5` — the included `.vscode/launch.json` starts the Extension Development Host and runs
-   the build task first.
-4. The AgentForge icon appears in the activity bar. Click it, then click the "Open Workbench" icon
-   in the view title (or run **AgentForge: Open** from the Command Palette).
-5. To confirm activation, run **AgentForge: Show Status** from the Command Palette. It reports the
-   number of locally stored skills, agents, pipelines, and runs. Host errors are written to the
-   "AgentForge" output channel (View → Output).
+To launch and test the extension directly inside VS Code:
+
+1. Open the repository root in VS Code (`code .`).
+2. Build the webview and extension bundles:
+   ```bash
+   npm run build
+   ```
+3. Open the **Run and Debug** view (`Ctrl+Shift+D` or `Cmd+Shift+D`).
+4. Select the launch configuration: **Run Extension**.
+5. Press `F5`. An **Extension Development Host** window will open with AgentForge activated.
+6. Open the AgentForge workbench using any of these methods:
+   - Click the **AgentForge** icon in the Activity Bar.
+   - Press `Ctrl+Shift+P` (or `Cmd+Shift+P`), type **AgentForge: Open**, and press `Enter`.
+   - Click the navigation icon in the sidebar view title.
 
 ---
 
-## Debugging the WebView
+## Debugging Instructions
 
-Inside the Extension Development Host, run **Developer: Toggle Developer Tools** from the Command
-Palette to inspect the WebView DOM, network, and console output. The WebView CSP allows only
-nonce-tagged scripts and local stylesheets.
+### Extension Host Debugging
+- Set breakpoints in TypeScript files under `src/` (e.g. `src/bridge/AgentForgeBridge.ts` or `src/executions/LocalSimulationEngine.ts`).
+- When running under `F5`, VS Code will break on breakpoints with full source-map fidelity.
+- Check extension diagnostic logs in the **Output** channel:
+  - Open the **Output** panel (`Ctrl+Shift+U`).
+  - Select **AgentForge** from the channel dropdown.
+
+### WebView UI Debugging
+- In the Extension Development Host window, press `Ctrl+Shift+P` (or `Cmd+Shift+P`).
+- Run the command: **Developer: Toggle Developer Tools**.
+- Click the **Console** and **Elements** tabs to inspect React components, styles, or bridge message traffic.
 
 ---
 
-## Creating a VSIX Package
+## Running Automated Tests
+
+AgentForge features 24 comprehensive test suites covering all domains, repositories, adapters, and engines:
 
 ```bash
-npm run build
+# Run all tests once
+npm test
+
+# Run tests in watch mode
+npx vitest
+
+# Run a specific test suite
+npx vitest tests/localSimulationEngine.test.ts
+npx vitest tests/governanceAndAudit.test.ts
+npx vitest tests/packageManagerAndSettings.test.ts
+```
+
+### Verified Test Suites (24 suites, 268 tests):
+- `tests/agentExporter.test.ts`
+- `tests/agentPlatformAdapters.test.ts`
+- `tests/agentRepository.test.ts`
+- `tests/agentValidator.test.ts`
+- `tests/contextHandoffAndInspector.test.ts`
+- `tests/demoData.test.ts`
+- `tests/domain.test.ts`
+- `tests/governanceAndAudit.test.ts`
+- `tests/localSimulationEngine.test.ts`
+- `tests/messageValidator.test.ts`
+- `tests/migrations.test.ts`
+- `tests/navigation.test.ts`
+- `tests/packageManagerAndSettings.test.ts`
+- `tests/safeStorage.test.ts`
+- `tests/settings.test.ts`
+- `tests/skillMd.test.ts`
+- `tests/skillPackages.test.ts`
+- `tests/skillService.test.ts`
+- `tests/skillValidator.test.ts`
+- `tests/testEvaluation.test.ts`
+- `tests/workflowComparison.test.ts`
+- `tests/workflowFormat.test.ts`
+- `tests/workflowRepository.test.ts`
+- `tests/workflowValidator.test.ts`
+
+---
+
+## VSIX Packaging & Installation
+
+To generate the distribution `.vsix` file:
+
+```bash
 npm run package:vsix
 ```
 
-This uses `@vscode/vsce` to produce `agentforge-0.1.0.vsix`. The `.vscodeignore` file excludes
-source maps, source TypeScript, tests, and dev-only files from the package.
+This runs the prepublish build script and packages the extension into:
+`agentforge-0.1.0.vsix`
+
+To install the packaged VSIX into your main VS Code environment:
+
+```bash
+code --install-extension agentforge-0.1.0.vsix
+```
 
 ---
 
-## Local Storage Approach
+## Data Storage Locations & Security
 
-AgentForge persists state through VS Code's `globalState` under the key `agentforge.state`. The
-persisted object includes:
-
-- `schemaVersion` — storage schema version (currently `1`)
-- `settings` — application preferences
-- `skills`, `agents`, `workflows`, `executions` — local records
-
-On first activation, sample data is seeded. The **AgentForge: Reset Demo Data** command restores
-the original sample data. Browser localStorage is only used to remember the last selected route
-while developing the WebView outside VS Code; it is never the source of truth for extension data.
+- **Storage Engine**: Persisted through VS Code's `globalState` and workspace storage using atomic write-replacement (`src/storage/safeStorage.ts`) to prevent data corruption.
+- **Audit Logs**: Stored locally in atomic JSON records capped at 500 entries to prevent disk exhaustion.
+- **Secret Redaction**: All API keys (`sk-*`), tokens (`ghp_*`, `gho_*`, `jwt`), passwords, and private key blocks are stripped before entering audit logs or execution records.
+- **Path Traversal Defense**: All file operations validate paths against workspace root boundaries and reject null-byte injection (`\0`, `%00`).
+- **No Remote Backend**: AgentForge is fully self-contained; no network backend or cloud telemetry is required.
 
 ---
 
-## Sample-Data Behavior
+## Known Limitations & Simulated Features
 
-Sample data is clearly distinguishable from real user data and includes:
-
-- 5 skills (Security Audit, Code Review, Token Efficiency, Test Generation, Architecture Analysis)
-- 6 agents (Architecture, Planning, Implementation, Static Code Review, Test Validation, Documentation)
-- 3 pipelines (Enterprise Feature Delivery, Security Review, Release Readiness)
-- 5 execution records with varied statuses
-- 3 platform integrations marked `Not Connected` or `Mock` — never represented as real connections
-
-Dashboard metrics (totals, runs, success/failure counts, installed packages) are computed from
-these records rather than hard-coded into the UI.
-
----
-
-## Message Bridge
-
-The WebView posts typed request messages to the extension host, which validates each envelope and
-payload, dispatches to the appropriate service, and returns a structured response with a matching
-request id. Unknown message types and invalid payloads are rejected. The initial supported types
-are:
-
-`app.ready`, `app.getState`, `app.getDashboardData`, `skills.list`, `agents.list`,
-`workflows.list`, `executions.list`, `settings.get`, `settings.update`, `app.navigate`
-
-Filesystem and VS Code operations happen only in the extension host. The WebView cannot invoke
-arbitrary commands or write to arbitrary paths.
-
----
-
-## Planned Implementation Phases
-
-1. **Skills Studio** — SKILL.md editing, validation, testing, versioning, import/export.
-2. **Agent Studio** — visual builder, skill assignments, tool definitions, permission policies,
-   schemas, platform-specific exports.
-3. **Harness Pipeline** — drag-and-drop editor using `@xyflow/react`, context handoffs, approval
-   gates, retry policies, simulation, execution history.
-4. **Operations** — evaluation suites, pipeline comparison, execution inspector.
-5. **Platform** — adapter interfaces, package manager, capability matrix.
-6. **Governance** — audit records, permission policies, change history.
-
----
-
-## Commands Reference
-
-| Command | Description |
-| --- | --- |
-| `npm install` | Install root dependencies |
-| `cd webview-ui && npm install` | Install WebView dependencies |
-| `npm run build` | Build WebView and extension host |
-| `npm run build:webview` | Build the React WebView |
-| `npm run build:extension` | Bundle the extension host |
-| `npm run typecheck` | Type-check host and WebView |
-| `npm test` | Run Vitest tests |
-| `npm run lint` | Lint extension host and tests (ESLint) |
-| `npm run lint:webview` | Lint the WebView React sources |
-| `npm run dev:webview` | Vite dev server for the WebView |
-| `npm run package:vsix` | Package the extension as a VSIX |
+1. **Deterministic Local Simulation vs Live LLM Execution**:
+   - The simulation engine generates deterministic, structural mock outputs for agent and skill steps.
+   - It does not invoke paid external LLM APIs (OpenAI, Anthropic) or run background inference servers directly in local VS Code. All execution output is clearly flagged with `isSimulated: true`.
+2. **Platform Export vs Autonomous Host Execution**:
+   - Platform export adapters produce verified export formats (e.g. `.github/copilot-instructions.md`, `.claude/config.json`, Assistants API schemas).
+   - However, actually running those agents autonomously in external editors depends on the host platform's native features and external subscription status.
+3. **No Arbitrary Shell Execution from Webview**:
+   - In accordance with enterprise security guidelines, the WebView UI cannot execute arbitrary shell commands on the host machine.
+4. **Local UI Guardrails Disclaimer**:
+   - Local permission declarations enforce operational safety, but do not claim complete isolation against a compromised host or hostile extension environment.

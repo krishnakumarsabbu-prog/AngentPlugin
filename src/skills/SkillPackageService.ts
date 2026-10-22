@@ -161,7 +161,7 @@ export class SkillPackageService {
     }
 
     const all = await this.store.list();
-    const existingIds = new Set(all.map((s) => s.id));
+    const _existingIds = new Set(all.map((s) => s.id));
     const validation = validateSkill(skill, {
       ...defaultValidationContext(),
       existingIds: new Set(), // duplicate detection handled separately, below

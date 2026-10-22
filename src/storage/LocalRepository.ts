@@ -1,14 +1,38 @@
 import * as vscode from "vscode";
+import * as fs from "fs";
+import * as path from "path";
 import { Skill, SkillStatus, PlatformCompatibility } from "../domain/skills/types";
 import { Agent } from "../domain/agents/types";
 import { Workflow } from "../domain/workflows/types";
 import { ExecutionRecord } from "../domain/executions/types";
-import { AppSettings, DashboardData, ActivityEntry, ISkillsStore, SkillSummary } from "../services/interfaces";
-import { sampleSkills, sampleAgents, sampleWorkflows, sampleExecutions, sampleIntegrations } from "./sampleData";
+import { AppSettings, DashboardData, ActivityEntry, ISkillsStore, SkillSummary, IntegrationStatus } from "../services/interfaces";
+import {
+  sampleSkills,
+  sampleAgents,
+  sampleWorkflows,
+  sampleExecutions,
+  sampleIntegrations,
+  enterpriseSecurityAuditSkill,
+  enterpriseSecurityAuditorAgent,
+  anvilSkill,
+  anvilAgent,
+  talonSkill,
+  talonAgent,
+  sentryCodeReviewSkill,
+  sentryCodeReviewAgent,
+  agenticSecurityScannerSkill,
+  agenticSecurityScannerAgent,
+  sentinelSkill,
+  sentinelAgent,
+  bastionSkill,
+  bastionAgent,
+} from "./sampleData";
 import { DEFAULT_SETTINGS } from "./settingsDefaults";
 import { migrateToCurrent, PersistedStateV2, CURRENT_SCHEMA_VERSION, freshState } from "./migrations";
 import { safeStorage, serializeJson } from "./safeStorage";
 import { HistoryStore, createHistoryStore, appendChangelog } from "../skills/SkillHistory";
+import { AgentRepository } from "./AgentRepository";
+import { WorkflowRepository } from "./WorkflowRepository";
 
 export interface PersistedState {
   schemaVersion: number;
@@ -25,8 +49,19 @@ const STORAGE_KEY = "agentforge.state";
 export class LocalRepository implements ISkillsStore {
   private state: PersistedState;
   private history: HistoryStore;
+  private agentRepo: AgentRepository;
+  private workflowRepo: WorkflowRepository;
+  private workspaceRoot?: string;
 
-  constructor(private context: vscode.ExtensionContext) {
+  constructor(private context: vscode.ExtensionContext, workspaceRoot?: string) {
+    if (workspaceRoot) {
+      this.workspaceRoot = workspaceRoot;
+    } else {
+      const folders = vscode.workspace?.workspaceFolders;
+      if (folders && folders.length > 0) {
+        this.workspaceRoot = folders[0].uri.fsPath;
+      }
+    }
     this.state = this.load();
     this.history = createHistoryStore();
     for (const h of this.state.history) {
@@ -34,21 +69,226 @@ export class LocalRepository implements ISkillsStore {
         this.history.record(entry.snapshot, entry.summary);
       }
     }
+    this.agentRepo = new AgentRepository({
+      loadAgents: () => this.state.agents,
+      saveAgents: (agents) => {
+        this.state.agents = agents;
+        this.persist();
+      },
+    });
+    this.workflowRepo = new WorkflowRepository(
+      {
+        loadWorkflows: () => this.state.workflows,
+        saveWorkflows: (workflows) => {
+          this.state.workflows = workflows;
+          this.persist();
+        },
+      },
+      () => ({
+        knownAgentIds: new Set(this.state.agents.map((a) => a.id)),
+        knownSkillIds: new Set(this.state.skills.map((s) => s.id)),
+      })
+    );
+  }
+
+  public getWorkspaceRoot(): string | undefined {
+    return this.workspaceRoot;
   }
 
   private load(): PersistedState {
-    const raw = this.context.globalState.get<unknown>(STORAGE_KEY);
+    let raw = this.context.globalState.get<unknown>(STORAGE_KEY);
+    if (this.workspaceRoot) {
+      const workspaceFile = path.join(this.workspaceRoot, ".agentforge", "state.json");
+      if (fs.existsSync(workspaceFile)) {
+        try {
+          const content = fs.readFileSync(workspaceFile, "utf8");
+          raw = JSON.parse(content);
+        } catch {
+          // ignore error
+        }
+      }
+      const workflowsDir = path.join(this.workspaceRoot, ".agentforge", "workflows");
+      if (fs.existsSync(workflowsDir)) {
+        try {
+          const files = fs.readdirSync(workflowsDir).filter((f) => f.endsWith(".json"));
+          const diskWfs: Workflow[] = [];
+          for (const f of files) {
+            try {
+              const wfJson = JSON.parse(fs.readFileSync(path.join(workflowsDir, f), "utf8"));
+              if (wfJson && typeof wfJson.id === "string") {
+                diskWfs.push(wfJson);
+              }
+            } catch {
+              // ignore invalid file
+            }
+          }
+          if (diskWfs.length > 0 && raw && typeof raw === "object") {
+            (raw as { workflows?: Workflow[] }).workflows = diskWfs;
+          }
+        } catch {
+          // ignore
+        }
+      }
+      const executionsDir = path.join(this.workspaceRoot, ".agentforge", "executions");
+      if (fs.existsSync(executionsDir)) {
+        try {
+          const files = fs.readdirSync(executionsDir).filter((f) => f.endsWith(".json"));
+          const diskExecs: ExecutionRecord[] = [];
+          for (const f of files) {
+            try {
+              const execJson = JSON.parse(fs.readFileSync(path.join(executionsDir, f), "utf8"));
+              if (execJson && typeof execJson.id === "string") {
+                diskExecs.push(execJson);
+              }
+            } catch {
+              // ignore invalid file
+            }
+          }
+          if (diskExecs.length > 0 && raw && typeof raw === "object") {
+            (raw as { executions?: ExecutionRecord[] }).executions = diskExecs;
+          }
+        } catch {
+          // ignore
+        }
+      }
+    }
     const migrated = migrateToCurrent(raw);
+    const sampleSkillIds = new Set([
+      "skill-security-audit",
+      "skill-code-review",
+      "skill-token-efficiency",
+      "skill-test-generation",
+      "skill-architecture-analysis",
+    ]);
+    const sampleAgentIds = new Set([
+      "agent-architecture",
+      "agent-planning",
+      "agent-implementation",
+      "agent-static-review",
+      "agent-test-validation",
+      "agent-documentation",
+    ]);
+    const sampleWorkflowIds = new Set([
+      "wf-feature-delivery",
+      "wf-security-review",
+      "wf-release-readiness",
+    ]);
+    const sampleExecutionIds = new Set([
+      "exec-1001",
+      "exec-1002",
+      "exec-1003",
+      "exec-1004",
+      "exec-1005",
+    ]);
+
+    migrated.skills = (migrated.skills || []).filter((s) => !sampleSkillIds.has(s.id));
+    migrated.agents = (migrated.agents || []).filter((a) => !sampleAgentIds.has(a.id));
+    migrated.workflows = (migrated.workflows || []).filter((w) => !sampleWorkflowIds.has(w.id));
+    migrated.executions = (migrated.executions || []).filter((e) => !sampleExecutionIds.has(e.id));
+
+    // Always refresh enterprise-security-audit, anvil, and talon skill and agent in plugin memory with the latest definition
+    const existingSkillIdx = (migrated.skills || []).findIndex((s) => s.id === enterpriseSecurityAuditSkill.id);
+    if (existingSkillIdx >= 0) {
+      migrated.skills[existingSkillIdx] = { ...enterpriseSecurityAuditSkill };
+    } else {
+      migrated.skills.push({ ...enterpriseSecurityAuditSkill });
+    }
+    const existingAgentIdx = (migrated.agents || []).findIndex((a) => a.id === enterpriseSecurityAuditorAgent.id);
+    if (existingAgentIdx >= 0) {
+      migrated.agents[existingAgentIdx] = { ...enterpriseSecurityAuditorAgent };
+    } else {
+      migrated.agents.push({ ...enterpriseSecurityAuditorAgent });
+    }
+
+    const existingAnvilSkillIdx = (migrated.skills || []).findIndex((s) => s.id === anvilSkill.id);
+    if (existingAnvilSkillIdx >= 0) {
+      migrated.skills[existingAnvilSkillIdx] = { ...anvilSkill };
+    } else {
+      migrated.skills.push({ ...anvilSkill });
+    }
+    const existingAnvilAgentIdx = (migrated.agents || []).findIndex((a) => a.id === anvilAgent.id);
+    if (existingAnvilAgentIdx >= 0) {
+      migrated.agents[existingAnvilAgentIdx] = { ...anvilAgent };
+    } else {
+      migrated.agents.push({ ...anvilAgent });
+    }
+
+    const existingTalonSkillIdx = (migrated.skills || []).findIndex((s) => s.id === talonSkill.id);
+    if (existingTalonSkillIdx >= 0) {
+      migrated.skills[existingTalonSkillIdx] = { ...talonSkill };
+    } else {
+      migrated.skills.push({ ...talonSkill });
+    }
+    const existingTalonAgentIdx = (migrated.agents || []).findIndex((a) => a.id === talonAgent.id);
+    if (existingTalonAgentIdx >= 0) {
+      migrated.agents[existingTalonAgentIdx] = { ...talonAgent };
+    } else {
+      migrated.agents.push({ ...talonAgent });
+    }
+
+    const existingSentrySkillIdx = (migrated.skills || []).findIndex((s) => s.id === sentryCodeReviewSkill.id);
+    if (existingSentrySkillIdx >= 0) {
+      migrated.skills[existingSentrySkillIdx] = { ...sentryCodeReviewSkill };
+    } else {
+      migrated.skills.push({ ...sentryCodeReviewSkill });
+    }
+    const existingSentryAgentIdx = (migrated.agents || []).findIndex((a) => a.id === sentryCodeReviewAgent.id);
+    if (existingSentryAgentIdx >= 0) {
+      migrated.agents[existingSentryAgentIdx] = { ...sentryCodeReviewAgent };
+    } else {
+      migrated.agents.push({ ...sentryCodeReviewAgent });
+    }
+
+    const existingScannerSkillIdx = (migrated.skills || []).findIndex((s) => s.id === agenticSecurityScannerSkill.id);
+    if (existingScannerSkillIdx >= 0) {
+      migrated.skills[existingScannerSkillIdx] = { ...agenticSecurityScannerSkill };
+    } else {
+      migrated.skills.push({ ...agenticSecurityScannerSkill });
+    }
+    const existingScannerAgentIdx = (migrated.agents || []).findIndex((a) => a.id === agenticSecurityScannerAgent.id);
+    if (existingScannerAgentIdx >= 0) {
+      migrated.agents[existingScannerAgentIdx] = { ...agenticSecurityScannerAgent };
+    } else {
+      migrated.agents.push({ ...agenticSecurityScannerAgent });
+    }
+
+    const existingSentinelSkillIdx = (migrated.skills || []).findIndex((s) => s.id === sentinelSkill.id);
+    if (existingSentinelSkillIdx >= 0) {
+      migrated.skills[existingSentinelSkillIdx] = { ...sentinelSkill };
+    } else {
+      migrated.skills.push({ ...sentinelSkill });
+    }
+    const existingSentinelAgentIdx = (migrated.agents || []).findIndex((a) => a.id === sentinelAgent.id);
+    if (existingSentinelAgentIdx >= 0) {
+      migrated.agents[existingSentinelAgentIdx] = { ...sentinelAgent };
+    } else {
+      migrated.agents.push({ ...sentinelAgent });
+    }
+
+    const existingBastionSkillIdx = (migrated.skills || []).findIndex((s) => s.id === bastionSkill.id);
+    if (existingBastionSkillIdx >= 0) {
+      migrated.skills[existingBastionSkillIdx] = { ...bastionSkill };
+    } else {
+      migrated.skills.push({ ...bastionSkill });
+    }
+    const existingBastionAgentIdx = (migrated.agents || []).findIndex((a) => a.id === bastionAgent.id);
+    if (existingBastionAgentIdx >= 0) {
+      migrated.agents[existingBastionAgentIdx] = { ...bastionAgent };
+    } else {
+      migrated.agents.push({ ...bastionAgent });
+    }
+
     if (raw && (raw as { schemaVersion?: number }).schemaVersion === CURRENT_SCHEMA_VERSION) {
+      this.context.globalState.update(STORAGE_KEY, migrated);
       return { ...migrated };
     }
     const seeded: PersistedState = {
       schemaVersion: CURRENT_SCHEMA_VERSION,
       settings: { ...DEFAULT_SETTINGS },
-      skills: [...sampleSkills],
-      agents: [...sampleAgents],
-      workflows: [...sampleWorkflows],
-      executions: [...sampleExecutions],
+      skills: [{ ...enterpriseSecurityAuditSkill }, { ...anvilSkill }, { ...talonSkill }, { ...sentryCodeReviewSkill }, { ...agenticSecurityScannerSkill }, { ...sentinelSkill }, { ...bastionSkill }],
+      agents: [{ ...enterpriseSecurityAuditorAgent }, { ...anvilAgent }, { ...talonAgent }, { ...sentryCodeReviewAgent }, { ...agenticSecurityScannerAgent }, { ...sentinelAgent }, { ...bastionAgent }],
+      workflows: [],
+      executions: [],
       history: migrated.history,
     };
     this.context.globalState.update(STORAGE_KEY, seeded);
@@ -66,6 +306,82 @@ export class LocalRepository implements ISkillsStore {
     };
     this.state = snapshot;
     this.context.globalState.update(STORAGE_KEY, snapshot);
+
+    if (this.workspaceRoot) {
+      try {
+        const workspaceDir = path.join(this.workspaceRoot, ".agentforge");
+        const skillsDir = path.join(workspaceDir, "skills");
+        const agentsDir = path.join(workspaceDir, "agents");
+        const workflowsDir = path.join(workspaceDir, "workflows");
+        const executionsDir = path.join(workspaceDir, "executions");
+        fs.mkdirSync(skillsDir, { recursive: true });
+        fs.mkdirSync(agentsDir, { recursive: true });
+        fs.mkdirSync(workflowsDir, { recursive: true });
+        fs.mkdirSync(executionsDir, { recursive: true });
+
+        // Keep this skill in the plugin memory only (do not write to .agentforge disk)
+        const diskSnapshot = {
+          ...snapshot,
+          skills: snapshot.skills.filter(
+            (s) =>
+              s.id !== enterpriseSecurityAuditSkill.id &&
+              s.id !== anvilSkill.id &&
+              s.id !== talonSkill.id &&
+              s.id !== sentryCodeReviewSkill.id &&
+              s.id !== agenticSecurityScannerSkill.id &&
+              s.id !== sentinelSkill.id &&
+              s.id !== bastionSkill.id,
+          ),
+          agents: snapshot.agents.filter(
+            (a) =>
+              a.id !== enterpriseSecurityAuditorAgent.id &&
+              a.id !== anvilAgent.id &&
+              a.id !== talonAgent.id &&
+              a.id !== sentryCodeReviewAgent.id &&
+              a.id !== agenticSecurityScannerAgent.id &&
+              a.id !== sentinelAgent.id &&
+              a.id !== bastionAgent.id,
+          ),
+        };
+        const workspaceFile = path.join(workspaceDir, "state.json");
+        fs.writeFileSync(workspaceFile, serializeJson(diskSnapshot), "utf8");
+
+        for (const s of snapshot.skills) {
+          if (
+            s.id === enterpriseSecurityAuditSkill.id ||
+            s.id === anvilSkill.id ||
+            s.id === talonSkill.id ||
+            s.id === sentryCodeReviewSkill.id ||
+            s.id === agenticSecurityScannerSkill.id ||
+            s.id === sentinelSkill.id ||
+            s.id === bastionSkill.id
+          )
+            continue;
+          fs.writeFileSync(path.join(skillsDir, `${s.id}.json`), serializeJson(s), "utf8");
+        }
+        for (const a of snapshot.agents) {
+          if (
+            a.id === enterpriseSecurityAuditorAgent.id ||
+            a.id === anvilAgent.id ||
+            a.id === talonAgent.id ||
+            a.id === sentryCodeReviewAgent.id ||
+            a.id === agenticSecurityScannerAgent.id ||
+            a.id === sentinelAgent.id ||
+            a.id === bastionAgent.id
+          )
+            continue;
+          fs.writeFileSync(path.join(agentsDir, `${a.id}.json`), serializeJson(a), "utf8");
+        }
+        for (const w of snapshot.workflows) {
+          fs.writeFileSync(path.join(workflowsDir, `${w.id}.json`), serializeJson(w), "utf8");
+        }
+        for (const e of snapshot.executions) {
+          fs.writeFileSync(path.join(executionsDir, `${e.id}.json`), serializeJson(e), "utf8");
+        }
+      } catch {
+        // ignore workspace write errors
+      }
+    }
   }
 
   async writeBackupFile(filePath: string): Promise<void> {
@@ -79,11 +395,27 @@ export class LocalRepository implements ISkillsStore {
   }
 
   async list(): Promise<Skill[]> {
-    return [...this.state.skills];
+    return this.state.skills.map((s) =>
+      s.id === enterpriseSecurityAuditSkill.id
+        ? { ...enterpriseSecurityAuditSkill }
+        : s.id === anvilSkill.id
+        ? { ...anvilSkill }
+        : s.id === talonSkill.id
+        ? { ...talonSkill }
+        : s.id === sentryCodeReviewSkill.id
+        ? { ...sentryCodeReviewSkill }
+        : s.id === agenticSecurityScannerSkill.id
+        ? { ...agenticSecurityScannerSkill }
+        : s.id === sentinelSkill.id
+        ? { ...sentinelSkill }
+        : s.id === bastionSkill.id
+        ? { ...bastionSkill }
+        : s,
+    );
   }
 
   async summaries(): Promise<SkillSummary[]> {
-    return this.state.skills.map((s) => ({
+    return (await this.list()).map((s) => ({
       id: s.id,
       name: s.name,
       status: s.status,
@@ -101,6 +433,27 @@ export class LocalRepository implements ISkillsStore {
   }
 
   async getSkill(id: string): Promise<Skill | undefined> {
+    if (id === enterpriseSecurityAuditSkill.id) {
+      return { ...enterpriseSecurityAuditSkill };
+    }
+    if (id === anvilSkill.id) {
+      return { ...anvilSkill };
+    }
+    if (id === talonSkill.id) {
+      return { ...talonSkill };
+    }
+    if (id === sentryCodeReviewSkill.id) {
+      return { ...sentryCodeReviewSkill };
+    }
+    if (id === agenticSecurityScannerSkill.id) {
+      return { ...agenticSecurityScannerSkill };
+    }
+    if (id === sentinelSkill.id) {
+      return { ...sentinelSkill };
+    }
+    if (id === bastionSkill.id) {
+      return { ...bastionSkill };
+    }
     return this.state.skills.find((s) => s.id === id);
   }
 
@@ -203,6 +556,14 @@ export class LocalRepository implements ISkillsStore {
       throw new Error(`Skill not found: ${id}`);
     }
     this.history.remove(id);
+    if (this.workspaceRoot) {
+      const file = path.join(this.workspaceRoot, ".agentforge", "skills", `${id}.json`);
+      try {
+        if (fs.existsSync(file)) fs.unlinkSync(file);
+      } catch {
+        // ignore
+      }
+    }
     this.persist();
   }
 
@@ -241,16 +602,148 @@ export class LocalRepository implements ISkillsStore {
     return candidate;
   }
 
+  getAgentRepository(): AgentRepository {
+    return this.agentRepo;
+  }
+
   async listAgents(): Promise<Agent[]> {
-    return [...this.state.agents];
+    const list = await this.agentRepo.list();
+    return list.map((a) =>
+      a.id === enterpriseSecurityAuditorAgent.id
+        ? { ...enterpriseSecurityAuditorAgent }
+        : a.id === anvilAgent.id
+        ? { ...anvilAgent }
+        : a.id === talonAgent.id
+        ? { ...talonAgent }
+        : a.id === sentryCodeReviewAgent.id
+        ? { ...sentryCodeReviewAgent }
+        : a.id === agenticSecurityScannerAgent.id
+        ? { ...agenticSecurityScannerAgent }
+        : a.id === sentinelAgent.id
+        ? { ...sentinelAgent }
+        : a.id === bastionAgent.id
+        ? { ...bastionAgent }
+        : a,
+    );
+  }
+
+  async getAgent(id: string): Promise<Agent | undefined> {
+    if (id === enterpriseSecurityAuditorAgent.id) {
+      return { ...enterpriseSecurityAuditorAgent };
+    }
+    if (id === anvilAgent.id) {
+      return { ...anvilAgent };
+    }
+    if (id === talonAgent.id) {
+      return { ...talonAgent };
+    }
+    if (id === sentryCodeReviewAgent.id) {
+      return { ...sentryCodeReviewAgent };
+    }
+    if (id === agenticSecurityScannerAgent.id) {
+      return { ...agenticSecurityScannerAgent };
+    }
+    if (id === sentinelAgent.id) {
+      return { ...sentinelAgent };
+    }
+    if (id === bastionAgent.id) {
+      return { ...bastionAgent };
+    }
+    return this.agentRepo.get(id);
+  }
+
+  async createAgent(input: Partial<Agent>): Promise<Agent> {
+    return this.agentRepo.create(input);
+  }
+
+  async updateAgent(id: string, patch: Partial<Agent>): Promise<Agent> {
+    return this.agentRepo.update(id, patch);
+  }
+
+  async duplicateAgent(id: string): Promise<Agent> {
+    return this.agentRepo.duplicate(id);
+  }
+
+  async deleteAgent(id: string): Promise<void> {
+    if (this.workspaceRoot) {
+      const file = path.join(this.workspaceRoot, ".agentforge", "agents", `${id}.json`);
+      try {
+        if (fs.existsSync(file)) fs.unlinkSync(file);
+      } catch {
+        // ignore
+      }
+    }
+    return this.agentRepo.delete(id);
+  }
+
+  getWorkflowRepository(): WorkflowRepository {
+    return this.workflowRepo;
   }
 
   async listWorkflows(): Promise<Workflow[]> {
-    return [...this.state.workflows];
+    return this.workflowRepo.list();
+  }
+
+  async getWorkflow(id: string): Promise<Workflow | undefined> {
+    return this.workflowRepo.get(id);
+  }
+
+  async createWorkflow(input: Partial<Workflow>): Promise<Workflow> {
+    return this.workflowRepo.create(input);
+  }
+
+  async updateWorkflow(id: string, patch: Partial<Workflow>): Promise<Workflow> {
+    return this.workflowRepo.update(id, patch);
+  }
+
+  async duplicateWorkflow(id: string): Promise<Workflow> {
+    return this.workflowRepo.duplicate(id);
+  }
+
+  async deleteWorkflow(id: string): Promise<void> {
+    if (this.workspaceRoot) {
+      const file = path.join(this.workspaceRoot, ".agentforge", "workflows", `${id}.json`);
+      try {
+        if (fs.existsSync(file)) fs.unlinkSync(file);
+      } catch {
+        // ignore
+      }
+    }
+    return this.workflowRepo.delete(id);
   }
 
   async listExecutions(): Promise<ExecutionRecord[]> {
     return [...this.state.executions];
+  }
+
+  async getExecution(id: string): Promise<ExecutionRecord | undefined> {
+    return this.state.executions.find((e) => e.id === id);
+  }
+
+  async saveExecution(execution: ExecutionRecord): Promise<ExecutionRecord> {
+    const idx = this.state.executions.findIndex((e) => e.id === execution.id);
+    if (idx >= 0) {
+      this.state.executions[idx] = { ...execution };
+    } else {
+      this.state.executions = [execution, ...this.state.executions];
+    }
+    this.persist();
+    return execution;
+  }
+
+  async updateExecution(id: string, patch: Partial<ExecutionRecord>): Promise<ExecutionRecord> {
+    const idx = this.state.executions.findIndex((e) => e.id === id);
+    if (idx === -1) {
+      throw new Error(`Execution record not found: ${id}`);
+    }
+    const updated: ExecutionRecord = {
+      ...this.state.executions[idx],
+      ...patch,
+      id,
+    };
+    this.state.executions[idx] = updated;
+    this.persist();
+    return updated;
   }
 
   async getSettings(): Promise<AppSettings> {
@@ -264,11 +757,15 @@ export class LocalRepository implements ISkillsStore {
   }
 
   async getDashboardData(): Promise<DashboardData> {
-    const skills = this.state.skills;
-    const agents = this.state.agents;
+    const skills = await this.list();
+    const agents = await this.listAgents();
     const workflows = this.state.workflows;
     const executions = this.state.executions;
-    const integrations = sampleIntegrations;
+    const integrations: IntegrationStatus[] = [
+      { id: "int-copilot", name: "GitHub Copilot", kind: "copilot", status: "Not Connected", description: "Export skills and prompts as Copilot instructions." },
+      { id: "int-claude", name: "Claude Code", kind: "claude", status: "Not Connected", description: "Export agents as Claude Code subagents and skill manifests." },
+      { id: "int-openai", name: "OpenAI API", kind: "openai", status: "Not Connected", description: "Adapter scaffold for OpenAI-compatible APIs. No live calls are made." },
+    ];
 
     const pipelineRuns = executions.length;
     const successfulRuns = executions.filter((e) => e.status === "Succeeded").length;
@@ -330,7 +827,9 @@ export class LocalRepository implements ISkillsStore {
   }
 
   private countInstalledPackages(): number {
-    return new Set(this.state.skills.map((s) => s.category)).size + this.state.workflows.length;
+    return this.state.skills.length > 0
+      ? new Set(this.state.skills.map((s) => s.category)).size + this.state.workflows.length
+      : 0;
   }
 
   async resetDemoData(): Promise<void> {
@@ -338,10 +837,10 @@ export class LocalRepository implements ISkillsStore {
     this.state = {
       ...fresh,
       settings: { ...DEFAULT_SETTINGS },
-      skills: [...sampleSkills],
-      agents: [...sampleAgents],
-      workflows: [...sampleWorkflows],
-      executions: [...sampleExecutions],
+      skills: [],
+      agents: [],
+      workflows: [],
+      executions: [],
     };
     this.history = createHistoryStore();
     this.persist();

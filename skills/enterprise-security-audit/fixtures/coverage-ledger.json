@@ -1,0 +1,142 @@
+[
+  {
+    "coverage_id": "src%2Fapi%2Froutes%2Finvoices.ts%23GET%20%2Finvoices%2F%3Aid::src%2Fauthz.ts%23requireTenantOwnership::packages%2Fapi::ATTACK-CLASSES.md%23Access%20control",
+    "canonical_refs": {
+      "surface": "src/api/routes/invoices.ts#GET /invoices/:id",
+      "boundary": "src/authz.ts#requireTenantOwnership",
+      "subsystem": "packages/api",
+      "attack_class": "ATTACK-CLASSES.md#Access control"
+    },
+    "surface": "Invoice retrieval route",
+    "boundary": "Tenant data isolation",
+    "subsystem": "Billing API",
+    "attack_class": "Access control",
+    "starting_paths": [
+      "src/api/routes/invoices.ts",
+      "src/services/invoiceService.ts"
+    ],
+    "ordinary_attack_class_block": "ATTACK-CLASSES.md#Access control",
+    "selected_companion_blocks": [
+      "DATA-ISOLATION-AND-LIFECYCLE.md#Tenant isolation"
+    ],
+    "excluded_blocks": [],
+    "prior_status": "new",
+    "attempts": [],
+    "wave": 1,
+    "status": "candidate",
+    "agent_id": "agent-hunter-01",
+    "reviewed_paths": [
+      "src/api/routes/invoices.ts",
+      "src/services/invoiceService.ts",
+      "src/db/queries/invoices.ts"
+    ],
+    "local_checks": [
+      {
+        "agent_id": "agent-hunter-01",
+        "reviewed_paths": [
+          "src/api/routes/invoices.ts",
+          "src/services/invoiceService.ts",
+          "src/db/queries/invoices.ts"
+        ],
+        "invariant": "Tenant authorization check is executed prior to database query.",
+        "method": "source",
+        "result": "Confirmed check is omitted from handler.",
+        "artifact": null
+      }
+    ],
+    "result_fingerprints": [
+      "billing-invoice-idor-unauthorized-access"
+    ],
+    "unresolved": []
+  },
+  {
+    "coverage_id": "src%2Fserver%2Fauth.ts%23issueSessionCookie::src%2Fserver%2Fmiddleware%2Fsecurity.ts%23setSecurityHeaders::packages%2Fserver::CLIENT-SIDE.md%23Cookie%20and%20credential%20handling",
+    "canonical_refs": {
+      "surface": "src/server/auth.ts#issueSessionCookie",
+      "boundary": "src/server/middleware/security.ts#setSecurityHeaders",
+      "subsystem": "packages/server",
+      "attack_class": "CLIENT-SIDE.md#Cookie and credential handling"
+    },
+    "surface": "Session cookie generation",
+    "boundary": "Browser token security",
+    "subsystem": "Authentication Service",
+    "attack_class": "Cookie and credential handling",
+    "starting_paths": [
+      "src/server/auth.ts"
+    ],
+    "ordinary_attack_class_block": "CLIENT-SIDE.md#Cookie and credential handling",
+    "selected_companion_blocks": [],
+    "excluded_blocks": [],
+    "prior_status": "new",
+    "attempts": [],
+    "wave": 1,
+    "status": "covered",
+    "agent_id": "agent-hunter-02",
+    "reviewed_paths": [
+      "src/server/auth.ts",
+      "src/server/middleware/security.ts"
+    ],
+    "local_checks": [
+      {
+        "agent_id": "agent-hunter-02",
+        "reviewed_paths": [
+          "src/server/auth.ts",
+          "src/server/middleware/security.ts"
+        ],
+        "invariant": "HttpOnly and Secure flags must be active in production.",
+        "method": "source",
+        "result": "Security middleware injects required flags.",
+        "artifact": null
+      }
+    ],
+    "result_fingerprints": [],
+    "unresolved": []
+  },
+  {
+    "coverage_id": "src%2Fworkers%2FwebhookDispatcher.ts%23dispatchWebhook::src%2Fservices%2FhttpClient.ts%23validateEgressTarget::packages%2Fworkers::ATTACK-CLASSES.md%23Server-side%20request%20forgery",
+    "canonical_refs": {
+      "surface": "src/workers/webhookDispatcher.ts#dispatchWebhook",
+      "boundary": "src/services/httpClient.ts#validateEgressTarget",
+      "subsystem": "packages/workers",
+      "attack_class": "ATTACK-CLASSES.md#Server-side request forgery"
+    },
+    "surface": "Webhook queue dispatcher",
+    "boundary": "Egress destination filter",
+    "subsystem": "Background Workers",
+    "attack_class": "Server-side request forgery",
+    "starting_paths": [
+      "src/workers/webhookDispatcher.ts"
+    ],
+    "ordinary_attack_class_block": "ATTACK-CLASSES.md#Server-side request forgery",
+    "selected_companion_blocks": [
+      "CLOUD-AND-DEPLOYMENT.md#Egress security"
+    ],
+    "excluded_blocks": [],
+    "prior_status": "new",
+    "attempts": [],
+    "wave": 1,
+    "status": "blocked",
+    "agent_id": "agent-hunter-03",
+    "reviewed_paths": [
+      "src/workers/webhookDispatcher.ts",
+      "src/services/httpClient.ts"
+    ],
+    "local_checks": [
+      {
+        "agent_id": "agent-hunter-03",
+        "reviewed_paths": [
+          "src/workers/webhookDispatcher.ts",
+          "src/services/httpClient.ts"
+        ],
+        "invariant": "Worker blocks private IP ranges before sending requests.",
+        "method": "source",
+        "result": "No in-code IP filtering found; requires deployment firewall audit.",
+        "artifact": null
+      }
+    ],
+    "result_fingerprints": [],
+    "unresolved": [
+      "VPC egress security rules not found in target repository."
+    ]
+  }
+]

@@ -1,0 +1,104 @@
+{
+  "$comment": "Contract for run-metadata.json in Enterprise Security Audit.",
+  "type": "object",
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "repo": {
+      "type": "string",
+      "minLength": 1
+    },
+    "target": {
+      "type": "string",
+      "minLength": 1
+    },
+    "commit_sha": {
+      "type": "string",
+      "minLength": 1
+    },
+    "dirty_worktree": {
+      "type": "boolean"
+    },
+    "uncommitted_files": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "target_scope": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "languages": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["static-audit", "execution-validation"]
+    },
+    "sandbox_available": {
+      "type": "boolean"
+    },
+    "profile": {
+      "type": "string",
+      "enum": ["quick", "standard", "deep"]
+    },
+    "orchestration": {
+      "type": "string",
+      "enum": ["multi-agent", "single-agent-sequential"]
+    },
+    "independent_verifier": {
+      "type": "boolean"
+    },
+    "run_status": {
+      "type": "string",
+      "enum": ["in_progress", "complete", "incomplete"]
+    },
+    "incomplete_reason": {
+      "type": ["string", "null"]
+    },
+    "scanners_executed": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "scanners_unavailable": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "completed_at": {
+      "type": ["string", "null"]
+    }
+  },
+  "required": [
+    "run_id",
+    "repo",
+    "target",
+    "commit_sha",
+    "dirty_worktree",
+    "uncommitted_files",
+    "target_scope",
+    "languages",
+    "mode",
+    "sandbox_available",
+    "profile",
+    "orchestration",
+    "independent_verifier",
+    "run_status"
+  ],
+  "additionalProperties": true
+}

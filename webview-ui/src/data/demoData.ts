@@ -1,326 +1,13 @@
-import type { DashboardData, Skill, Agent, Workflow, ExecutionRecord, IntegrationStatus } from "../types";
+import type { DashboardData, Skill, Agent, Workflow, ExecutionRecord, IntegrationStatus, AuditEvent } from "../types";
 
-export const demoSkills: Skill[] = [
-  {
-    id: "skill-security-audit",
-    name: "Security Audit Skill",
-    description: "Reviews source for common vulnerability classes and reports findings with severity.",
-    version: "1.2.0",
-    category: "Security",
-    tags: ["security", "audit", "owasp"],
-    author: "AgentForge Demo",
-    frontmatter: "",
-    otherTargets: [],
-    requiredTools: [],
-    permissions: [],
-    changelog: "",
-    requirements: "",
-    instructions: "",
-    resources: [
-      {
-        "id": "res-audit-checklist",
-        "name": "owasp-checklist.md",
-        "kind": "reference",
-        "description": "OWASP Top 10 review checklist."
-      },
-      {
-        "id": "res-audit-severity",
-        "name": "severity-matrix.md",
-        "kind": "reference",
-        "description": "Severity ranking matrix for findings."
-      }
-    ],
-    compatibility: ["copilot", "claude", "openai"],
-    installationState: "installed",
-    status: "Ready",
-    createdAt: "2026-09-01T10:00:00Z",
-    updatedAt: "2026-10-12T14:22:00Z",
-  },
-  {
-    id: "skill-code-review",
-    name: "Code Review Skill",
-    description: "Performs structural code review against team standards.",
-    version: "0.9.4",
-    category: "Review",
-    tags: ["review", "quality"],
-    author: "AgentForge Demo",
-    frontmatter: "",
-    otherTargets: [],
-    requiredTools: [],
-    permissions: [],
-    changelog: "",
-    requirements: "",
-    instructions: "",
-    resources: [
-      {
-        "id": "res-review-rubric",
-        "name": "review-rubric.md",
-        "kind": "reference",
-        "description": "Scoring rubric for structural review."
-      }
-    ],
-    compatibility: ["copilot", "claude"],
-    installationState: "installed",
-    status: "Ready",
-    createdAt: "2026-09-04T09:30:00Z",
-    updatedAt: "2026-10-11T08:10:00Z",
-  },
-  {
-    id: "skill-token-efficiency",
-    name: "Token Efficiency Skill",
-    description: "Rewrites prompts and outputs to reduce token usage.",
-    version: "0.4.1",
-    category: "Optimization",
-    tags: ["tokens", "cost"],
-    author: "AgentForge Demo",
-    frontmatter: "",
-    otherTargets: [],
-    requiredTools: [],
-    permissions: [],
-    changelog: "",
-    requirements: "",
-    instructions: "",
-    resources: [
-      {
-        "id": "res-token-baseline",
-        "name": "baseline-prompts.md",
-        "kind": "template",
-        "description": "Baseline prompts used for compression benchmarks."
-      }
-    ],
-    compatibility: ["openai", "claude"],
-    installationState: "not-installed",
-    status: "Draft",
-    createdAt: "2026-09-22T16:00:00Z",
-    updatedAt: "2026-10-09T12:00:00Z",
-  },
-  {
-    id: "skill-test-generation",
-    name: "Test Generation Skill",
-    description: "Generates unit tests from source signatures and examples.",
-    version: "1.0.0",
-    category: "Testing",
-    tags: ["testing", "unit"],
-    author: "AgentForge Demo",
-    frontmatter: "",
-    otherTargets: [],
-    requiredTools: [],
-    permissions: [],
-    changelog: "",
-    requirements: "",
-    instructions: "",
-    resources: [
-      {
-        "id": "res-test-conventions",
-        "name": "test-conventions.md",
-        "kind": "reference",
-        "description": "Project test naming and layout conventions."
-      },
-      {
-        "id": "res-test-scaffold",
-        "name": "scaffold-test.ts",
-        "kind": "template",
-        "description": "Starter template for generated test files."
-      }
-    ],
-    compatibility: ["copilot", "claude", "openai"],
-    installationState: "installed",
-    status: "Ready",
-    createdAt: "2026-09-10T11:15:00Z",
-    updatedAt: "2026-10-08T17:45:00Z",
-  },
-  {
-    id: "skill-architecture-analysis",
-    name: "Architecture Analysis Skill",
-    description: "Maps modules and surfaces coupling and layering issues.",
-    version: "0.6.2",
-    category: "Architecture",
-    tags: ["architecture", "coupling"],
-    author: "AgentForge Demo",
-    frontmatter: "",
-    otherTargets: [],
-    requiredTools: [],
-    permissions: [],
-    changelog: "",
-    requirements: "",
-    instructions: "",
-    resources: [
-      {
-        "id": "res-arch-layer-map",
-        "name": "layer-map.md",
-        "kind": "reference",
-        "description": "Expected layering rules between modules."
-      },
-      {
-        "id": "res-arch-graph",
-        "name": "build-graph.sh",
-        "kind": "script",
-        "description": "Script that emits a module dependency graph."
-      }
-    ],
-    compatibility: ["claude", "openai"],
-    installationState: "outdated",
-    status: "Ready",
-    createdAt: "2026-09-14T13:20:00Z",
-    updatedAt: "2026-10-07T10:30:00Z",
-  },
-];
+export const demoSkills: Skill[] = [];
 
-const agents: Agent[] = [
-  {
-    id: "agent-architecture",
-    name: "Architecture Agent",
-    description: "Owns module structure and cross-cutting design decisions.",
-    role: "Architect",
-    objective: "Maintain a coherent, extensible architecture across features.",
-    instructions: "",
-    assignedSkillIds: ["skill-architecture-analysis"],
-    version: "1.1.0",
-    status: "Ready",
-    createdAt: "2026-09-02T09:00:00Z",
-    updatedAt: "2026-10-13T09:12:00Z",
-  },
-  {
-    id: "agent-planning",
-    name: "Planning Agent",
-    description: "Breaks down work into ordered, sized tasks.",
-    role: "Planner",
-    objective: "Produce executable plans with clear acceptance criteria.",
-    instructions: "",
-    assignedSkillIds: [],
-    version: "1.0.0",
-    status: "Ready",
-    createdAt: "2026-09-05T09:30:00Z",
-    updatedAt: "2026-10-12T16:40:00Z",
-  },
-  {
-    id: "agent-implementation",
-    name: "Implementation Agent",
-    description: "Writes code changes for planned tasks.",
-    role: "Implementer",
-    objective: "Deliver working code matching the plan.",
-    instructions: "",
-    assignedSkillIds: [],
-    version: "1.2.0",
-    status: "Ready",
-    createdAt: "2026-09-06T09:30:00Z",
-    updatedAt: "2026-10-11T11:20:00Z",
-  },
-  {
-    id: "agent-static-review",
-    name: "Static Code Review Agent",
-    description: "Runs review skills and aggregates findings.",
-    role: "Reviewer",
-    objective: "Surface quality and security issues before merge.",
-    instructions: "",
-    assignedSkillIds: [],
-    version: "0.9.0",
-    status: "Ready",
-    createdAt: "2026-09-08T09:30:00Z",
-    updatedAt: "2026-10-10T08:05:00Z",
-  },
-  {
-    id: "agent-test-validation",
-    name: "Test Validation Agent",
-    description: "Generates and validates tests for changes.",
-    role: "Tester",
-    objective: "Ensure tests exist and pass for new code.",
-    instructions: "",
-    assignedSkillIds: [],
-    version: "1.0.1",
-    status: "Experimental",
-    createdAt: "2026-09-12T09:30:00Z",
-    updatedAt: "2026-10-09T14:15:00Z",
-  },
-  {
-    id: "agent-documentation",
-    name: "Documentation Agent",
-    description: "Updates docs to reflect code changes.",
-    role: "Tech Writer",
-    objective: "Keep documentation accurate and discoverable.",
-    instructions: "",
-    assignedSkillIds: [],
-    version: "0.8.0",
-    status: "Draft",
-    createdAt: "2026-09-20T09:30:00Z",
-    updatedAt: "2026-10-06T09:30:00Z",
-  },
-];
+export const demoAgents: Agent[] = [];
+const agents = demoAgents;
 
-const workflows: Workflow[] = [
-  {
-    id: "wf-feature-delivery",
-    name: "Enterprise Feature Delivery",
-    description: "Plan, implement, review, and deliver a feature end-to-end.",
-    version: "1.0.0",
-    status: "Active",
-    createdAt: "2026-09-15T10:00:00Z",
-    updatedAt: "2026-10-13T15:00:00Z",
-  },
-  {
-    id: "wf-security-review",
-    name: "Security Review Pipeline",
-    description: "Static security review on every change.",
-    version: "0.9.0",
-    status: "Ready",
-    createdAt: "2026-09-18T10:00:00Z",
-    updatedAt: "2026-10-10T11:00:00Z",
-  },
-  {
-    id: "wf-release-readiness",
-    name: "Release Readiness Pipeline",
-    description: "Validates tests and docs before release sign-off.",
-    version: "0.5.0",
-    status: "Draft",
-    createdAt: "2026-09-25T10:00:00Z",
-    updatedAt: "2026-10-05T10:00:00Z",
-  },
-];
+const workflows: Workflow[] = [];
 
-const executions: ExecutionRecord[] = [
-  {
-    id: "exec-1001",
-    workflowId: "wf-feature-delivery",
-    workflowVersion: "1.0.0",
-    status: "Succeeded",
-    startedAt: "2026-10-13T15:00:00Z",
-    completedAt: "2026-10-13T15:12:00Z",
-    finalSummary: "Feature delivered and merged.",
-  },
-  {
-    id: "exec-1002",
-    workflowId: "wf-security-review",
-    workflowVersion: "0.9.0",
-    status: "Failed",
-    startedAt: "2026-10-11T11:00:00Z",
-    completedAt: "2026-10-11T11:04:00Z",
-    finalSummary: "Security review blocked merge.",
-  },
-  {
-    id: "exec-1003",
-    workflowId: "wf-feature-delivery",
-    workflowVersion: "1.0.0",
-    status: "Running",
-    startedAt: "2026-10-14T09:00:00Z",
-  },
-  {
-    id: "exec-1004",
-    workflowId: "wf-release-readiness",
-    workflowVersion: "0.5.0",
-    status: "Succeeded",
-    startedAt: "2026-10-05T10:00:00Z",
-    completedAt: "2026-10-05T10:18:00Z",
-    finalSummary: "Release candidate validated.",
-  },
-  {
-    id: "exec-1005",
-    workflowId: "wf-security-review",
-    workflowVersion: "0.9.0",
-    status: "Cancelled",
-    startedAt: "2026-10-02T08:00:00Z",
-    completedAt: "2026-10-02T08:01:00Z",
-  },
-];
+const executions: ExecutionRecord[] = [];
 
 const integrations: IntegrationStatus[] = [
   {
@@ -341,7 +28,7 @@ const integrations: IntegrationStatus[] = [
     id: "int-openai",
     name: "OpenAI API",
     kind: "openai",
-    status: "Mock",
+    status: "Not Connected",
     description: "Adapter scaffold for OpenAI-compatible APIs. No live calls are made.",
   },
 ];
@@ -492,3 +179,127 @@ function createDemoSkillsStore(initial: Skill[]): DemoSkillsStore {
 }
 
 export const demoSkillsStore = createDemoSkillsStore(demoSkills);
+
+const cloneAgent = (agent: Agent): Agent => ({
+  ...agent,
+  operatingPrinciples: agent.operatingPrinciples ? [...agent.operatingPrinciples] : [],
+  assignedSkillIds: [...agent.assignedSkillIds],
+  toolDefinitions: agent.toolDefinitions ? agent.toolDefinitions.map((t) => ({ ...t })) : [],
+  permissionPolicy: agent.permissionPolicy
+    ? {
+        ...agent.permissionPolicy,
+        restrictedPaths: agent.permissionPolicy.restrictedPaths ? [...agent.permissionPolicy.restrictedPaths] : [],
+      }
+    : undefined,
+  inputSchema: agent.inputSchema ? { ...agent.inputSchema } : undefined,
+  outputSchema: agent.outputSchema ? { ...agent.outputSchema } : undefined,
+  compatibility: agent.compatibility ? [...agent.compatibility] : undefined,
+  testScenarios: agent.testScenarios ? agent.testScenarios.map((s) => ({ ...s })) : [],
+});
+
+export function createDemoAgentsStore(initial: Agent[]) {
+  let items: Agent[] = initial.map(cloneAgent);
+
+  function uniqueAgentId(name: string): string {
+    const base = `agent-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "custom"}`;
+    let candidate = base;
+    let n = 2;
+    while (items.some((a) => a.id === candidate)) {
+      candidate = `${base}-${n}`;
+      n += 1;
+    }
+    return candidate;
+  }
+
+  return {
+    list: (): Agent[] => items.map(cloneAgent),
+    get: (id: string): Agent | undefined => {
+      const found = items.find((a) => a.id === id);
+      return found ? cloneAgent(found) : undefined;
+    },
+    create: (input: Partial<Agent>): Agent => {
+      const ts = new Date().toISOString();
+      const name = (input.name ?? "").trim();
+      const agent: Agent = {
+        id: uniqueAgentId(name),
+        name,
+        description: input.description ?? "",
+        category: input.category ?? "Custom",
+        role: input.role ?? "General Worker",
+        objective: input.objective ?? "",
+        instructions: input.instructions ?? "",
+        scope: input.scope,
+        outOfScope: input.outOfScope,
+        operatingPrinciples: input.operatingPrinciples ? [...input.operatingPrinciples] : [],
+        assignedSkillIds: input.assignedSkillIds ? [...input.assignedSkillIds] : [],
+        toolDefinitions: input.toolDefinitions ? input.toolDefinitions.map((t) => ({ ...t })) : [],
+        permissionPolicy: input.permissionPolicy
+          ? { ...input.permissionPolicy }
+          : {
+              network: false,
+              fileSystem: "read",
+              shell: false,
+              maxTokens: 8000,
+              readOnly: true,
+              workspaceAccess: true,
+              writeOperations: false,
+              restrictedPaths: [".git", ".env", "*.pem", "*.key"],
+              humanApprovalRequired: true,
+            },
+        inputSchema: input.inputSchema ? { ...input.inputSchema } : { type: "object", properties: {}, required: [] },
+        outputSchema: input.outputSchema ? { ...input.outputSchema } : { type: "object", properties: {}, required: [] },
+        exampleInput: input.exampleInput,
+        exampleOutput: input.exampleOutput,
+        compatibility: input.compatibility ? [...input.compatibility] : ["copilot", "claude", "openai", "neutral"],
+        exportFormat: input.exportFormat ?? "agent-spec",
+        testScenarios: input.testScenarios ? input.testScenarios.map((s) => ({ ...s })) : [],
+        version: input.version ?? "1.0.0",
+        status: input.status ?? "Draft",
+        changelog: input.changelog ?? "1.0.0 — Initial configuration",
+        createdAt: ts,
+        updatedAt: ts,
+      };
+      items = [agent, ...items];
+      return cloneAgent(agent);
+    },
+    update: (id: string, patch: Partial<Agent>): Agent => {
+      const idx = items.findIndex((a) => a.id === id);
+      if (idx === -1) throw new Error(`Agent not found: ${id}`);
+      const updated: Agent = {
+        ...items[idx],
+        ...patch,
+        id: items[idx].id,
+        createdAt: items[idx].createdAt,
+        updatedAt: new Date().toISOString(),
+      };
+      items[idx] = updated;
+      return cloneAgent(updated);
+    },
+    duplicate: (id: string): Agent => {
+      const idx = items.findIndex((a) => a.id === id);
+      if (idx === -1) throw new Error(`Agent not found: ${id}`);
+      const ts = new Date().toISOString();
+      const existing = items[idx];
+      const copy: Agent = {
+        ...cloneAgent(existing),
+        id: uniqueAgentId(`${existing.name}-copy`),
+        name: `${existing.name} (Copy)`,
+        status: "Draft",
+        changelog: `${existing.version} — Duplicated from original\n${existing.changelog ?? ""}`.trim(),
+        createdAt: ts,
+        updatedAt: ts,
+      };
+      items = [copy, ...items];
+      return cloneAgent(copy);
+    },
+    remove: (id: string): void => {
+      const before = items.length;
+      items = items.filter((a) => a.id !== id);
+      if (items.length === before) throw new Error(`Agent not found: ${id}`);
+    },
+  };
+}
+
+export const demoAgentsStore = createDemoAgentsStore(demoAgents);
+
+export const demoAuditEvents: AuditEvent[] = [];

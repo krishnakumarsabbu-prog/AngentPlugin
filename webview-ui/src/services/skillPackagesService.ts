@@ -137,7 +137,7 @@ const browserStore: SkillPackagesStore = {
   },
   async previewImport(content, files, skillMd) {
     let skill: Partial<Skill>;
-    let pkgFiles: PackageFile[] = [];
+    const pkgFiles: PackageFile[] = [];
     try {
       const manifest = JSON.parse(content) as PackageManifest;
       if (manifest.kind !== "agentforge-skill") throw new Error("not a package");

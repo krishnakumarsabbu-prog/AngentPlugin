@@ -1,5 +1,6 @@
 import { PanelLeftClose, PanelLeftOpen, RefreshCw } from "lucide-react";
 import { Breadcrumbs, type Crumb } from "./ui/Breadcrumbs";
+import { ThemeSwitcher } from "./ThemeSwitcher";
 
 interface HeaderProps {
   title: string;
@@ -24,7 +25,8 @@ export function Header({ title, collapsed, onToggleCollapse, onRefresh }: Header
         </button>
         <Breadcrumbs items={crumbs} />
       </div>
-      <div className="header-right">
+      <div className="header-right" style={{ gap: 10 }}>
+        <ThemeSwitcher />
         {onRefresh && (
           <button
             className="collapse-btn"
@@ -32,7 +34,7 @@ export function Header({ title, collapsed, onToggleCollapse, onRefresh }: Header
             onClick={onRefresh}
             title="Refresh"
           >
-            <RefreshCw size={16} />
+            <RefreshCw size={15} />
           </button>
         )}
       </div>

@@ -7,8 +7,13 @@ interface VsCodeApi {
 }
 
 function acquireApi(): VsCodeApi | undefined {
+  if (typeof (window as unknown as { __vscodeApi?: VsCodeApi }).__vscodeApi !== "undefined") {
+    return (window as unknown as { __vscodeApi?: VsCodeApi }).__vscodeApi;
+  }
   if (typeof acquireVsCodeApi === "function") {
-    return acquireVsCodeApi();
+    const instance = acquireVsCodeApi();
+    (window as unknown as { __vscodeApi?: VsCodeApi }).__vscodeApi = instance;
+    return instance;
   }
   return undefined;
 }
@@ -21,21 +26,52 @@ try {
 }
 
 const pending = new Map<string, { resolve: (v: unknown) => void; reject: (e: Error) => void; timer: ReturnType<typeof setTimeout> }>();
+const pushListeners = new Map<string, Set<(data: any) => void>>();
 
-if (api) {
+if (typeof window !== "undefined") {
   window.addEventListener("message", (event: MessageEvent) => {
-    const msg = event.data as ResponseMessage;
-    if (!msg || msg.type !== "response" || !msg.requestId) return;
-    const entry = pending.get(msg.requestId);
-    if (!entry) return;
-    clearTimeout(entry.timer);
-    pending.delete(msg.requestId);
-    if (msg.ok) {
-      entry.resolve(msg.data);
-    } else {
-      entry.reject(new Error(msg.error ?? "Request failed"));
+    const raw = event.data;
+    if (!raw || typeof raw !== "object") return;
+
+    if (raw.type === "response" && raw.requestId) {
+      const entry = pending.get(raw.requestId);
+      if (!entry) return;
+      clearTimeout(entry.timer);
+      pending.delete(raw.requestId);
+      if (raw.ok) {
+        entry.resolve(raw.data);
+      } else {
+        entry.reject(new Error(raw.error ?? "Request failed"));
+      }
+      return;
+    }
+
+    if (raw.type && pushListeners.has(raw.type)) {
+      const listeners = pushListeners.get(raw.type)!;
+      for (const listener of listeners) {
+        try {
+          listener(raw.data);
+        } catch {
+          // ignore callback error
+        }
+      }
     }
   });
+}
+
+export function subscribeToPushEvent<T = any>(type: string, handler: (data: T) => void): () => void {
+  if (!pushListeners.has(type)) {
+    pushListeners.set(type, new Set());
+  }
+  pushListeners.get(type)!.add(handler as (data: any) => void);
+
+  return () => {
+    const set = pushListeners.get(type);
+    if (set) {
+      set.delete(handler as (data: any) => void);
+      if (set.size === 0) pushListeners.delete(type);
+    }
+  };
 }
 
 let counter = 0;

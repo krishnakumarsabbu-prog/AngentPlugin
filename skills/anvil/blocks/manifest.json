@@ -1,0 +1,18 @@
+{
+  "version": "1.0.0",
+  "blocks": [
+    {
+      "id": "release-smoke",
+      "name": "Release Smoke Verification",
+      "file": "release-smoke.py",
+      "sha256": "8f8a1a980753a99e0df224976451ef946465dc1331c4f4fe9d2bfad847e33719",
+      "summary": "Deterministic release artifact and package integrity validation.",
+      "effects": ["network", "filesystem:temp"],
+      "params": {
+        "version": { "type": "string", "required": true, "help": "Release semantic version string" },
+        "binary-tag": { "type": "string", "required": false, "help": "Signed binary release tag" },
+        "repo": { "type": "string", "required": true, "help": "Repository owner and name" }
+      }
+    }
+  ]
+}

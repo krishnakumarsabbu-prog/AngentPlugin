@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { Button } from "./Button";
 
@@ -26,7 +27,7 @@ export function Dialog({ open, title, onClose, children, footer }: DialogProps) 
 
   if (!open) return null;
 
-  return (
+  return createPortal(
     <div
       className="dialog-overlay"
       ref={overlayRef}
@@ -50,7 +51,8 @@ export function Dialog({ open, title, onClose, children, footer }: DialogProps) 
         <div className="dialog-body">{children}</div>
         {footer && <div className="dialog-footer">{footer}</div>}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

@@ -2,38 +2,36 @@ import { describe, it, expect } from "vitest";
 import { buildDemoDashboard } from "../webview-ui/src/data/demoData";
 
 describe("demoData", () => {
-  it("produces dashboard metrics derived from sample records", () => {
+  it("produces clean empty dashboard metrics for production portal", () => {
     const d = buildDemoDashboard();
-    expect(d.metrics.totalSkills).toBe(5);
-    expect(d.metrics.totalAgents).toBe(6);
-    expect(d.metrics.totalPipelines).toBe(3);
-    expect(d.metrics.pipelineRuns).toBe(5);
-    expect(d.metrics.successfulRuns).toBe(2);
-    expect(d.metrics.failedRuns).toBe(1);
-    expect(d.metrics.installedPackages).toBeGreaterThan(0);
+    expect(d.metrics.totalSkills).toBe(0);
+    expect(d.metrics.totalAgents).toBe(0);
+    expect(d.metrics.totalPipelines).toBe(0);
+    expect(d.metrics.pipelineRuns).toBe(0);
+    expect(d.metrics.successfulRuns).toBe(0);
+    expect(d.metrics.failedRuns).toBe(0);
+    expect(d.metrics.installedPackages).toBe(0);
   });
 
-  it("returns recent skills sorted by updatedAt descending", () => {
+  it("returns empty recent skills", () => {
     const d = buildDemoDashboard();
-    const dates = d.recentSkills.map((s) => s.updatedAt);
-    const sorted = [...dates].sort((a, b) => (a < b ? 1 : -1));
-    expect(dates).toEqual(sorted);
+    expect(d.recentSkills).toEqual([]);
   });
 
-  it("returns at most 5 recent agents", () => {
+  it("returns empty recent agents", () => {
     const d = buildDemoDashboard();
-    expect(d.recentAgents.length).toBeLessThanOrEqual(5);
+    expect(d.recentAgents).toEqual([]);
   });
 
-  it("marks integrations as Not Connected or Mock, never Connected", () => {
+  it("marks integrations as Not Connected", () => {
     const d = buildDemoDashboard();
     for (const i of d.integrations) {
-      expect(["Not Connected", "Mock"]).toContain(i.status);
+      expect(["Not Connected"]).toContain(i.status);
     }
   });
 
-  it("returns at most 8 recent activity entries", () => {
+  it("returns empty recent activity entries", () => {
     const d = buildDemoDashboard();
-    expect(d.recentActivity.length).toBeLessThanOrEqual(8);
+    expect(d.recentActivity).toEqual([]);
   });
 });
