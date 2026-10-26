@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json.schemastore.org/partial-claude-manifest.json",
+  "name": "agentforge-sentinel",
+  "version": "1.0.0",
+  "description": "AgentForge Claude Code Configuration and Subagent Manifests",
+  "agents": [
+    {
+      "name": "sentinel",
+      "displayName": "Sentinel Security Scanner Agent",
+      "description": "OWASP AST10 Autonomous Security Scanner. Evaluates AI agent skills for prompt injection, backdoors, data exfiltration, supply chain vulnerabilities, and cross-platform security loss.",
+      "path": ".claude/agents/sentinel.md",
+      "skills": [
+        "skills/sentinel/SKILL.md"
+      ],
+      "tools": [
+        "sentinel_scan_ast10",
+        "sentinel_detect_prompt_injection",
+        "sentinel_audit_permissions",
+        "sentinel_scrub_secrets",
+        "sentinel_generate_sarif"
+      ],
+      "guardrails": {
+        "readOnly": true,
+        "networkEgress": false,
+        "pathTraversalProtection": true,
+        "secretScrubbing": true,
+        "restrictedPaths": [
+          ".git",
+          ".env",
+          "*.pem",
+          "*.key",
+          "id_rsa*",
+          "credentials*",
+          "secrets*"
+        ]
+      }
+    },
+    {
+      "name": "bastion",
+      "displayName": "Bastion Supply Chain Security Agent",
+      "description": "Production-grade software supply chain security — SBOM generation (SPDX/CycloneDX), dependency vulnerability scanning, provenance verification (SLSA/cosign), and license compliance.",
+      "path": ".claude/agents/bastion.md",
+      "skills": [
+        "skills/bastion/SKILL.md"
+      ],
+      "tools": [
+        "bastion_scan_dependencies",
+        "bastion_generate_sbom",
+        "bastion_verify_provenance",
+        "bastion_audit_licenses",
+        "bastion_scrub_secrets"
+      ],
+      "guardrails": {
+        "readOnly": true,
+        "networkEgress": false,
+        "pathTraversalProtection": true,
+        "secretScrubbing": true,
+        "restrictedPaths": [
+          ".git",
+          ".env",
+          "*.pem",
+          "*.key",
+          "id_rsa*",
+          "credentials*",
+          "secrets*"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "version": "0.1.0-test",
+  "timestamp": "2026-10-22T06:15:42.007Z",
+  "personas": [
+    "developer"
+  ],
+  "fingerprintHash": "snap-hash",
+  "ir": {},
+  "summaryNote": "Initial acceptance snapshot"
+}
