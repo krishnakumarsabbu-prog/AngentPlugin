@@ -1,0 +1,391 @@
+{
+  "assessment_id": "NFR-2026-001",
+  "application_name": "PayFlow Payment API",
+  "application_description": "High-volume REST API for processing payment transactions, refunds, and account management.",
+  "criticality_tier": "T1-mission-critical",
+  "business_purpose": "Process customer payments securely and reliably with sub-second latency.",
+  "scope": {
+    "in_scope": [
+      "Payment Service",
+      "Refund Service",
+      "Account Service",
+      "Webhook Dispatcher",
+      "API Gateway",
+      "PostgreSQL primary and replicas",
+      "Redis cache",
+      "RabbitMQ"
+    ],
+    "out_of_scope": [
+      "Frontend dashboard (assessed separately)",
+      "Internal admin tools"
+    ]
+  },
+  "applicable_domains": [
+    "performance",
+    "scalability",
+    "availability",
+    "reliability",
+    "security",
+    "maintainability",
+    "compatibility",
+    "observability",
+    "disaster-recovery",
+    "compliance-privacy",
+    "operability",
+    "cost-efficiency"
+  ],
+  "excluded_domains": [
+    {
+      "domain": "usability",
+      "justification": "No user-facing UI; PayFlow is a backend API. Usability is assessed for the frontend dashboard separately."
+    },
+    {
+      "domain": "accessibility",
+      "justification": "No user-facing UI; API-only system with no web content to assess against WCAG."
+    },
+    {
+      "domain": "portability",
+      "justification": "Deployed exclusively on AWS EKS; no multi-cloud requirement. Portability is not a business priority."
+    },
+    {
+      "domain": "ai-system-quality",
+      "justification": "No AI or ML components in the system. All processing is deterministic business logic."
+    }
+  ],
+  "requirements": [
+    {
+      "requirement_id": "NFR-PERF-001",
+      "title": "Payment API p95 Latency",
+      "domain": "performance",
+      "target": "< 200ms",
+      "unit": "ms",
+      "criticality": "CRITICAL",
+      "affected_component": "Payment Service",
+      "status": "ACTIVE"
+    },
+    {
+      "requirement_id": "NFR-AVAIL-001",
+      "title": "Payment API Availability",
+      "domain": "availability",
+      "target": ">= 99.99%",
+      "unit": "%",
+      "criticality": "CRITICAL",
+      "affected_component": "Payment Service, API Gateway",
+      "status": "ACTIVE"
+    },
+    {
+      "requirement_id": "NFR-SEC-001",
+      "title": "No Hardcoded Secrets",
+      "domain": "security",
+      "target": "0 hardcoded secrets",
+      "unit": "count",
+      "criticality": "CRITICAL",
+      "affected_component": "All components",
+      "status": "ACTIVE"
+    },
+    {
+      "requirement_id": "NFR-REL-001",
+      "title": "Payment Idempotency",
+      "domain": "reliability",
+      "target": "100% idempotent",
+      "unit": "%",
+      "criticality": "CRITICAL",
+      "affected_component": "Payment Service",
+      "status": "ACTIVE"
+    },
+    {
+      "requirement_id": "NFR-DR-001",
+      "title": "Disaster Recovery RTO/RPO",
+      "domain": "disaster-recovery",
+      "target": "RTO <= 15 min, RPO = 0",
+      "unit": "minutes",
+      "criticality": "CRITICAL",
+      "affected_component": "All components",
+      "status": "ACTIVE"
+    },
+    {
+      "requirement_id": "NFR-OBS-001",
+      "title": "Correlation IDs",
+      "domain": "observability",
+      "target": "100% of requests",
+      "unit": "%",
+      "criticality": "HIGH",
+      "affected_component": "All services",
+      "status": "ACTIVE"
+    },
+    {
+      "requirement_id": "NFR-SEC-002",
+      "title": "Dependency Scanning",
+      "domain": "security",
+      "target": "0 critical CVEs",
+      "unit": "count",
+      "criticality": "HIGH",
+      "affected_component": "All components",
+      "status": "ACTIVE"
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "F-001",
+      "assessment_id": "NFR-2026-001",
+      "requirement_id": "NFR-PERF-001",
+      "domain": "performance",
+      "title": "N+1 query in payment listing endpoint",
+      "description": "The /api/v1/payments/list endpoint executes a separate query per payment to fetch merchant details, causing N+1 query pattern.",
+      "severity": "HIGH",
+      "business_impact": "p95 latency exceeds 200ms target under load above 2000 RPS.",
+      "technical_impact": "Database connection pool exhaustion under high concurrency.",
+      "expected_result": "p95 < 200ms under 5000 RPS.",
+      "observed_result": "p95 ~ 350ms at 2000 RPS (from staging load test).",
+      "evidence": [
+        {
+          "evidence_id": "E-001",
+          "finding_id": "F-001",
+          "type": "code-implementation",
+          "source": "src/services/paymentService.ts:142",
+          "description": "Loop with individual merchant query per payment.",
+          "reliability": "MEDIUM",
+          "timestamp": "2026-11-07T10:00:00Z"
+        },
+        {
+          "evidence_id": "E-002",
+          "finding_id": "F-001",
+          "type": "test-result",
+          "source": "load-test-report-2026-11-07.json",
+          "description": "k6 load test showing p95 ~ 350ms at 2000 RPS.",
+          "reliability": "HIGH",
+          "timestamp": "2026-11-07T11:30:00Z"
+        }
+      ],
+      "validation_method": "Load test with k6 + code review",
+      "tool": "k6",
+      "environment": "staging",
+      "timestamp": "2026-11-07T12:00:00Z",
+      "confidence": "HIGH",
+      "validation_state": "VERIFIED_FAIL",
+      "status": "OPEN",
+      "remediation": "Use a JOIN or batch query to fetch merchant details in a single query.",
+      "owner": "Payments Team",
+      "due_date": "2026-11-14"
+    },
+    {
+      "finding_id": "F-002",
+      "assessment_id": "NFR-2026-001",
+      "requirement_id": "NFR-AVAIL-001",
+      "domain": "availability",
+      "title": "Single-region Redis cache",
+      "description": "Redis cache is deployed in a single AZ without a fallback, creating a single point of failure for session management.",
+      "severity": "HIGH",
+      "business_impact": "Redis failure causes session loss and 503 errors for active sessions.",
+      "technical_impact": "No cache fallback; session store unavailable on Redis failure.",
+      "expected_result": "Multi-AZ Redis with failover.",
+      "observed_result": "Single-AZ Redis deployment.",
+      "evidence": [
+        {
+          "evidence_id": "E-003",
+          "finding_id": "F-002",
+          "type": "config-file",
+          "source": "terraform/redis.tf:15",
+          "description": "Redis cluster configured with single AZ, no replication.",
+          "reliability": "HIGH",
+          "timestamp": "2026-11-07T10:00:00Z"
+        }
+      ],
+      "validation_method": "Infrastructure config review",
+      "environment": "production",
+      "timestamp": "2026-11-07T12:00:00Z",
+      "confidence": "HIGH",
+      "validation_state": "VERIFIED_FAIL",
+      "status": "OPEN",
+      "remediation": "Configure Redis with multi-AZ replication and automatic failover.",
+      "owner": "Infrastructure Team",
+      "due_date": "2026-11-21"
+    },
+    {
+      "finding_id": "F-003",
+      "assessment_id": "NFR-2026-001",
+      "requirement_id": "NFR-SEC-001",
+      "domain": "security",
+      "title": "No hardcoded secrets detected",
+      "description": "Secret scanning found no hardcoded secrets in the source code. Secrets are managed via AWS Secrets Manager.",
+      "severity": "INFORMATIONAL",
+      "business_impact": "No risk; secrets are properly managed.",
+      "technical_impact": "N/A",
+      "expected_result": "0 hardcoded secrets.",
+      "observed_result": "0 hardcoded secrets detected by TruffleHog scan.",
+      "evidence": [
+        {
+          "evidence_id": "E-004",
+          "finding_id": "F-003",
+          "type": "tool-scan",
+          "source": "ci-pipeline/trufflehog-report-2026-11-07.json",
+          "description": "TruffleHog scan with zero findings.",
+          "reliability": "HIGH",
+          "timestamp": "2026-11-07T09:00:00Z"
+        }
+      ],
+      "validation_method": "Automated secret scan in CI",
+      "tool": "TruffleHog",
+      "environment": "CI",
+      "timestamp": "2026-11-07T12:00:00Z",
+      "confidence": "HIGH",
+      "validation_state": "VERIFIED_PASS",
+      "status": "RESOLVED",
+      "remediation": "N/A — requirement met.",
+      "owner": "Security Team",
+      "due_date": "2026-11-07"
+    },
+    {
+      "finding_id": "F-004",
+      "assessment_id": "NFR-2026-001",
+      "requirement_id": "NFR-REL-001",
+      "domain": "reliability",
+      "title": "Payment idempotency implemented",
+      "description": "Payment processing uses idempotency keys stored in PostgreSQL to prevent duplicate charges on retry.",
+      "severity": "INFORMATIONAL",
+      "business_impact": "No risk; idempotency is properly enforced.",
+      "technical_impact": "N/A",
+      "expected_result": "100% idempotent payment processing.",
+      "observed_result": "Idempotency keys enforced; integration test confirms no duplicate charges.",
+      "evidence": [
+        {
+          "evidence_id": "E-005",
+          "finding_id": "F-004",
+          "type": "code-implementation",
+          "source": "src/services/paymentService.ts:78",
+          "description": "Idempotency key check before processing.",
+          "reliability": "MEDIUM",
+          "timestamp": "2026-11-07T10:00:00Z"
+        },
+        {
+          "evidence_id": "E-006",
+          "finding_id": "F-004",
+          "type": "test-result",
+          "source": "tests/integration/idempotency.test.ts",
+          "description": "Integration test verifying duplicate requests return original result.",
+          "reliability": "HIGH",
+          "timestamp": "2026-11-07T10:30:00Z"
+        }
+      ],
+      "validation_method": "Integration test + code review",
+      "environment": "CI",
+      "timestamp": "2026-11-07T12:00:00Z",
+      "confidence": "HIGH",
+      "validation_state": "VERIFIED_PASS",
+      "status": "RESOLVED",
+      "remediation": "N/A — requirement met.",
+      "owner": "Payments Team",
+      "due_date": "2026-11-07"
+    },
+    {
+      "finding_id": "F-005",
+      "assessment_id": "NFR-2026-001",
+      "requirement_id": "NFR-DR-001",
+      "domain": "disaster-recovery",
+      "title": "DR drill not performed in last 6 months",
+      "description": "The last documented DR drill was 6 months ago. Quarterly drills are required by policy.",
+      "severity": "HIGH",
+      "business_impact": "Unverified DR readiness; actual RTO/RPO unknown.",
+      "technical_impact": "Failover procedure may not work as expected.",
+      "expected_result": "Quarterly DR drill with documented results.",
+      "observed_result": "Last drill 6 months ago; no recent test.",
+      "evidence": [
+        {
+          "evidence_id": "E-007",
+          "finding_id": "F-005",
+          "type": "design-document",
+          "source": "docs/dr-drill-log.md",
+          "description": "Last drill entry dated 2026-05-01.",
+          "reliability": "MEDIUM",
+          "timestamp": "2026-11-07T10:00:00Z"
+        }
+      ],
+      "validation_method": "Document review",
+      "environment": "production",
+      "timestamp": "2026-11-07T12:00:00Z",
+      "confidence": "MEDIUM",
+      "validation_state": "VERIFIED_FAIL",
+      "status": "OPEN",
+      "remediation": "Schedule and execute a DR drill within 2 weeks. Document results and update runbook.",
+      "owner": "Infrastructure Team",
+      "due_date": "2026-11-21"
+    },
+    {
+      "finding_id": "F-006",
+      "assessment_id": "NFR-2026-001",
+      "requirement_id": "NFR-OBS-001",
+      "domain": "observability",
+      "title": "Correlation IDs implemented across all services",
+      "description": "All services propagate correlation IDs via X-Request-ID header and include it in structured logs.",
+      "severity": "INFORMATIONAL",
+      "business_impact": "No risk; correlation IDs properly implemented.",
+      "technical_impact": "N/A",
+      "expected_result": "100% of requests propagate correlation IDs.",
+      "observed_result": "Correlation IDs present in all inter-service calls and logs.",
+      "evidence": [
+        {
+          "evidence_id": "E-008",
+          "finding_id": "F-006",
+          "type": "code-implementation",
+          "source": "src/middleware/correlationId.ts:1",
+          "description": "Middleware that generates and propagates X-Request-ID.",
+          "reliability": "MEDIUM",
+          "timestamp": "2026-11-07T10:00:00Z"
+        }
+      ],
+      "validation_method": "Code review + APM trace review",
+      "environment": "staging",
+      "timestamp": "2026-11-07T12:00:00Z",
+      "confidence": "HIGH",
+      "validation_state": "VERIFIED_PASS",
+      "status": "RESOLVED",
+      "remediation": "N/A — requirement met.",
+      "owner": "Platform Team",
+      "due_date": "2026-11-07"
+    },
+    {
+      "finding_id": "F-007",
+      "assessment_id": "NFR-2026-001",
+      "requirement_id": "NFR-SEC-002",
+      "domain": "security",
+      "title": "2 high CVEs in production dependencies",
+      "description": "Trivy scan found 2 high-severity CVEs in production dependencies (lodash and axios).",
+      "severity": "HIGH",
+      "business_impact": "Vulnerable dependencies may be exploited to compromise the payment system.",
+      "technical_impact": "Potential for prototype pollution (lodash) and SSRF (axios).",
+      "expected_result": "0 critical or high CVEs.",
+      "observed_result": "2 high CVEs detected.",
+      "evidence": [
+        {
+          "evidence_id": "E-009",
+          "finding_id": "F-007",
+          "type": "tool-scan",
+          "source": "ci-pipeline/trivy-report-2026-11-07.json",
+          "description": "Trivy scan report showing CVE-2024-12345 (lodash) and CVE-2024-67890 (axios).",
+          "reliability": "HIGH",
+          "timestamp": "2026-11-07T09:00:00Z"
+        }
+      ],
+      "validation_method": "Automated dependency scan in CI",
+      "tool": "Trivy",
+      "environment": "CI",
+      "timestamp": "2026-11-07T12:00:00Z",
+      "confidence": "HIGH",
+      "validation_state": "VERIFIED_FAIL",
+      "status": "IN_REMEDIATION",
+      "remediation": "Upgrade lodash to >= 4.17.21 and axios to >= 1.7.0. Re-scan after upgrade.",
+      "owner": "Security Team",
+      "due_date": "2026-11-14"
+    }
+  ],
+  "domain_scores": [],
+  "overall_score": 0,
+  "gate_decision": {},
+  "coverage": {
+    "requirement_coverage": 0,
+    "evidence_coverage": 0,
+    "validation_coverage": 0
+  },
+  "timestamp": "2026-11-07T12:00:00Z",
+  "assessor": "Enterprise NFR Engineer Skill"
+}

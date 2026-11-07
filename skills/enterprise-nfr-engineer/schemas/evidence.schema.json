@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "evidence.schema.json",
+  "title": "Evidence",
+  "description": "A traceable evidence artifact referenced by a finding.",
+  "type": "object",
+  "required": [
+    "evidence_id",
+    "finding_id",
+    "type",
+    "source",
+    "description",
+    "reliability",
+    "timestamp"
+  ],
+  "properties": {
+    "evidence_id": {
+      "type": "string",
+      "description": "Unique identifier for this evidence."
+    },
+    "finding_id": {
+      "type": "string",
+      "description": "Links to the finding this evidence supports."
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "test-result",
+        "tool-scan",
+        "live-metric",
+        "config-file",
+        "code-implementation",
+        "architecture-diagram",
+        "design-document",
+        "stakeholder-statement",
+        "log-excerpt",
+        "screenshot",
+        "other"
+      ]
+    },
+    "source": {
+      "type": "string",
+      "description": "Path, URL, or reference to the evidence (e.g., src/api/handler.ts:42)."
+    },
+    "description": {
+      "type": "string",
+      "description": "What this evidence demonstrates."
+    },
+    "reliability": {
+      "type": "string",
+      "enum": ["HIGH", "MEDIUM", "LOW"]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "hash": {
+      "type": "string",
+      "description": "Optional content hash for integrity verification."
+    }
+  },
+  "additionalProperties": false
+}

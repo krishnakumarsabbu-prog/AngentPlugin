@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "nfr-requirement.schema.json",
+  "title": "NFR Requirement",
+  "description": "A quantified non-functional requirement with target, unit, measurement method, and acceptance criteria.",
+  "type": "object",
+  "required": [
+    "requirement_id",
+    "title",
+    "description",
+    "domain",
+    "business_justification",
+    "criticality",
+    "target",
+    "unit",
+    "measurement_method",
+    "acceptance_criteria",
+    "validation_method",
+    "affected_component",
+    "source",
+    "owner",
+    "status"
+  ],
+  "properties": {
+    "requirement_id": {
+      "type": "string",
+      "description": "Unique identifier for the requirement (e.g., NFR-PERF-001)."
+    },
+    "title": {
+      "type": "string",
+      "description": "Concise name of the requirement."
+    },
+    "description": {
+      "type": "string",
+      "description": "What the requirement means in plain language."
+    },
+    "domain": {
+      "type": "string",
+      "enum": [
+        "performance",
+        "scalability",
+        "availability",
+        "reliability",
+        "security",
+        "maintainability",
+        "usability",
+        "compatibility",
+        "observability",
+        "disaster-recovery",
+        "portability",
+        "compliance-privacy",
+        "operability",
+        "accessibility",
+        "cost-efficiency",
+        "ai-system-quality"
+      ]
+    },
+    "business_justification": {
+      "type": "string",
+      "description": "Why this requirement matters to the business."
+    },
+    "criticality": {
+      "type": "string",
+      "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFORMATIONAL"]
+    },
+    "target": {
+      "type": "string",
+      "description": "The measurable target value (e.g., '< 200ms')."
+    },
+    "unit": {
+      "type": "string",
+      "description": "Unit of measurement (e.g., ms, requests/sec, %, seconds)."
+    },
+    "measurement_method": {
+      "type": "string",
+      "description": "How the target is measured (e.g., load test, APM, log analysis)."
+    },
+    "acceptance_criteria": {
+      "type": "string",
+      "description": "The pass/fail boundary."
+    },
+    "validation_method": {
+      "type": "string",
+      "description": "How compliance is verified (e.g., automated test, manual review, tool scan)."
+    },
+    "affected_component": {
+      "type": "string",
+      "description": "Which component this requirement applies to."
+    },
+    "source": {
+      "type": "string",
+      "enum": ["contract", "regulatory", "slo-dashboard", "design-document", "stakeholder", "implicit"]
+    },
+    "owner": {
+      "type": "string",
+      "description": "Person or team responsible for meeting this requirement."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["DRAFT", "ACTIVE", "RETIRED"]
+    }
+  },
+  "additionalProperties": false
+}

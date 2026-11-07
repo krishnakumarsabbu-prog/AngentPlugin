@@ -1,0 +1,69 @@
+[
+  {
+    "finding_id": "F-001",
+    "assessment_id": "NFR-2026-001",
+    "requirement_id": "NFR-PERF-001",
+    "domain": "performance",
+    "title": "N+1 query in payment listing endpoint",
+    "description": "The /api/v1/payments/list endpoint executes a separate query per payment to fetch merchant details.",
+    "severity": "HIGH",
+    "business_impact": "p95 latency exceeds 200ms target under load above 2000 RPS.",
+    "technical_impact": "Database connection pool exhaustion under high concurrency.",
+    "expected_result": "p95 < 200ms under 5000 RPS.",
+    "observed_result": "p95 ~ 350ms at 2000 RPS.",
+    "evidence": [
+      {
+        "evidence_id": "E-001",
+        "finding_id": "F-001",
+        "type": "code-implementation",
+        "source": "src/services/paymentService.ts:142",
+        "description": "Loop with individual merchant query per payment.",
+        "reliability": "MEDIUM",
+        "timestamp": "2026-11-07T10:00:00Z"
+      }
+    ],
+    "validation_method": "Load test with k6 + code review",
+    "tool": "k6",
+    "environment": "staging",
+    "timestamp": "2026-11-07T12:00:00Z",
+    "confidence": "HIGH",
+    "validation_state": "VERIFIED_FAIL",
+    "status": "OPEN",
+    "remediation": "Use a JOIN or batch query to fetch merchant details in a single query.",
+    "owner": "Payments Team",
+    "due_date": "2026-11-14"
+  },
+  {
+    "finding_id": "F-002",
+    "assessment_id": "NFR-2026-001",
+    "requirement_id": "NFR-AVAIL-001",
+    "domain": "availability",
+    "title": "Single-region Redis cache",
+    "description": "Redis cache deployed in single AZ without fallback.",
+    "severity": "HIGH",
+    "business_impact": "Redis failure causes session loss and 503 errors.",
+    "technical_impact": "No cache fallback; session store unavailable on Redis failure.",
+    "expected_result": "Multi-AZ Redis with failover.",
+    "observed_result": "Single-AZ Redis deployment.",
+    "evidence": [
+      {
+        "evidence_id": "E-003",
+        "finding_id": "F-002",
+        "type": "config-file",
+        "source": "terraform/redis.tf:15",
+        "description": "Redis cluster configured with single AZ.",
+        "reliability": "HIGH",
+        "timestamp": "2026-11-07T10:00:00Z"
+      }
+    ],
+    "validation_method": "Infrastructure config review",
+    "environment": "production",
+    "timestamp": "2026-11-07T12:00:00Z",
+    "confidence": "HIGH",
+    "validation_state": "VERIFIED_FAIL",
+    "status": "OPEN",
+    "remediation": "Configure Redis with multi-AZ replication and automatic failover.",
+    "owner": "Infrastructure Team",
+    "due_date": "2026-11-21"
+  }
+]

@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quality-gate.schema.json",
+  "title": "Quality Gate Decision",
+  "description": "The final quality-gate decision for an NFR assessment, with explainable rules.",
+  "type": "object",
+  "required": [
+    "assessment_id",
+    "overall_score",
+    "final_status",
+    "decision_rule",
+    "timestamp"
+  ],
+  "properties": {
+    "assessment_id": {
+      "type": "string"
+    },
+    "overall_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "coverage": {
+      "type": "object",
+      "properties": {
+        "requirement_coverage": { "type": "number" },
+        "evidence_coverage": { "type": "number" },
+        "validation_coverage": { "type": "number" }
+      }
+    },
+    "critical_findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "finding_id": { "type": "string" },
+          "domain": { "type": "string" },
+          "title": { "type": "string" }
+        }
+      },
+      "description": "CRITICAL findings in blocking domains that triggered the override."
+    },
+    "final_status": {
+      "type": "string",
+      "enum": ["PASS", "CONDITIONAL_PASS", "FAIL", "INCOMPLETE"]
+    },
+    "decision_rule": {
+      "type": "string",
+      "description": "The specific rule that triggered this status."
+    },
+    "conditions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "For CONDITIONAL_PASS, the conditions that must be met."
+    },
+    "exceptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["finding_id", "owner", "rationale", "compensating_controls", "expiry"],
+        "properties": {
+          "finding_id": { "type": "string" },
+          "owner": { "type": "string" },
+          "rationale": { "type": "string" },
+          "compensating_controls": { "type": "string" },
+          "expiry": { "type": "string", "format": "date" }
+        }
+      }
+    },
+    "approver": {
+      "type": "string",
+      "description": "For CONDITIONAL_PASS, who authorized it."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "policy": {
+      "type": "object",
+      "description": "The scoring policy used for this decision.",
+      "properties": {
+        "domain_weights": { "type": "object" },
+        "severity_penalties": { "type": "object" },
+        "blocking_domains": { "type": "array", "items": { "type": "string" } },
+        "coverage_thresholds": { "type": "object" },
+        "status_thresholds": { "type": "object" }
+      }
+    }
+  },
+  "additionalProperties": false
+}

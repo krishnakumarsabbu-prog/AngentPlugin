@@ -1,0 +1,51 @@
+{
+  "name": "enterprise-nfr-engineer",
+  "version": "1.0.0",
+  "title": "Enterprise NFR Engineer Skill",
+  "description": "Enterprise-grade NFR engineering skill for discovering, quantifying, assessing and validating non-functional requirements across software applications, APIs, microservices, infrastructure and AI-powered systems.",
+  "author": "AgentForge Engineering",
+  "category": "Software Quality Engineering",
+  "tags": [
+    "nfr",
+    "non-functional-requirements",
+    "performance",
+    "reliability",
+    "security",
+    "scalability",
+    "observability",
+    "sre",
+    "architecture",
+    "quality-gates"
+  ],
+  "compatibility": ["agy", "copilot", "claude", "openai"],
+  "requirements": "AgentForge v0.1.0+ Workspace, Read-Only Filesystem Sandbox",
+  "permissions": {
+    "files": {
+      "read": ["skills/enterprise-nfr-engineer/**"],
+      "deny_write": ["SOUL.md", "MEMORY.md", "AGENTS.md", "IDENTITY.md", "USER.md"]
+    },
+    "network": {
+      "allow": [],
+      "deny": "*"
+    }
+  },
+  "license": "Apache-2.0 / MIT Dual License (AgentForge Enterprise)",
+  "domains": [
+    "performance",
+    "scalability",
+    "availability",
+    "reliability",
+    "security",
+    "maintainability",
+    "usability",
+    "compatibility",
+    "observability",
+    "disaster-recovery",
+    "portability",
+    "compliance-privacy",
+    "operability",
+    "accessibility",
+    "cost-efficiency",
+    "ai-system-quality"
+  ]
+}

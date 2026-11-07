@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "assessment.schema.json",
+  "title": "NFR Assessment",
+  "description": "The assessment envelope containing application context, scope, requirements, findings, scores, and gate decision.",
+  "type": "object",
+  "required": [
+    "assessment_id",
+    "application_name",
+    "application_description",
+    "criticality_tier",
+    "scope",
+    "applicable_domains",
+    "excluded_domains",
+    "requirements",
+    "findings",
+    "domain_scores",
+    "overall_score",
+    "gate_decision",
+    "timestamp",
+    "assessor"
+  ],
+  "properties": {
+    "assessment_id": {
+      "type": "string",
+      "description": "Unique identifier for this assessment (e.g., NFR-2026-001)."
+    },
+    "application_name": {
+      "type": "string"
+    },
+    "application_description": {
+      "type": "string"
+    },
+    "criticality_tier": {
+      "type": "string",
+      "enum": ["T1-mission-critical", "T2-business-critical", "T3-important", "T4-supporting"]
+    },
+    "scope": {
+      "type": "object",
+      "required": ["in_scope", "out_of_scope"],
+      "properties": {
+        "in_scope": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "out_of_scope": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "applicable_domains": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "excluded_domains": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["domain", "justification"],
+        "properties": {
+          "domain": { "type": "string" },
+          "justification": { "type": "string" }
+        }
+      }
+    },
+    "requirements": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "findings": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "domain_scores": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "overall_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "gate_decision": { "type": "object" },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "assessor": {
+      "type": "string"
+    },
+    "coverage": {
+      "type": "object",
+      "properties": {
+        "requirement_coverage": { "type": "number" },
+        "evidence_coverage": { "type": "number" },
+        "validation_coverage": { "type": "number" }
+      }
+    }
+  },
+  "additionalProperties": false
+}

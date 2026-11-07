@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "domain-score.schema.json",
+  "title": "Domain Score",
+  "description": "The score for a single NFR domain, with finding counts and coverage.",
+  "type": "object",
+  "required": [
+    "domain",
+    "score",
+    "weight",
+    "findings_count",
+    "findings_by_severity",
+    "findings_by_validation_state"
+  ],
+  "properties": {
+    "domain": {
+      "type": "string",
+      "enum": [
+        "performance",
+        "scalability",
+        "availability",
+        "reliability",
+        "security",
+        "maintainability",
+        "usability",
+        "compatibility",
+        "observability",
+        "disaster-recovery",
+        "portability",
+        "compliance-privacy",
+        "operability",
+        "accessibility",
+        "cost-efficiency",
+        "ai-system-quality"
+      ]
+    },
+    "score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "weight": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Domain weight used in the overall weighted score."
+    },
+    "findings_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "findings_by_severity": {
+      "type": "object",
+      "properties": {
+        "CRITICAL": { "type": "integer", "minimum": 0 },
+        "HIGH": { "type": "integer", "minimum": 0 },
+        "MEDIUM": { "type": "integer", "minimum": 0 },
+        "LOW": { "type": "integer", "minimum": 0 },
+        "INFORMATIONAL": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "findings_by_validation_state": {
+      "type": "object",
+      "properties": {
+        "VERIFIED_PASS": { "type": "integer", "minimum": 0 },
+        "VERIFIED_FAIL": { "type": "integer", "minimum": 0 },
+        "PARTIALLY_VERIFIED": { "type": "integer", "minimum": 0 },
+        "NOT_TESTED": { "type": "integer", "minimum": 0 },
+        "INSUFFICIENT_EVIDENCE": { "type": "integer", "minimum": 0 },
+        "NOT_APPLICABLE": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "requirement_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}
