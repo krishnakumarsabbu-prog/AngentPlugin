@@ -15,18 +15,18 @@ permissions:
   network:
     allow: []
     deny: "*"
-license: Apache-2.0 / MIT Dual License (AgentForge Enterprise)
+license: Apache-2.0 / MIT Dual License (Agentplugin Enterprise)
 ---
 
 <!--
-AgentForge Enterprise Dual License: Apache-2.0 / MIT
-Copyright (C) AgentForge Engineering. All rights reserved.
+Agentplugin Enterprise Dual License: Apache-2.0 / MIT
+Copyright (C) Agentplugin. All rights reserved.
 Licensed under the Apache License, Version 2.0 or the MIT License.
 -->
 
 # Enterprise NFR Engineer Skill (`forge-nfr-engineer`)
 
-Copyright (C) AgentForge Engineering. All rights reserved.
+Copyright (C) Agentplugin. All rights reserved.
 Licensed under the Apache-2.0 and MIT open-source licenses.
 
 Enterprise-grade NFR engineering for discovering, quantifying, assessing and
@@ -353,3 +353,19 @@ python3 skills/enterprise-nfr-engineer/scripts/validate-schemas.py
 python3 skills/enterprise-nfr-engineer/scripts/validate-assessment.py
 python3 skills/enterprise-nfr-engineer/scripts/calculate-nfr-score.py examples/sample-assessment.json
 ```
+
+## Specialized NFR Gap Analysis Tools (`tools/`)
+
+Run the specialized gap analysis tools for i18n, restricted org readiness, static concurrency, and data immutability:
+
+```bash
+# Unified Gap Analysis CLI (Python)
+py -3 skills/enterprise-nfr-engineer/tools/run_nfr_tools.py [workspace_path]
+
+# Unified Gap Analysis CLI (Node.js)
+node skills/enterprise-nfr-engineer/tools/run_nfr_tools.cjs [workspace_path]
+
+# Run Tools Unit Test Suite
+node skills/enterprise-nfr-engineer/tests/tools.test.cjs
+```
+

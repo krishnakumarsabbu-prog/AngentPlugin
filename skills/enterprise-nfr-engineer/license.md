@@ -1,9 +1,9 @@
 # Enterprise NFR Engineer — Licensing
 
-This skill is distributed under the AgentForge Enterprise Dual License:
+This skill is distributed under the Agentplugin Enterprise Dual License:
 **Apache-2.0 / MIT**.
 
-Copyright (C) AgentForge Engineering. All rights reserved.
+Copyright (C) Agentplugin. All rights reserved.
 
 - The full Apache-2.0 and MIT license texts are in `LICENSE`.
 - You may use, modify, and distribute this skill under either license.

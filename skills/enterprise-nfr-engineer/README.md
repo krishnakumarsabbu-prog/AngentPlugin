@@ -3,7 +3,7 @@
 > **Version:** 1.0.0
 > **Brand & Namespace:** Enterprise NFR Engineer (`enterprise-nfr-engineer`)
 > **Target:** AgentForge, GitHub Copilot Chat, Claude Code
-> **License:** Apache-2.0 / MIT Dual License (AgentForge Enterprise)
+> **License:** Apache-2.0 / MIT Dual License (Agentplugin Enterprise)
 
 Enterprise-grade NFR engineering for discovering, quantifying, assessing and
 validating non-functional requirements across software applications, APIs,
@@ -86,4 +86,4 @@ claim certified compliance with any of them.
 
 ## License
 
-Licensed under Apache-2.0 / MIT Dual License (AgentForge Enterprise).
+Licensed under Apache-2.0 / MIT Dual License (Agentplugin Enterprise).

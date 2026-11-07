@@ -34,7 +34,7 @@ console.log('Running Enterprise NFR Engineer Unit Tests...\n');
   assert.ok(content.includes('name: enterprise-nfr-engineer'), 'SKILL.md must have name');
   assert.ok(content.includes('version: 1.0.0'), 'SKILL.md must have version');
   assert.ok(content.includes('description:'), 'SKILL.md must have description');
-  assert.ok(content.includes('AgentForge Enterprise Dual License'), 'SKILL.md must have license header');
+  assert.ok(content.includes('Agentplugin Enterprise Dual License') || content.includes('AgentForge Enterprise Dual License'), 'SKILL.md must have license header');
   console.log('✓ SKILL.md frontmatter is valid');
 }
 
@@ -103,12 +103,25 @@ console.log('Running Enterprise NFR Engineer Unit Tests...\n');
   console.log(`✓ ${jsonExs.length} example JSON files parse correctly`);
 }
 
+const findPythonCmd = () => {
+  for (const cmd of ['py -3', 'python3', 'python']) {
+    try {
+      execSync(`${cmd} --version`, { stdio: 'ignore' });
+      return cmd;
+    } catch {
+      // try next
+    }
+  }
+  return null;
+};
+const pythonCmd = findPythonCmd();
+
 // 10. Python scoring script runs and produces correct results
 {
   const assessmentPath = path.join(SKILL_DIR, 'examples', 'sample-assessment.json');
-  try {
+  if (pythonCmd) {
     const output = execSync(
-      `python3 ${path.join(SKILL_DIR, 'scripts', 'calculate-nfr-score.py')} ${assessmentPath} --json`,
+      `${pythonCmd} ${path.join(SKILL_DIR, 'scripts', 'calculate-nfr-score.py')} ${assessmentPath} --json`,
       { encoding: 'utf8', timeout: 15000 }
     );
     const result = JSON.parse(output);
@@ -118,47 +131,35 @@ console.log('Running Enterprise NFR Engineer Unit Tests...\n');
       'Gate decision must be a valid status');
     assert.ok(result.coverage, 'Must have coverage metrics');
     console.log(`✓ Scoring script runs: score=${result.overall_score}, status=${result.gate_decision.final_status}`);
-  } catch (e) {
-    if (e.message.includes('python3') || e.message.includes('not found')) {
-      console.log('⚠ Scoring script test skipped (python3 not available)');
-    } else {
-      throw e;
-    }
+  } else {
+    console.log('⚠ Scoring script test skipped (python/py launcher not available)');
   }
 }
 
 // 11. Python schema validation runs
 {
-  try {
+  if (pythonCmd) {
     execSync(
-      `python3 ${path.join(SKILL_DIR, 'scripts', 'validate-schemas.py')}`,
+      `${pythonCmd} ${path.join(SKILL_DIR, 'scripts', 'validate-schemas.py')}`,
       { encoding: 'utf8', timeout: 15000 }
     );
     console.log('✓ Schema validation script runs successfully');
-  } catch (e) {
-    if (e.message.includes('python3') || e.message.includes('not found')) {
-      console.log('⚠ Schema validation test skipped (python3 not available)');
-    } else {
-      throw e;
-    }
+  } else {
+    console.log('⚠ Schema validation test skipped (python/py launcher not available)');
   }
 }
 
 // 12. Python assessment validation runs
 {
   const assessmentPath = path.join(SKILL_DIR, 'examples', 'sample-assessment.json');
-  try {
+  if (pythonCmd) {
     execSync(
-      `python3 ${path.join(SKILL_DIR, 'scripts', 'validate-assessment.py')} ${assessmentPath}`,
+      `${pythonCmd} ${path.join(SKILL_DIR, 'scripts', 'validate-assessment.py')} ${assessmentPath}`,
       { encoding: 'utf8', timeout: 15000 }
     );
     console.log('✓ Assessment validation script runs successfully');
-  } catch (e) {
-    if (e.message.includes('python3') || e.message.includes('not found')) {
-      console.log('⚠ Assessment validation test skipped (python3 not available)');
-    } else {
-      throw e;
-    }
+  } else {
+    console.log('⚠ Assessment validation test skipped (python/py launcher not available)');
   }
 }
 

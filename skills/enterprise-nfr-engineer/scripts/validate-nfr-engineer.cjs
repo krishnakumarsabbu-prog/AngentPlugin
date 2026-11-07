@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 /**
- * AgentForge Enterprise Dual License: Apache-2.0 / MIT
- * Copyright (C) AgentForge Engineering. All rights reserved.
+ * Agentplugin Enterprise Dual License: Apache-2.0 / MIT
+ * Copyright (C) Agentplugin. All rights reserved.
  *
  * Enterprise NFR Engineer Skill Suite Integrity Validator
  * Verifies that all required files exist, are non-empty, and that
@@ -135,7 +135,7 @@ function validate() {
       { test: content.startsWith('---'), msg: 'SKILL.md starts with frontmatter' },
       { test: content.includes('name: enterprise-nfr-engineer'), msg: 'SKILL.md has name: enterprise-nfr-engineer' },
       { test: content.includes('version: 1.0.0'), msg: 'SKILL.md has version: 1.0.0' },
-      { test: content.includes('AgentForge Enterprise Dual License'), msg: 'SKILL.md has dual license header' },
+      { test: content.includes('Agentplugin Enterprise Dual License') || content.includes('AgentForge Enterprise Dual License'), msg: 'SKILL.md has dual license header' },
     ];
     for (const c of checks) {
       if (!c.test) {

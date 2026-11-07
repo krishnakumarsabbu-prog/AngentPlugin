@@ -29,7 +29,7 @@
       "deny": "*"
     }
   },
-  "license": "Apache-2.0 / MIT Dual License (AgentForge Enterprise)",
+  "license": "Apache-2.0 / MIT Dual License (Agentplugin Enterprise)",
   "domains": [
     "performance",
     "scalability",
