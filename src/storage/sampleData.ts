@@ -2296,3 +2296,144 @@ export const securityArchitectureReviewAgent: Agent = {
   updatedAt: iso("2026-11-08T12:00:00Z"),
 };
 
+export const stackDiagramSkill: Skill = {
+  id: "stack-diagram",
+  name: "Stack Diagram",
+  description: "Generate professional software architecture, infrastructure, technology-stack and service-topology diagrams using real technology logos, grouped containers, labeled connections and multiple export formats (HTML, PNG, React/TSX).",
+  version: "1.0.0",
+  category: "Architecture & Visualization",
+  tags: ["architecture", "system-design", "technology-stack", "infrastructure", "diagram-generation", "cloud-architecture", "service-topology", "visualization", "documentation"],
+  author: "AgentForge Engineering (adapted from caru-ini/stack-diagram)",
+  frontmatter: "name: stack-diagram\nversion: 1.0.0\ndescription: \"Create cloud-architecture-style diagrams of tech stacks, system architectures, infra layouts, and service topologies — with real brand logos, grouped containers, and clean orthogonal arrows.\"\nauthor: AgentForge Engineering (adapted from caru-ini/stack-diagram)\ncategory: Architecture & Visualization\ntags: [architecture, system-design, technology-stack, infrastructure, diagram-generation, cloud-architecture, service-topology, visualization, documentation]\ncompatibility: [copilot, claude, openai]\nrequirements: Python 3.9+, network access for logos; Playwright+Chromium for PNG\nlicense: MIT",
+  otherTargets: [],
+  requiredTools: ["stack_diagram_generate", "stack_diagram_fetch_icons", "stack_diagram_build_html", "stack_diagram_render_png", "stack_diagram_export_tsx", "stack_diagram_inspect_repo"],
+  permissions: ["filesystem:read", "filesystem:write", "network:fetch"],
+  changelog: "1.0.0 — Integrated upstream stack-diagram (MIT, caru-ini/stack-diagram) with HTML, PNG, and React/TSX output, light/dark themes, and repository-aware generation.",
+  requirements: "Python 3.9+, network access for logo retrieval; Playwright+Chromium optional for PNG export",
+  instructions: "Execute the stack-diagram workflow when the user requests an architecture, system, stack, infra, or service topology diagram:\n1. Settle Content: Collect nodes (components with name, role, tech identifier), groups (boundary boxes), and edges (connections with labels, classes, direction). Distinguish CONFIRMED, INFERRED, and UNKNOWN. Never include secrets.\n2. Fetch Icons: Run scripts/fetch_icons.py to get official brand logos from svgl, devicon, gilbarbara/logos, and AWS/GCP/Azure icon packages. Use text fallback for missing logos — never break the build.\n3. Plan Coordinates: Read references/geometry.md. Apply spacing rules (132×100 node boxes, ≥140px horizontal, 140px vertical, group padding). Sanity-check edge corridors do not pass through node boxes.\n4. Build HTML: Use assets/template.html as base. Run scripts/build.py to inline fonts and icons as data URIs. The HTML must be fully self-contained.\n5. Render & Inspect: Run scripts/render_png.py (requires Playwright). Inspect for overlaps, clipped labels, missing assets, broken arrows. Correct and re-render if issues found.\n6. Deliver: Default HTML. PNG, React/TSX, and light/dark themes on request. All from the same diagram model.\nRepository-aware mode: When asked to diagram a repo, inspect package.json/pom.xml/build.gradle/requirements.txt/pyproject.toml/go.mod/Cargo.toml, Docker/K8s/Terraform configs, CI/CD workflows. Do not assume a technology is used just because it appears in a dependency file. Output to artifacts/stack-diagram/[name]/. Public sharing disabled by default.",
+  resources: [
+    { id: "res-sd-skill", name: "SKILL.md", kind: "reference", description: "Master stack-diagram entrypoint, workflow, and output formats." },
+    { id: "res-sd-license", name: "LICENSE", kind: "reference", description: "MIT license (upstream caru-ini/stack-diagram). Fonts are SIL OFL 1.1." },
+    { id: "res-sd-readme", name: "README.md", kind: "reference", description: "Stack Diagram product overview and quick start." },
+    { id: "res-sd-changelog", name: "CHANGELOG.md", kind: "reference", description: "Version history and integration notes." },
+    { id: "res-sd-install", name: "INSTALLATION-AND-USAGE.md", kind: "reference", description: "Prerequisites, AgentForge installation, and invocation guide." },
+    { id: "res-sd-geometry", name: "references/geometry.md", kind: "reference", description: "Coordinate system, spacing constants, edge anchoring, and collision rules." },
+    { id: "res-sd-template", name: "assets/template.html", kind: "template", description: "Diagram HTML template with light/dark themes, node tiles, groups, and edge overlay." },
+    { id: "res-sd-fetch-icons", name: "scripts/fetch_icons.py", kind: "script", description: "Logo fetcher with svgl/devicon/gilbarbara fallback chain and AWS/GCP/Azure support." },
+    { id: "res-sd-build", name: "scripts/build.py", kind: "script", description: "HTML builder that inlines fonts and icons as base64 data URIs." },
+    { id: "res-sd-render-png", name: "scripts/render_png.py", kind: "script", description: "PNG renderer via Playwright+Chromium with light and dark theme support." },
+    { id: "res-sd-share", name: "scripts/share.py", kind: "script", description: "Local artifact copier — public sharing disabled by default in AgentForge." }
+  ],
+  compatibility: ["copilot", "claude", "openai"],
+  status: "Ready",
+  installationState: "installed",
+  createdAt: iso("2026-11-08T13:00:00Z"),
+  updatedAt: iso("2026-11-08T13:00:00Z"),
+};
+
+export const stackDiagramAgent: Agent = {
+  id: "stack-diagram",
+  name: "Stack Diagram Architect",
+  description: "Generates professional architecture diagrams with real technology logos, grouped containers, orthogonal connectors, and multiple export formats (HTML, PNG, React/TSX) from natural language or repository inspection.",
+  category: "Architecture & Visualization",
+  role: "Architecture Diagram Generation Agent",
+  objective: "Inspect software repositories or natural-language descriptions, build an architecture model, fetch official technology logos, and generate professional self-contained architecture diagrams in HTML, PNG, and React/TSX with light and dark themes.",
+  instructions: "When invoked as @stack-diagram or when a user requests an architecture/system/stack/infra diagram:\n1. Settle Content: Extract nodes (name, role, tech id), groups (boundary boxes), edges (source, target, label, class, direction). Distinguish CONFIRMED / INFERRED / UNKNOWN. Never include secrets.\n2. Fetch Icons: Run scripts/fetch_icons.py with specs for each technology. Uses svgl → devicon → gilbarbara fallback chain. AWS/GCP/Azure use vendor icon packages. Text fallback for missing logos.\n3. Plan Coordinates: Read references/geometry.md. Nodes are 132×100px boxes. ≥140px horizontal spacing, 140px vertical. Groups padded 24px outside node boxes. Edges connect tile-to-tile (horizontal) or box-bottom-to-tile-top (vertical). Never route through node text.\n4. Build HTML: Use assets/template.html. Run scripts/build.py to inline fonts (Geist, JetBrainsMono) and icons as base64 data URIs. HTML must be self-contained.\n5. Render & Inspect: Run scripts/render_png.py (Playwright). Check for overlaps, clipped labels, broken arrows. Re-render if needed.\n6. Deliver: HTML (default), PNG, React/TSX, light/dark themes — all from the same diagram model.\nRepository mode: Inspect manifests (package.json, pom.xml, requirements.txt, go.mod, Cargo.toml, etc.), Docker/K8s/Terraform configs, CI/CD workflows. Do not assume usage from dependency presence alone. Output to artifacts/stack-diagram/[name]/.",
+  scope: "Architecture model construction, logo fetching, diagram layout, HTML/PNG/TSX generation, repository-aware technology discovery, and diagram validation.",
+  outOfScope: "Publishing diagrams to external galleries without explicit user approval. Executing arbitrary shell commands beyond diagram scripts. Modifying source code. Installing system-level packages without authorization.",
+  operatingPrinciples: [
+    "Use official brand logos only — never redraw or recolor them.",
+    "Never break diagram generation because one logo cannot be fetched — use text fallback.",
+    "Distinguish CONFIRMED technologies from INFERRED and UNKNOWN.",
+    "Never include secrets, API keys, or passwords in any diagram output.",
+    "The HTML is the source of truth — PNG and TSX are derived from the same model.",
+    "Always inspect the rendered output before delivering — never ship an uninspected diagram.",
+    "Public sharing is disabled by default — external publication requires explicit user approval."
+  ],
+  assignedSkillIds: ["stack-diagram"],
+  toolDefinitions: [
+    {
+      id: "tool-sd-generate",
+      name: "stack_diagram_generate",
+      description: "Generates a complete architecture diagram from a natural-language description or repository inspection.",
+      purpose: "Orchestrate the full diagram generation pipeline: model → icons → layout → HTML → render.",
+      availability: "always"
+    },
+    {
+      id: "tool-sd-fetch-icons",
+      name: "stack_diagram_fetch_icons",
+      description: "Fetches official brand logos from svgl, devicon, gilbarbara/logos, and AWS/GCP/Azure icon packages.",
+      purpose: "Retrieve genuine technology logos with fallback chain for missing logos.",
+      availability: "always"
+    },
+    {
+      id: "tool-sd-build-html",
+      name: "stack_diagram_build_html",
+      description: "Builds a self-contained HTML file with inlined fonts, icons, styles, and diagram layout.",
+      purpose: "Produce the primary source-of-truth HTML artifact.",
+      availability: "always"
+    },
+    {
+      id: "tool-sd-render-png",
+      name: "stack_diagram_render_png",
+      description: "Renders the HTML diagram to a PNG screenshot via Playwright + Chromium.",
+      purpose: "Generate high-quality image export for presentations and documentation.",
+      availability: "on-demand"
+    },
+    {
+      id: "tool-sd-export-tsx",
+      name: "stack_diagram_export_tsx",
+      description: "Generates a dependency-free React/TSX component from the same diagram model.",
+      purpose: "Export the diagram as a reusable React component.",
+      availability: "on-demand"
+    },
+    {
+      id: "tool-sd-inspect-repo",
+      name: "stack_diagram_inspect_repo",
+      description: "Inspects a repository to discover technologies, services, databases, and infrastructure from manifests and configuration files.",
+      purpose: "Build an architecture model from actual repository evidence.",
+      availability: "on-demand"
+    }
+  ],
+  permissionPolicy: {
+    network: true,
+    fileSystem: "readwrite",
+    shell: true,
+    maxTokens: 16000,
+    readOnly: false,
+    workspaceAccess: true,
+    writeOperations: true,
+    restrictedPaths: [".git", ".env", "*.pem", "*.key", "id_rsa*", "credentials*", "secrets*"],
+    humanApprovalRequired: false
+  },
+  inputSchema: {
+    type: "object",
+    properties: {
+      description: { type: "string", description: "Natural-language description of the architecture to diagram." },
+      repoPath: { type: "string", description: "Repository path to inspect for architecture discovery." },
+      outputFormats: { type: "array", items: { type: "string", enum: ["html", "png", "tsx"] }, description: "Output formats to generate." },
+      theme: { type: "string", enum: ["light", "dark", "both"], description: "Diagram theme." },
+      diagramName: { type: "string", description: "Name for the output diagram and directory." }
+    },
+    required: []
+  },
+  outputSchema: {
+    type: "object",
+    properties: {
+      htmlPath: { type: "string" },
+      pngPath: { type: "string" },
+      tsxPath: { type: "string" },
+      modelPath: { type: "string" },
+      technologiesIdentified: { type: "array" },
+      confirmationStatus: { type: "object" },
+      warnings: { type: "array" }
+    }
+  },
+  compatibility: ["copilot", "claude", "openai"],
+  version: "1.0.0",
+  status: "Ready",
+  changelog: "1.0.0 — Integrated upstream stack-diagram (MIT, caru-ini/stack-diagram) with HTML, PNG, React/TSX output, light/dark themes, and repository-aware generation.",
+  createdAt: iso("2026-11-08T13:00:00Z"),
+  updatedAt: iso("2026-11-08T13:00:00Z"),
+};
+

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stack Diagram</title>
+<style>
+/* ── Font faces (inlined by build.py) ─────────────────────────────── */
+@font-face {
+  font-family: "Geist";
+  src: url(data:font/woff2;base64,%%FONT_DISPLAY%%) format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url(data:font/woff2;base64,%%FONT_JBM%%) format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+/* ── Light theme (default) ────────────────────────────────────────── */
+:root {
+  --bg: #f4f6f8;
+  --bg-grid: #e2e6ea;
+  --paper: #ffffff;
+  --text: #1a1a2e;
+  --text-dim: #6b7280;
+  --accent: #2563eb;
+  --neutral: #94a3b8;
+  --group-border: #d1d5db;
+  --group-bg: rgba(255,255,255,0.0);
+  --group-label: #4b5563;
+  --tile-bg: #ffffff;
+  --tile-border: #e5e7eb;
+  --tile-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* ── Dark theme ───────────────────────────────────────────────────── */
+:root.dark {
+  --bg: #1a1a2e;
+  --bg-grid: #2a2a3e;
+  --paper: #16162a;
+  --text: #e4e4e7;
+  --text-dim: #9ca3af;
+  --accent: #60a5fa;
+  --neutral: #64748b;
+  --group-border: #3f3f5f;
+  --group-bg: rgba(0,0,0,0.0);
+  --group-label: #9ca3af;
+  --tile-bg: #ffffff;
+  --tile-border: #e5e7eb;
+  --tile-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* ── Base ─────────────────────────────────────────────────────────── */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--bg);
+  background-image:
+    linear-gradient(var(--bg-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  font-family: "Geist", system-ui, sans-serif;
+  color: var(--text);
+  padding: 32px;
+}
+
+.canvas {
+  position: relative;
+  width: 1000px;
+  margin: 0 auto;
+}
+
+/* ── Node ─────────────────────────────────────────────────────────── */
+.node {
+  position: absolute;
+  width: 132px;
+  text-align: center;
+  z-index: 2;
+}
+.tile {
+  width: 60px;
+  height: 60px;
+  background: var(--tile-bg);
+  border: 1px solid var(--tile-border);
+  border-radius: 8px;
+  box-shadow: var(--tile-shadow);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.tile img, .tile svg {
+  max-width: 44px;
+  max-height: 44px;
+  object-fit: contain;
+}
+.node .name {
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--text);
+  background: var(--paper);
+  display: inline-block;
+  padding: 0 4px;
+  border-radius: 2px;
+}
+.node .role {
+  margin-top: 2px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  color: var(--text-dim);
+  background: var(--paper);
+  display: inline-block;
+  padding: 0 4px;
+  border-radius: 2px;
+}
+
+/* ── Group (container box) ────────────────────────────────────────── */
+.group {
+  position: absolute;
+  border: 1.5px dashed var(--group-border);
+  border-radius: 10px;
+  background: var(--group-bg);
+  z-index: 1;
+}
+.group .label {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--group-label);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* ── Edge overlay ─────────────────────────────────────────────────── */
+svg.edges {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3;
+}
+.e {
+  fill: none;
+  stroke: var(--neutral);
+  stroke-width: 1.5;
+}
+.e.accent { stroke: var(--accent); }
+.e.dashed { stroke-dasharray: 5 3; }
+
+/* ── Edge labels ──────────────────────────────────────────────────── */
+.el {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  fill: var(--text-dim);
+  paint-order: stroke;
+  stroke: var(--paper);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+.el.a { fill: var(--accent); }
+
+/* ── Arrowhead marker ─────────────────────────────────────────────── */
+marker#ar {
+  markerWidth: 6;
+  markerHeight: 6;
+  refX: 5;
+  refY: 3;
+  orient: auto;
+  fill: context-stroke;
+}
+marker#ar path {
+  d: M0,0 L6,3 L0,6 Z;
+}
+</style>
+</head>
+<body>
+
+<div class="canvas" id="canvas">
+
+  <!-- ── Groups ─────────────────────────────────────────────────── -->
+  <div class="group" style="left:252px; top:60px; width:325px; height:210px;">
+    <span class="label">Vendor</span>
+  </div>
+  <div class="group" style="left:82px; top:290px; width:362px; height:210px;">
+    <span class="label">Tooling</span>
+  </div>
+
+  <!-- ── Nodes (Row 1, top=120) ─────────────────────────────────── -->
+  <div class="node" style="left:46px; top:120px;">
+    <div class="tile">
+      <!-- Replace %%ICON_user%% with the user icon data URI -->
+      <svg viewBox="0 0 24 24" width="40" height="40" fill="var(--text)">
+        <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/>
+      </svg>
+    </div>
+    <div class="name">User</div>
+    <div class="role">client</div>
+  </div>
+
+  <div class="node" style="left:276px; top:120px;">
+    <div class="tile">
+      <!-- %%ICON_app%% -->
+    </div>
+    <div class="name">App</div>
+    <div class="role">frontend</div>
+  </div>
+
+  <div class="node" style="left:421px; top:120px;">
+    <div class="tile">
+      <!-- %%ICON_api%% -->
+    </div>
+    <div class="name">API</div>
+    <div class="role">gateway</div>
+  </div>
+
+  <!-- ── Nodes (Row 2, top=350) ─────────────────────────────────── -->
+  <div class="node" style="left:106px; top:350px;">
+    <div class="tile">
+      <!-- %%ICON_toolone%% -->
+    </div>
+    <div class="name">Tool One</div>
+    <div class="role">linter</div>
+  </div>
+
+  <div class="node" style="left:288px; top:350px;">
+    <div class="tile">
+      <!-- %%ICON_tooltwo%% -->
+    </div>
+    <div class="name">Tool Two</div>
+    <div class="role">formatter</div>
+  </div>
+
+  <!-- ── Edges ──────────────────────────────────────────────────── -->
+  <svg class="edges" viewBox="0 0 1000 540" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="ar" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+        <path d="M0,0 L6,3 L0,6 Z" fill="context-stroke"/>
+      </marker>
+    </defs>
+
+    <!-- user → app (horizontal, accent) -->
+    <path class="e accent" d="M 148 150 H 306" marker-end="url(#ar)"/>
+    <text class="el a" x="227" y="142" text-anchor="middle">HTTPS</text>
+
+    <!-- app → api (horizontal, accent) -->
+    <path class="e accent" d="M 376 150 H 451" marker-end="url(#ar)"/>
+
+    <!-- tool2 → tool1 (horizontal, dashed) -->
+    <path class="e dashed" d="M 318 380 H 208" marker-end="url(#ar)"/>
+    <text class="el" x="263" y="372" text-anchor="middle">pre-commit</text>
+  </svg>
+
+</div>
+
+</body>
+</html>

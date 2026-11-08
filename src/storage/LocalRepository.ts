@@ -32,6 +32,8 @@ import {
   graphifyAgent,
   securityArchitectureReviewSkill,
   securityArchitectureReviewAgent,
+  stackDiagramSkill,
+  stackDiagramAgent,
 } from "./sampleData";
 import { DEFAULT_SETTINGS } from "./settingsDefaults";
 import { migrateToCurrent, PersistedStateV2, CURRENT_SCHEMA_VERSION, freshState } from "./migrations";
@@ -323,6 +325,19 @@ export class LocalRepository implements ISkillsStore {
       migrated.agents.push({ ...securityArchitectureReviewAgent });
     }
 
+    const existingSDSkillIdx = (migrated.skills || []).findIndex((s) => s.id === stackDiagramSkill.id);
+    if (existingSDSkillIdx >= 0) {
+      migrated.skills[existingSDSkillIdx] = { ...stackDiagramSkill };
+    } else {
+      migrated.skills.push({ ...stackDiagramSkill });
+    }
+    const existingSDAgentIdx = (migrated.agents || []).findIndex((a) => a.id === stackDiagramAgent.id);
+    if (existingSDAgentIdx >= 0) {
+      migrated.agents[existingSDAgentIdx] = { ...stackDiagramAgent };
+    } else {
+      migrated.agents.push({ ...stackDiagramAgent });
+    }
+
     if (raw && (raw as { schemaVersion?: number }).schemaVersion === CURRENT_SCHEMA_VERSION) {
       this.context.globalState.update(STORAGE_KEY, migrated);
       return { ...migrated };
@@ -330,8 +345,8 @@ export class LocalRepository implements ISkillsStore {
     const seeded: PersistedState = {
       schemaVersion: CURRENT_SCHEMA_VERSION,
       settings: { ...DEFAULT_SETTINGS },
-      skills: [{ ...enterpriseSecurityAuditSkill }, { ...anvilSkill }, { ...talonSkill }, { ...sentryCodeReviewSkill }, { ...agenticSecurityScannerSkill }, { ...sentinelSkill }, { ...bastionSkill }, { ...ponytailSkill }, { ...graphifySkill }, { ...securityArchitectureReviewSkill }],
-      agents: [{ ...enterpriseSecurityAuditorAgent }, { ...anvilAgent }, { ...talonAgent }, { ...sentryCodeReviewAgent }, { ...agenticSecurityScannerAgent }, { ...sentinelAgent }, { ...bastionAgent }, { ...ponytailAgent }, { ...graphifyAgent }, { ...securityArchitectureReviewAgent }],
+      skills: [{ ...enterpriseSecurityAuditSkill }, { ...anvilSkill }, { ...talonSkill }, { ...sentryCodeReviewSkill }, { ...agenticSecurityScannerSkill }, { ...sentinelSkill }, { ...bastionSkill }, { ...ponytailSkill }, { ...graphifySkill }, { ...securityArchitectureReviewSkill }, { ...stackDiagramSkill }],
+      agents: [{ ...enterpriseSecurityAuditorAgent }, { ...anvilAgent }, { ...talonAgent }, { ...sentryCodeReviewAgent }, { ...agenticSecurityScannerAgent }, { ...sentinelAgent }, { ...bastionAgent }, { ...ponytailAgent }, { ...graphifyAgent }, { ...securityArchitectureReviewAgent }, { ...stackDiagramAgent }],
       workflows: [],
       executions: [],
       history: migrated.history,
@@ -378,7 +393,8 @@ export class LocalRepository implements ISkillsStore {
               s.id !== bastionSkill.id &&
               s.id !== ponytailSkill.id &&
               s.id !== graphifySkill.id &&
-              s.id !== securityArchitectureReviewSkill.id,
+              s.id !== securityArchitectureReviewSkill.id &&
+              s.id !== stackDiagramSkill.id,
           ),
           agents: snapshot.agents.filter(
             (a) =>
@@ -391,7 +407,8 @@ export class LocalRepository implements ISkillsStore {
               a.id !== bastionAgent.id &&
               a.id !== ponytailAgent.id &&
               a.id !== graphifyAgent.id &&
-              a.id !== securityArchitectureReviewAgent.id,
+              a.id !== securityArchitectureReviewAgent.id &&
+              a.id !== stackDiagramAgent.id,
           ),
         };
         const workspaceFile = path.join(workspaceDir, "state.json");
@@ -408,7 +425,8 @@ export class LocalRepository implements ISkillsStore {
             s.id === bastionSkill.id ||
             s.id === ponytailSkill.id ||
             s.id === graphifySkill.id ||
-            s.id === securityArchitectureReviewSkill.id
+            s.id === securityArchitectureReviewSkill.id ||
+            s.id === stackDiagramSkill.id
           )
             continue;
           fs.writeFileSync(path.join(skillsDir, `${s.id}.json`), serializeJson(s), "utf8");
@@ -424,7 +442,8 @@ export class LocalRepository implements ISkillsStore {
             a.id === bastionAgent.id ||
             a.id === ponytailAgent.id ||
             a.id === graphifyAgent.id ||
-            a.id === securityArchitectureReviewAgent.id
+            a.id === securityArchitectureReviewAgent.id ||
+            a.id === stackDiagramAgent.id
           )
             continue;
           fs.writeFileSync(path.join(agentsDir, `${a.id}.json`), serializeJson(a), "utf8");
@@ -473,6 +492,8 @@ export class LocalRepository implements ISkillsStore {
         ? { ...graphifySkill }
         : s.id === securityArchitectureReviewSkill.id
         ? { ...securityArchitectureReviewSkill }
+        : s.id === stackDiagramSkill.id
+        ? { ...stackDiagramSkill }
         : s,
     );
   }
@@ -525,6 +546,9 @@ export class LocalRepository implements ISkillsStore {
     }
     if (id === securityArchitectureReviewSkill.id) {
       return { ...securityArchitectureReviewSkill };
+    }
+    if (id === stackDiagramSkill.id) {
+      return { ...stackDiagramSkill };
     }
     return this.state.skills.find((s) => s.id === id);
   }
@@ -701,6 +725,8 @@ export class LocalRepository implements ISkillsStore {
         ? { ...graphifyAgent }
         : a.id === securityArchitectureReviewAgent.id
         ? { ...securityArchitectureReviewAgent }
+        : a.id === stackDiagramAgent.id
+        ? { ...stackDiagramAgent }
         : a,
     );
   }
@@ -735,6 +761,9 @@ export class LocalRepository implements ISkillsStore {
     }
     if (id === securityArchitectureReviewAgent.id) {
       return { ...securityArchitectureReviewAgent };
+    }
+    if (id === stackDiagramAgent.id) {
+      return { ...stackDiagramAgent };
     }
     return this.agentRepo.get(id);
   }
