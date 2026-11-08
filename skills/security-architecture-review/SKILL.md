@@ -1,7 +1,7 @@
 ---
 name: security-architecture-review
 version: 1.0.0
-description: "Enterprise security architecture review skill. Performs threat modeling (STRIDE), risk assessment, attack path analysis, data flow analysis, compliance mapping, and security remediation planning. Read-only by default — never performs destructive testing without authorization."
+description: "Performs code reviews, security assessments, threat modeling, and architecture audits."
 author: AgentForge Engineering (inspired by SecurityReview.ai methodology)
 category: Security & Architecture Assurance
 tags: [security, architecture, threat-modeling, stride, risk-assessment, compliance, owasp, copilot-skill]
@@ -10,9 +10,9 @@ requirements: AgentForge v0.1.0+ Workspace, Read-Only Source Access
 license: MIT
 ---
 
-# /security-architecture-review
+# /security-architecture-review — Security & Architecture Assurance
 
-Enterprise security architecture review skill. Analyzes applications and systems to identify architecture-level vulnerabilities, security design weaknesses, trust boundary violations, and produces structured threat models, risk registers, and remediation plans.
+Performs code reviews, security assessments, threat modeling, and architecture audits. Analyzes applications and systems to identify architecture-level vulnerabilities, security design weaknesses, trust boundary violations, and produces structured threat models, risk registers, and remediation plans.
 
 ## Usage
 

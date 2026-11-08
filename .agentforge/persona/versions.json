@@ -1,6 +1,26 @@
 [
   {
     "version": "0.1.0-test",
+    "timestamp": "2026-11-08T06:03:50.601Z",
+    "note": "Initial acceptance snapshot"
+  },
+  {
+    "version": "0.1.0-test",
+    "timestamp": "2026-11-08T06:03:42.120Z",
+    "note": "Initial acceptance snapshot"
+  },
+  {
+    "version": "0.1.0-test",
+    "timestamp": "2026-11-08T06:00:20.628Z",
+    "note": "Initial acceptance snapshot"
+  },
+  {
+    "version": "0.1.0-test",
+    "timestamp": "2026-11-08T05:42:35.182Z",
+    "note": "Initial acceptance snapshot"
+  },
+  {
+    "version": "0.1.0-test",
     "timestamp": "2026-11-08T05:08:22.086Z",
     "note": "Initial acceptance snapshot"
   },

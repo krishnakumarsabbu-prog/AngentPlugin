@@ -62,6 +62,15 @@ AgentForge Platform
 
 ## Module Capabilities
 
+### Enterprise Skills & Agents
+
+| Skill | Name | Purpose |
+| :--- | :--- | :--- |
+| **1. Ponytail-inspired** (`@ponytail`) | **Engineering Discipline** | Controls code quality, complexity, maintainability, and implementation discipline. |
+| **2. Graphify-inspired** (`@graphify`) | **Codebase Intelligence** | Understands architecture, dependencies, relationships, and impact across the codebase. |
+| **3. SecurityReview-inspired** (`@security-architecture-review`) | **Security & Architecture Assurance** | Performs code reviews, security assessments, threat modeling, and architecture audits. |
+
+
 1. **Dashboard**
    - High-level platform health, live metric cards, recent skill/agent/pipeline summaries, and system activity feed.
 2. **Skills Studio**

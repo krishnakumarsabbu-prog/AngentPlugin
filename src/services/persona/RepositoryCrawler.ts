@@ -288,19 +288,13 @@ export class RepositoryCrawler {
         return;
       }
 
+      // 1. Process files in current directory first (ensures root manifests like package.json are captured)
       for (const entry of entries) {
         if (results.length >= maxFiles) break;
+        if (entry.isFile()) {
+          const fullPath = path.join(currentDir, entry.name);
+          const relPath = path.relative(this.workspaceRoot, fullPath);
 
-        const fullPath = path.join(currentDir, entry.name);
-        const relPath = path.relative(this.workspaceRoot, fullPath);
-
-        if (entry.isDirectory()) {
-          if (this.exclusions.directories.includes(entry.name)) continue;
-          if (entry.name.startsWith(".") && entry.name !== ".github" && entry.name !== ".claude" && entry.name !== ".agents") {
-            continue;
-          }
-          walk(fullPath);
-        } else if (entry.isFile()) {
           if (this.sandbox.isSensitiveFile(relPath)) continue;
 
           const ext = path.extname(entry.name).toLowerCase();
@@ -315,6 +309,19 @@ export class RepositoryCrawler {
           } catch {
             // Inaccessible
           }
+        }
+      }
+
+      // 2. Recurse into eligible subdirectories
+      for (const entry of entries) {
+        if (results.length >= maxFiles) break;
+        if (entry.isDirectory()) {
+          if (this.exclusions.directories.includes(entry.name)) continue;
+          if (entry.name.startsWith(".") && entry.name !== ".github" && entry.name !== ".claude" && entry.name !== ".agents") {
+            continue;
+          }
+          const fullPath = path.join(currentDir, entry.name);
+          walk(fullPath);
         }
       }
     };

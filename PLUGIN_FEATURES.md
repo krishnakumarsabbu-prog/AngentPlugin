@@ -138,6 +138,15 @@ WORKBENCH MODULES
     └── Settings                    # Preferences, timeouts & full-state backup
 ```
 
+### Canonical Enterprise Skills & Agents
+
+| Skill | Name | Purpose |
+| :--- | :--- | :--- |
+| **1. Ponytail-inspired** (`@ponytail`) | **Engineering Discipline** | Controls code quality, complexity, maintainability, and implementation discipline. |
+| **2. Graphify-inspired** (`@graphify`) | **Codebase Intelligence** | Understands architecture, dependencies, relationships, and impact across the codebase. |
+| **3. SecurityReview-inspired** (`@security-architecture-review`) | **Security & Architecture Assurance** | Performs code reviews, security assessments, threat modeling, and architecture audits. |
+
+
 ---
 
 ### 3.1 Executive Dashboard

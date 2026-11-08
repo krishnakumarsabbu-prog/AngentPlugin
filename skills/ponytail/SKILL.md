@@ -1,7 +1,7 @@
 ---
 name: ponytail
 version: 1.0.0
-description: "Engineering discipline and token optimization skill. Makes AI coding agents behave like experienced senior engineers — inspect existing code, reuse first, implement the smallest complete solution."
+description: "Controls code quality, complexity, maintainability, and implementation discipline."
 author: AgentForge Engineering (adapted from DietrichGebert/ponytail)
 category: Engineering Discipline & Token Optimization
 tags: [ponytail, engineering-discipline, code-review, token-optimization, minimalism, copilot-skill]
@@ -10,9 +10,9 @@ requirements: AgentForge v0.1.0+ Workspace
 license: MIT
 ---
 
-# /ponytail
+# /ponytail — Engineering Discipline
 
-Engineering discipline skill that enforces senior-engineer behavior: understand the problem, inspect existing code, reuse first, and implement the smallest complete solution. Never sacrifice security, correctness, or data integrity for brevity.
+Controls code quality, complexity, maintainability, and implementation discipline. Makes AI coding agents behave like experienced senior engineers: understand the problem, inspect existing code, reuse first, and implement the smallest complete solution. Never sacrifice security, correctness, or data integrity for brevity.
 
 ## Usage
 
