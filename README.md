@@ -69,6 +69,7 @@ AgentForge Platform
 | **1. Ponytail-inspired** (`@ponytail`) | **Engineering Discipline** | Controls code quality, complexity, maintainability, and implementation discipline. |
 | **2. Graphify-inspired** (`@graphify`) | **Codebase Intelligence** | Understands architecture, dependencies, relationships, and impact across the codebase. |
 | **3. SecurityReview-inspired** (`@security-architecture-review`) | **Security & Architecture Assurance** | Performs code reviews, security assessments, threat modeling, and architecture audits. |
+| **4. StackDiagram-inspired** (`@stack-diagram`) | **Architecture & Visualization** | Generates professional architecture, tech-stack, and service-topology diagrams with real brand logos. |
 
 
 1. **Dashboard**

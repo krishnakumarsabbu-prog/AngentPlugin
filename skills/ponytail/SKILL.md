@@ -7,7 +7,7 @@ category: Engineering Discipline & Token Optimization
 tags: [ponytail, engineering-discipline, code-review, token-optimization, minimalism, copilot-skill]
 compatibility: [copilot, claude, openai]
 requirements: AgentForge v0.1.0+ Workspace
-license: MIT
+license: Apache-2.0 / MIT Dual License (AgentForge Enterprise)
 ---
 
 # /ponytail — Engineering Discipline

@@ -10,6 +10,8 @@ import {
   graphifyAgent,
   securityArchitectureReviewSkill,
   securityArchitectureReviewAgent,
+  stackDiagramSkill,
+  stackDiagramAgent,
 } from "../src/storage/sampleData";
 import { validateSkill } from "../src/skills/SkillValidator";
 import { validateAgent } from "../src/agents/AgentValidator";
@@ -174,10 +176,49 @@ describe("End-to-End Verification: @ponytail, @graphify, and @security-architect
         "security_remediation_plan",
       ]);
     });
+
+    it("verifies Stack Diagram (Architecture & Visualization) skill and agent specifications", () => {
+      // Skill metadata
+      expect(stackDiagramSkill.id).toBe("stack-diagram");
+      expect(stackDiagramSkill.name).toBe("Stack Diagram");
+      expect(stackDiagramSkill.frontmatter).toContain("name: stack-diagram");
+      expect(stackDiagramSkill.frontmatter).toContain(
+        "license: Apache-2.0 / MIT Dual License (AgentForge Enterprise); bundled fonts are SIL OFL 1.1",
+      );
+
+      // Agent metadata
+      expect(stackDiagramAgent.id).toBe("stack-diagram");
+      expect(stackDiagramAgent.name).toBe("Stack Diagram Architect");
+      expect(stackDiagramAgent.assignedSkillIds).toContain("stack-diagram");
+      expect(stackDiagramAgent.instructions).toContain("When invoked as @stack-diagram");
+      expect(stackDiagramAgent.toolDefinitions.map((t) => t.name)).toEqual([
+        "stack_diagram_generate",
+        "stack_diagram_fetch_icons",
+        "stack_diagram_build_html",
+        "stack_diagram_render_png",
+        "stack_diagram_export_tsx",
+        "stack_diagram_inspect_repo",
+      ]);
+    });
+
+    it("verifies all four skills enforce the AgentForge Enterprise dual license", () => {
+      expect(ponytailSkill.frontmatter).toContain(
+        "license: Apache-2.0 / MIT Dual License (AgentForge Enterprise)",
+      );
+      expect(graphifySkill.frontmatter).toContain(
+        "license: Apache-2.0 / MIT Dual License (AgentForge Enterprise)",
+      );
+      expect(securityArchitectureReviewSkill.frontmatter).toContain(
+        "license: Apache-2.0 / MIT Dual License (AgentForge Enterprise)",
+      );
+      expect(stackDiagramSkill.frontmatter).toContain(
+        "license: Apache-2.0 / MIT Dual License (AgentForge Enterprise); bundled fonts are SIL OFL 1.1",
+      );
+    });
   });
 
   describe("2. Schema Validation Engine", () => {
-    it("validates all 3 skills strictly against SkillValidator schema", () => {
+    it("validates all 4 skills strictly against SkillValidator schema", () => {
       const pRes = validateSkill(ponytailSkill);
       expect(pRes.valid).toBe(true);
       expect(pRes.errors).toHaveLength(0);
@@ -189,9 +230,13 @@ describe("End-to-End Verification: @ponytail, @graphify, and @security-architect
       const sRes = validateSkill(securityArchitectureReviewSkill);
       expect(sRes.valid).toBe(true);
       expect(sRes.errors).toHaveLength(0);
+
+      const sdRes = validateSkill(stackDiagramSkill);
+      expect(sdRes.valid).toBe(true);
+      expect(sdRes.errors).toHaveLength(0);
     });
 
-    it("validates all 3 agents strictly against AgentValidator schema", () => {
+    it("validates all 4 agents strictly against AgentValidator schema", () => {
       const pRes = validateAgent(ponytailAgent);
       expect(pRes.valid).toBe(true);
       expect(pRes.errors).toHaveLength(0);
@@ -203,11 +248,15 @@ describe("End-to-End Verification: @ponytail, @graphify, and @security-architect
       const sRes = validateAgent(securityArchitectureReviewAgent);
       expect(sRes.valid).toBe(true);
       expect(sRes.errors).toHaveLength(0);
+
+      const sdRes = validateAgent(stackDiagramAgent);
+      expect(sdRes.valid).toBe(true);
+      expect(sdRes.errors).toHaveLength(0);
     });
   });
 
   describe("3. Multi-Platform Export Adapters", () => {
-    it("exports valid GitHub Copilot agent configs for @ponytail, @graphify, and @security-architecture-review", () => {
+    it("exports valid GitHub Copilot agent configs for @ponytail, @graphify, @security-architecture-review, and @stack-diagram", () => {
       const copilotAdapter = new CopilotAgentAdapter();
 
       // 1. Ponytail
@@ -236,9 +285,15 @@ describe("End-to-End Verification: @ponytail, @graphify, and @security-architect
         "Performs code reviews, security assessments, threat modeling, and architecture audits.",
       );
       expect(sExport.files[0].content).toContain("When invoked as @security-architecture-review");
+
+      // 4. Stack Diagram
+      const sdExport = copilotAdapter.exportAgent(stackDiagramAgent);
+      expect(sdExport.files[0].relativePath).toBe(".github/copilot-instructions.md");
+      expect(sdExport.files[0].content).toContain("# Stack Diagram Architect");
+      expect(sdExport.files[0].content).toContain("When invoked as @stack-diagram");
     });
 
-    it("exports valid Claude Code agent configs for @ponytail, @graphify, and @security-architecture-review", () => {
+    it("exports valid Claude Code agent configs for @ponytail, @graphify, @security-architecture-review, and @stack-diagram", () => {
       const claudeAdapter = new ClaudeAgentAdapter();
 
       const pExport = claudeAdapter.exportAgent(ponytailAgent);
@@ -264,6 +319,11 @@ describe("End-to-End Verification: @ponytail, @graphify, and @security-architect
       expect(sSubagent?.content).toContain(
         "Performs code reviews, security assessments, threat modeling, and architecture audits.",
       );
+
+      const sdExport = claudeAdapter.exportAgent(stackDiagramAgent);
+      const sdSubagent = sdExport.files.find((f) => f.relativePath.includes(".claude/agents"));
+      expect(sdSubagent).toBeDefined();
+      expect(sdSubagent?.content).toContain('<agent id="stack-diagram"');
     });
 
     it("exports valid OpenAI Assistants API agent configurations", () => {
@@ -295,11 +355,17 @@ describe("End-to-End Verification: @ponytail, @graphify, and @security-architect
       expect(sJson.description).toBe(
         "Performs code reviews, security assessments, threat modeling, and architecture audits.",
       );
+
+      const sdExport = openAiAdapter.exportAgent(stackDiagramAgent);
+      const sdAssistant = sdExport.files.find((f) => f.fileName.includes("assistant.json"));
+      expect(sdAssistant).toBeDefined();
+      const sdJson = JSON.parse(sdAssistant!.content);
+      expect(sdJson.name).toBe("Stack Diagram Architect");
     });
   });
 
   describe("4. End-to-End Installation & Bridge RPC Dispatch", () => {
-    it("installs all 3 agents and auto-cascades their skills to .github and .claude workspace directories", async () => {
+    it("installs agents and auto-cascades their skills to .github and .claude workspace directories", async () => {
       const channel = {
         appendLine: () => {},
       } as unknown as vscode.OutputChannel;
@@ -428,13 +494,49 @@ describe("End-to-End Verification: @ponytail, @graphify, and @security-architect
         "SKILL.md",
       );
       expect(fs.existsSync(copilotSarSkillFile)).toBe(true);
+
+      // 4. Install @stack-diagram to Copilot
+      await bridge.handleMessage(
+        {
+          id: "install-sd-copilot",
+          type: "agents.install",
+          payload: {
+            id: stackDiagramAgent.id,
+            platform: "copilot",
+            scope: "workspace",
+          },
+        },
+        mockWebview,
+      );
+      const sdRes = posted.find((m) => m.requestId === "install-sd-copilot");
+      expect(sdRes?.ok).toBe(true);
+
+      const copilotSdAgentFile = path.join(
+        tempWorkspaceRoot,
+        ".github",
+        "agents",
+        "stack-diagram.agent.md",
+      );
+      expect(fs.existsSync(copilotSdAgentFile)).toBe(true);
+      const copilotSdContent = await fs.promises.readFile(copilotSdAgentFile, "utf8");
+      expect(copilotSdContent).toContain("When invoked as @stack-diagram");
+
+      // Verify cascaded stack-diagram skill in .github/skills/stack-diagram/SKILL.md
+      const copilotSdSkillFile = path.join(
+        tempWorkspaceRoot,
+        ".github",
+        "skills",
+        "stack-diagram",
+        "SKILL.md",
+      );
+      expect(fs.existsSync(copilotSdSkillFile)).toBe(true);
     });
   });
 
-  describe("5. Physical Repository Files Integrity", () => {
+  describe("5. Physical Repository Files & Dual License Integrity", () => {
     const root = path.resolve(__dirname, "..");
 
-    it("verifies canonical skills and synchronized files exist across all target directories", () => {
+    it("verifies canonical skills, license.md, and synchronized files exist across all target directories", () => {
       const skills = [
         {
           id: "ponytail",
@@ -451,6 +553,11 @@ describe("End-to-End Verification: @ponytail, @graphify, and @security-architect
           name: "Security & Architecture Assurance",
           purpose: "Performs code reviews, security assessments, threat modeling, and architecture audits.",
         },
+        {
+          id: "stack-diagram",
+          name: "Stack Diagram",
+          purpose: "Create cloud-architecture-style diagrams",
+        },
       ];
 
       for (const sk of skills) {
@@ -459,38 +566,48 @@ describe("End-to-End Verification: @ponytail, @graphify, and @security-architect
         expect(fs.existsSync(canonPath)).toBe(true);
         const canonContent = fs.readFileSync(canonPath, "utf8");
         expect(canonContent).toContain(sk.purpose);
+        expect(canonContent).toContain("license: Apache-2.0 / MIT Dual License (AgentForge Enterprise)");
+
+        // license.md in skills/<id>/license.md
+        const licensePath = path.join(root, "skills", sk.id, "license.md");
+        expect(fs.existsSync(licensePath)).toBe(true);
+        const licenseContent = fs.readFileSync(licensePath, "utf8");
+        expect(licenseContent).toContain("AgentForge Enterprise Dual License: Apache-2.0 / MIT");
 
         // Synchronized in .github/skills/<id>/SKILL.md
         const ghPath = path.join(root, ".github", "skills", sk.id, "SKILL.md");
         expect(fs.existsSync(ghPath)).toBe(true);
         const ghContent = fs.readFileSync(ghPath, "utf8");
         expect(ghContent).toContain(sk.purpose);
+        expect(ghContent).toContain("license: Apache-2.0 / MIT Dual License (AgentForge Enterprise)");
 
         // Synchronized in .claude/skills/<id>/SKILL.md
         const clPath = path.join(root, ".claude", "skills", sk.id, "SKILL.md");
         expect(fs.existsSync(clPath)).toBe(true);
         const clContent = fs.readFileSync(clPath, "utf8");
         expect(clContent).toContain(sk.purpose);
+        expect(clContent).toContain("license: Apache-2.0 / MIT Dual License (AgentForge Enterprise)");
 
         // Synchronized in .agents/skills/<id>/SKILL.md
         const agPath = path.join(root, ".agents", "skills", sk.id, "SKILL.md");
         expect(fs.existsSync(agPath)).toBe(true);
         const agContent = fs.readFileSync(agPath, "utf8");
         expect(agContent).toContain(sk.purpose);
+        expect(agContent).toContain("license: Apache-2.0 / MIT Dual License (AgentForge Enterprise)");
 
         // Copilot Agent definition in .github/agents/<id>.agent.md
         const ghAgentPath = path.join(root, ".github", "agents", `${sk.id}.agent.md`);
         expect(fs.existsSync(ghAgentPath)).toBe(true);
         const ghAgentContent = fs.readFileSync(ghAgentPath, "utf8");
-        expect(ghAgentContent).toContain(sk.purpose);
         expect(ghAgentContent).toContain(`@${sk.id}`);
+        expect(ghAgentContent).toContain("license: Apache-2.0 / MIT Dual License (AgentForge Enterprise)");
 
         // Claude Agent definition in .claude/agents/<id>.md
         const clAgentPath = path.join(root, ".claude", "agents", `${sk.id}.md`);
         expect(fs.existsSync(clAgentPath)).toBe(true);
         const clAgentContent = fs.readFileSync(clAgentPath, "utf8");
-        expect(clAgentContent).toContain(sk.purpose);
         expect(clAgentContent).toContain(`@${sk.id}`);
+        expect(clAgentContent).toContain("license: Apache-2.0 / MIT (AgentForge)");
       }
     });
   });

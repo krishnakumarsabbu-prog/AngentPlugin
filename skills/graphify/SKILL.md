@@ -1,6 +1,13 @@
 ---
 name: graphify
+version: 1.0.0
 description: "Understands architecture, dependencies, relationships, and impact across the codebase."
+author: AgentForge Engineering (adapted from Graphify-Labs/graphify)
+category: Repository Intelligence & Knowledge Graph
+tags: [graphify, knowledge-graph, ast-extraction, code-intelligence, impact-analysis, architecture-discovery, copilot-skill]
+compatibility: [copilot, claude, openai]
+requirements: AgentForge v0.1.0+ Workspace, Python 3.9+
+license: Apache-2.0 / MIT Dual License (AgentForge Enterprise)
 ---
 
 # /graphify — Codebase Intelligence

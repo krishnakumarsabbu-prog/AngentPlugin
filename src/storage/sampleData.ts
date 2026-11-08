@@ -1888,7 +1888,7 @@ export const ponytailSkill: Skill = {
   category: "Engineering Discipline & Token Optimization",
   tags: ["ponytail", "engineering-discipline", "code-review", "token-optimization", "minimalism", "copilot-skill"],
   author: "AgentForge Engineering (adapted from DietrichGebert/ponytail)",
-  frontmatter: "name: ponytail\nversion: 1.0.0\ndescription: Controls code quality, complexity, maintainability, and implementation discipline.\nauthor: AgentForge Engineering (adapted from DietrichGebert/ponytail)\ncategory: Engineering Discipline & Token Optimization\ntags: [ponytail, engineering-discipline, code-review, token-optimization, minimalism, copilot-skill]\ncompatibility: [copilot, claude, openai]\nrequirements: AgentForge v0.1.0+ Workspace\nlicense: MIT",
+  frontmatter: "name: ponytail\nversion: 1.0.0\ndescription: Controls code quality, complexity, maintainability, and implementation discipline.\nauthor: AgentForge Engineering (adapted from DietrichGebert/ponytail)\ncategory: Engineering Discipline & Token Optimization\ntags: [ponytail, engineering-discipline, code-review, token-optimization, minimalism, copilot-skill]\ncompatibility: [copilot, claude, openai]\nrequirements: AgentForge v0.1.0+ Workspace\nlicense: Apache-2.0 / MIT Dual License (AgentForge Enterprise)",
   otherTargets: [],
   requiredTools: ["ponytail_review", "ponytail_audit", "ponytail_debt", "ponytail_gain"],
   permissions: ["filesystem:read"],
@@ -1909,7 +1909,8 @@ export const ponytailSkill: Skill = {
     { id: "res-adapt-claude", name: "adapters/claude.md", kind: "reference", description: "Claude Code adapter for Ponytail." },
     { id: "res-adapt-copilot", name: "adapters/copilot.md", kind: "reference", description: "GitHub Copilot adapter for Ponytail." },
     { id: "res-adapt-generic", name: "adapters/generic-agent.md", kind: "reference", description: "Generic agent adapter for Ponytail." },
-    { id: "res-ponytail-license", name: "LICENSE", kind: "reference", description: "MIT license (adapted from DietrichGebert/ponytail)." }
+    { id: "res-ponytail-license", name: "LICENSE", kind: "reference", description: "Dual license: Apache-2.0 / MIT (AgentForge Enterprise, adapted from DietrichGebert/ponytail)." },
+    { id: "res-ponytail-license-md", name: "license.md", kind: "reference", description: "AgentForge Enterprise dual license terms (Apache-2.0 / MIT)." }
   ],
   compatibility: ["copilot", "claude", "openai"],
   status: "Ready",
@@ -2010,7 +2011,7 @@ export const graphifySkill: Skill = {
   category: "Repository Intelligence & Knowledge Graph",
   tags: ["graphify", "knowledge-graph", "ast-extraction", "code-intelligence", "impact-analysis", "architecture-discovery", "copilot-skill"],
   author: "AgentForge Engineering (adapted from Graphify-Labs/graphify)",
-  frontmatter: "name: graphify\nversion: 1.0.0\ndescription: Understands architecture, dependencies, relationships, and impact across the codebase.\nauthor: AgentForge Engineering (adapted from Graphify-Labs/graphify)\ncategory: Repository Intelligence & Knowledge Graph\ntags: [graphify, knowledge-graph, ast-extraction, code-intelligence, impact-analysis, architecture-discovery, copilot-skill]\ncompatibility: [copilot, claude, openai]\nrequirements: AgentForge v0.1.0+ Workspace, Python 3.9+\nlicense: Apache-2.0",
+  frontmatter: "name: graphify\nversion: 1.0.0\ndescription: Understands architecture, dependencies, relationships, and impact across the codebase.\nauthor: AgentForge Engineering (adapted from Graphify-Labs/graphify)\ncategory: Repository Intelligence & Knowledge Graph\ntags: [graphify, knowledge-graph, ast-extraction, code-intelligence, impact-analysis, architecture-discovery, copilot-skill]\ncompatibility: [copilot, claude, openai]\nrequirements: AgentForge v0.1.0+ Workspace, Python 3.9+\nlicense: Apache-2.0 / MIT Dual License (AgentForge Enterprise)",
   otherTargets: [],
   requiredTools: ["graphify_build", "graphify_query", "graphify_path", "graphify_explain", "graphify_impact", "graphify_update"],
   permissions: ["filesystem:read", "shell:execute"],
@@ -2034,7 +2035,9 @@ export const graphifySkill: Skill = {
     { id: "res-cmd-impact", name: "commands/impact.md", kind: "reference", description: "Graphify impact command — change impact report." },
     { id: "res-adapt-claude-graphify", name: "adapters/claude.md", kind: "reference", description: "Claude Code adapter for Graphify." },
     { id: "res-adapt-copilot-graphify", name: "adapters/copilot.md", kind: "reference", description: "GitHub Copilot adapter for Graphify." },
-    { id: "res-adapt-generic-graphify", name: "adapters/generic-agent.md", kind: "reference", description: "Generic agent adapter for Graphify." }
+    { id: "res-adapt-generic-graphify", name: "adapters/generic-agent.md", kind: "reference", description: "Generic agent adapter for Graphify." },
+    { id: "res-graphify-license", name: "LICENSE", kind: "reference", description: "Dual license: Apache-2.0 / MIT (AgentForge Enterprise, adapted from Graphify-Labs/graphify)." },
+    { id: "res-graphify-license-md", name: "license.md", kind: "reference", description: "AgentForge Enterprise dual license terms (Apache-2.0 / MIT)." }
   ],
   compatibility: ["copilot", "claude", "openai"],
   status: "Ready",
@@ -2154,7 +2157,7 @@ export const securityArchitectureReviewSkill: Skill = {
   category: "Security & Architecture Assurance",
   tags: ["security", "architecture", "threat-modeling", "stride", "risk-assessment", "compliance", "owasp", "copilot-skill"],
   author: "AgentForge Engineering (inspired by SecurityReview.ai methodology)",
-  frontmatter: "name: security-architecture-review\nversion: 1.0.0\ndescription: Performs code reviews, security assessments, threat modeling, and architecture audits.\nauthor: AgentForge Engineering (inspired by SecurityReview.ai methodology)\ncategory: Security & Architecture Assurance\ntags: [security, architecture, threat-modeling, stride, risk-assessment, compliance, owasp, copilot-skill]\ncompatibility: [copilot, claude, openai]\nrequirements: AgentForge v0.1.0+ Workspace, Read-Only Source Access\nlicense: MIT",
+  frontmatter: "name: security-architecture-review\nversion: 1.0.0\ndescription: Performs code reviews, security assessments, threat modeling, and architecture audits.\nauthor: AgentForge Engineering (inspired by SecurityReview.ai methodology)\ncategory: Security & Architecture Assurance\ntags: [security, architecture, threat-modeling, stride, risk-assessment, compliance, owasp, copilot-skill]\ncompatibility: [copilot, claude, openai]\nrequirements: AgentForge v0.1.0+ Workspace, Read-Only Source Access\nlicense: Apache-2.0 / MIT Dual License (AgentForge Enterprise)",
   otherTargets: [],
   requiredTools: ["security_architecture_review", "security_threat_model", "security_risk_assessment", "security_attack_path", "security_data_flow", "security_compliance_mapping", "security_remediation_plan"],
   permissions: ["filesystem:read"],
@@ -2177,7 +2180,8 @@ export const securityArchitectureReviewSkill: Skill = {
     { id: "res-adapt-claude-sar", name: "adapters/claude.md", kind: "reference", description: "Claude Code adapter for Security Architecture Review." },
     { id: "res-adapt-copilot-sar", name: "adapters/copilot.md", kind: "reference", description: "GitHub Copilot adapter for Security Architecture Review." },
     { id: "res-adapt-generic-sar", name: "adapters/generic-agent.md", kind: "reference", description: "Generic agent adapter for Security Architecture Review." },
-    { id: "res-sar-license", name: "LICENSE", kind: "reference", description: "MIT license (original implementation inspired by SecurityReview.ai methodology)." }
+    { id: "res-sar-license", name: "LICENSE", kind: "reference", description: "Dual license: Apache-2.0 / MIT (AgentForge Enterprise, inspired by SecurityReview.ai methodology)." },
+    { id: "res-sar-license-md", name: "license.md", kind: "reference", description: "AgentForge Enterprise dual license terms (Apache-2.0 / MIT)." }
   ],
   compatibility: ["copilot", "claude", "openai"],
   status: "Ready",
@@ -2304,7 +2308,7 @@ export const stackDiagramSkill: Skill = {
   category: "Architecture & Visualization",
   tags: ["architecture", "system-design", "technology-stack", "infrastructure", "diagram-generation", "cloud-architecture", "service-topology", "visualization", "documentation"],
   author: "AgentForge Engineering (adapted from caru-ini/stack-diagram)",
-  frontmatter: "name: stack-diagram\nversion: 1.0.0\ndescription: \"Create cloud-architecture-style diagrams of tech stacks, system architectures, infra layouts, and service topologies — with real brand logos, grouped containers, and clean orthogonal arrows.\"\nauthor: AgentForge Engineering (adapted from caru-ini/stack-diagram)\ncategory: Architecture & Visualization\ntags: [architecture, system-design, technology-stack, infrastructure, diagram-generation, cloud-architecture, service-topology, visualization, documentation]\ncompatibility: [copilot, claude, openai]\nrequirements: Python 3.9+, network access for logos; Playwright+Chromium for PNG\nlicense: MIT",
+  frontmatter: "name: stack-diagram\nversion: 1.0.0\ndescription: \"Create cloud-architecture-style diagrams of tech stacks, system architectures, infra layouts, and service topologies — with real brand logos, grouped containers, and clean orthogonal arrows.\"\nauthor: AgentForge Engineering (adapted from caru-ini/stack-diagram)\ncategory: Architecture & Visualization\ntags: [architecture, system-design, technology-stack, infrastructure, diagram-generation, cloud-architecture, service-topology, visualization, documentation]\ncompatibility: [copilot, claude, openai]\nrequirements: Python 3.9+, network access for logos; Playwright+Chromium for PNG\nlicense: Apache-2.0 / MIT Dual License (AgentForge Enterprise); bundled fonts are SIL OFL 1.1",
   otherTargets: [],
   requiredTools: ["stack_diagram_generate", "stack_diagram_fetch_icons", "stack_diagram_build_html", "stack_diagram_render_png", "stack_diagram_export_tsx", "stack_diagram_inspect_repo"],
   permissions: ["filesystem:read", "filesystem:write", "network:fetch"],
@@ -2313,7 +2317,8 @@ export const stackDiagramSkill: Skill = {
   instructions: "Execute the stack-diagram workflow when the user requests an architecture, system, stack, infra, or service topology diagram:\n1. Settle Content: Collect nodes (components with name, role, tech identifier), groups (boundary boxes), and edges (connections with labels, classes, direction). Distinguish CONFIRMED, INFERRED, and UNKNOWN. Never include secrets.\n2. Fetch Icons: Run scripts/fetch_icons.py to get official brand logos from svgl, devicon, gilbarbara/logos, and AWS/GCP/Azure icon packages. Use text fallback for missing logos — never break the build.\n3. Plan Coordinates: Read references/geometry.md. Apply spacing rules (132×100 node boxes, ≥140px horizontal, 140px vertical, group padding). Sanity-check edge corridors do not pass through node boxes.\n4. Build HTML: Use assets/template.html as base. Run scripts/build.py to inline fonts and icons as data URIs. The HTML must be fully self-contained.\n5. Render & Inspect: Run scripts/render_png.py (requires Playwright). Inspect for overlaps, clipped labels, missing assets, broken arrows. Correct and re-render if issues found.\n6. Deliver: Default HTML. PNG, React/TSX, and light/dark themes on request. All from the same diagram model.\nRepository-aware mode: When asked to diagram a repo, inspect package.json/pom.xml/build.gradle/requirements.txt/pyproject.toml/go.mod/Cargo.toml, Docker/K8s/Terraform configs, CI/CD workflows. Do not assume a technology is used just because it appears in a dependency file. Output to artifacts/stack-diagram/[name]/. Public sharing disabled by default.",
   resources: [
     { id: "res-sd-skill", name: "SKILL.md", kind: "reference", description: "Master stack-diagram entrypoint, workflow, and output formats." },
-    { id: "res-sd-license", name: "LICENSE", kind: "reference", description: "MIT license (upstream caru-ini/stack-diagram). Fonts are SIL OFL 1.1." },
+    { id: "res-sd-license", name: "LICENSE", kind: "reference", description: "Dual license: Apache-2.0 / MIT (AgentForge Enterprise, adapted from caru-ini/stack-diagram); bundled fonts are SIL OFL 1.1." },
+    { id: "res-sd-license-md", name: "license.md", kind: "reference", description: "AgentForge Enterprise dual license terms (Apache-2.0 / MIT) and font licenses." },
     { id: "res-sd-readme", name: "README.md", kind: "reference", description: "Stack Diagram product overview and quick start." },
     { id: "res-sd-changelog", name: "CHANGELOG.md", kind: "reference", description: "Version history and integration notes." },
     { id: "res-sd-install", name: "INSTALLATION-AND-USAGE.md", kind: "reference", description: "Prerequisites, AgentForge installation, and invocation guide." },

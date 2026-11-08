@@ -158,6 +158,15 @@ const SECURITY_ARCH_REVIEW_TARGET_DIRS = [
 ];
 const SECURITY_ARCH_REVIEW_SYNC_FILES = getAllRelativeFiles(SECURITY_ARCH_REVIEW_CANONICAL_DIR);
 
+// 8. Stack Diagram paths & files
+const STACK_DIAGRAM_CANONICAL_DIR = path.join(ROOT_DIR, 'skills', 'stack-diagram');
+const STACK_DIAGRAM_TARGET_DIRS = [
+  path.join(ROOT_DIR, '.github', 'skills', 'stack-diagram'),
+  path.join(ROOT_DIR, '.claude', 'skills', 'stack-diagram'),
+  path.join(ROOT_DIR, '.agents', 'skills', 'stack-diagram'),
+];
+const STACK_DIAGRAM_SYNC_FILES = getAllRelativeFiles(STACK_DIAGRAM_CANONICAL_DIR);
+
 function syncDirectory(targetDir) {
   if (!fs.existsSync(targetDir)) {
     fs.mkdirSync(targetDir, { recursive: true });
@@ -231,6 +240,10 @@ function syncSecurityArchReviewDirectory(targetDir) {
   return syncCustomDirectory(SECURITY_ARCH_REVIEW_CANONICAL_DIR, targetDir, SECURITY_ARCH_REVIEW_SYNC_FILES);
 }
 
+function syncStackDiagramDirectory(targetDir) {
+  return syncCustomDirectory(STACK_DIAGRAM_CANONICAL_DIR, targetDir, STACK_DIAGRAM_SYNC_FILES);
+}
+
 function main() {
   console.log(`Starting synchronization for Enterprise Security Audit...`);
   if (fs.existsSync(CANONICAL_DIR)) {
@@ -295,6 +308,15 @@ function main() {
     }
   }
 
+  console.log(`Starting synchronization for Stack Diagram...`);
+  if (fs.existsSync(STACK_DIAGRAM_CANONICAL_DIR)) {
+    for (const targetDir of STACK_DIAGRAM_TARGET_DIRS) {
+      const relativeTarget = path.relative(ROOT_DIR, targetDir);
+      const synced = syncStackDiagramDirectory(targetDir);
+      console.log(`✓ Synchronized ${synced} files to ${relativeTarget}`);
+    }
+  }
+
   console.log('Skill synchronization completed successfully.');
 }
 
@@ -331,4 +353,8 @@ module.exports = {
   SECURITY_ARCH_REVIEW_TARGET_DIRS,
   SECURITY_ARCH_REVIEW_SYNC_FILES,
   syncSecurityArchReviewDirectory,
+  STACK_DIAGRAM_CANONICAL_DIR,
+  STACK_DIAGRAM_TARGET_DIRS,
+  STACK_DIAGRAM_SYNC_FILES,
+  syncStackDiagramDirectory,
 };

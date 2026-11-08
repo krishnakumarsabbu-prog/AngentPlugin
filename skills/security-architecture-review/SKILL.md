@@ -7,7 +7,7 @@ category: Security & Architecture Assurance
 tags: [security, architecture, threat-modeling, stride, risk-assessment, compliance, owasp, copilot-skill]
 compatibility: [copilot, claude, openai]
 requirements: AgentForge v0.1.0+ Workspace, Read-Only Source Access
-license: MIT
+license: Apache-2.0 / MIT Dual License (AgentForge Enterprise)
 ---
 
 # /security-architecture-review — Security & Architecture Assurance

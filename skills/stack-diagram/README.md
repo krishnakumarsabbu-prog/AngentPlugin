@@ -55,7 +55,7 @@ simple-icons is deliberately NOT used — its glyphs are monochrome redraws, not
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Bundled fonts are SIL OFL 1.1.
+Dual License: Apache-2.0 / MIT (AgentForge Enterprise) — see [license.md](license.md) and [LICENSE](LICENSE). Bundled fonts are SIL OFL 1.1.
 
 ## Source
 
