@@ -1880,3 +1880,419 @@ export const bastionAgent: Agent = {
   updatedAt: iso("2026-10-22T10:00:00Z"),
 };
 
+export const ponytailSkill: Skill = {
+  id: "ponytail",
+  name: "Ponytail Engineering Discipline",
+  description: "Engineering discipline and token optimization skill. Makes AI coding agents behave like experienced senior engineers — inspect existing code, reuse first, implement the smallest complete solution. Includes code review, repository audit, technical debt tracking, and engineering gain reporting.",
+  version: "1.0.0",
+  category: "Engineering Discipline & Token Optimization",
+  tags: ["ponytail", "engineering-discipline", "code-review", "token-optimization", "minimalism", "copilot-skill"],
+  author: "AgentForge Engineering (adapted from DietrichGebert/ponytail)",
+  frontmatter: "name: ponytail\nversion: 1.0.0\ndescription: Engineering discipline and token optimization skill. Makes AI coding agents behave like experienced senior engineers.\nauthor: AgentForge Engineering (adapted from DietrichGebert/ponytail)\ncategory: Engineering Discipline & Token Optimization\ntags: [ponytail, engineering-discipline, code-review, token-optimization, minimalism, copilot-skill]\ncompatibility: [copilot, claude, openai]\nrequirements: AgentForge v0.1.0+ Workspace\nlicense: MIT",
+  otherTargets: [],
+  requiredTools: ["ponytail_review", "ponytail_audit", "ponytail_debt", "ponytail_gain"],
+  permissions: ["filesystem:read"],
+  changelog: "1.0.0 — Enterprise release with engineering decision ladder, review, audit, debt, and gain modes.",
+  requirements: "AgentForge v0.1.0+ Workspace",
+  instructions: "Apply Ponytail engineering discipline before writing or modifying code:\n1. Decision Ladder: Walk the 8-rung ladder — need to exist? already supported? reuse existing? stdlib? platform? existing dependency? smaller implementation? only then new code.\n2. Repository Inspection: Understand affected files, trace callers and dependencies, identify related tests, identify backward compatibility risks.\n3. Quality Guardrails: Never sacrifice security, input validation, error handling, data integrity, accessibility, correctness, or regression tests.\n4. Review Mode: Review the current diff for bugs, complexity, security, missing tests, and performance — prioritize by severity.\n5. Audit Mode: Audit the repository for unnecessary abstractions, duplication, risky logic, unused code, and maintainability problems.\n6. Debt Tracking: Record deferred shortcuts with compromise, reason, risk, remediation, and priority.\n7. Gain Reporting: Report lines added/modified/deleted, reused implementations, dependencies, tests, and token consumption — never fabricate metrics.\nOperating modes: LITE, FULL (default), ULTRA (strictest minimalism), OFF (disable Ponytail only, not security policies).",
+  resources: [
+    { id: "res-ponytail-skill", name: "SKILL.md", kind: "reference", description: "Master Ponytail entrypoint, decision ladder, and operating modes." },
+    { id: "res-ponytail-decision", name: "references/decision-ladder.md", kind: "reference", description: "Detailed 8-rung engineering decision ladder with examples." },
+    { id: "res-ponytail-quality", name: "references/engineering-quality.md", kind: "reference", description: "Non-negotiable quality guardrails: security, validation, errors, data, accessibility, correctness, tests." },
+    { id: "res-ponytail-review", name: "references/review-methodology.md", kind: "reference", description: "Diff review methodology: bugs, complexity, security, missing tests, performance, maintainability." },
+    { id: "res-ponytail-audit", name: "references/audit-methodology.md", kind: "reference", description: "Repository audit methodology: abstractions, duplication, risky logic, unused code, maintainability." },
+    { id: "res-ponytail-debt", name: "references/debt-management.md", kind: "reference", description: "Technical debt tracking format, lifecycle, and integration with review and audit." },
+    { id: "res-cmd-review", name: "commands/review.md", kind: "reference", description: "Ponytail review command — diff review with prioritized findings." },
+    { id: "res-cmd-audit", name: "commands/audit.md", kind: "reference", description: "Ponytail audit command — repository-wide structural audit." },
+    { id: "res-cmd-debt", name: "commands/debt.md", kind: "reference", description: "Ponytail debt command — track and report technical debt." },
+    { id: "res-cmd-gain", name: "commands/gain.md", kind: "reference", description: "Ponytail gain command — report engineering gain metrics." },
+    { id: "res-adapt-claude", name: "adapters/claude.md", kind: "reference", description: "Claude Code adapter for Ponytail." },
+    { id: "res-adapt-copilot", name: "adapters/copilot.md", kind: "reference", description: "GitHub Copilot adapter for Ponytail." },
+    { id: "res-adapt-generic", name: "adapters/generic-agent.md", kind: "reference", description: "Generic agent adapter for Ponytail." },
+    { id: "res-ponytail-license", name: "LICENSE", kind: "reference", description: "MIT license (adapted from DietrichGebert/ponytail)." }
+  ],
+  compatibility: ["copilot", "claude", "openai"],
+  status: "Ready",
+  installationState: "installed",
+  createdAt: iso("2026-11-08T10:00:00Z"),
+  updatedAt: iso("2026-11-08T10:00:00Z"),
+};
+
+export const ponytailAgent: Agent = {
+  id: "ponytail",
+  name: "Ponytail Engineering Discipline Agent",
+  description: "Senior engineer discipline agent. Inspects existing code, reuses first, implements the smallest complete solution. Performs code reviews, repository audits, tracks technical debt, and reports engineering gain.",
+  category: "Engineering Discipline",
+  role: "Senior Engineering Discipline Agent",
+  objective: "Enforce engineering discipline by walking the decision ladder, inspecting existing code before modifying, reusing first, and implementing the smallest complete solution without sacrificing security or correctness.",
+  instructions: "When invoked as @ponytail or active in Copilot/Claude/AgentForge:\n1. Decision Ladder: Before writing code, walk the 8-rung ladder (need to exist → already supported → reuse → stdlib → platform → existing dependency → smaller implementation → new code).\n2. Inspect: Understand affected files, trace callers, identify tests, assess backward compatibility.\n3. Guardrails: Never sacrifice security, input validation, error handling, data integrity, accessibility, correctness, or regression tests.\n4. Review: On /ponytail-review, review the current diff for bugs, complexity, security, missing tests, and performance — prioritize by severity (BLOCKING/WARNING/NIT).\n5. Audit: On /ponytail-audit, audit the repository for unnecessary abstractions, duplication, risky logic, unused code, and maintainability.\n6. Debt: On /ponytail-debt, track deferred shortcuts with compromise, reason, risk, remediation, and priority.\n7. Gain: On /ponytail-gain, report lines added/modified/deleted, reused implementations, dependencies, tests, and token consumption — never fabricate metrics.",
+  scope: "Code inspection, reuse analysis, diff review, repository audit, technical debt tracking, and engineering gain reporting.",
+  outOfScope: "Modifying code without first inspecting existing implementations. Adding dependencies without justification. Removing security validation or tests.",
+  operatingPrinciples: [
+    "Always walk the decision ladder before writing new code.",
+    "Reuse existing code, stdlib, or platform functionality before adding new code or dependencies.",
+    "Never sacrifice security, validation, error handling, data integrity, accessibility, or correctness for brevity.",
+    "Never fabricate token savings, test counts, or execution metrics.",
+    "Treat temporary workarounds as debt — record them, do not let them become permanent."
+  ],
+  assignedSkillIds: ["ponytail"],
+  toolDefinitions: [
+    {
+      id: "tool-ponytail-review",
+      name: "ponytail_review",
+      description: "Reviews the current diff for bugs, complexity, security, missing tests, and performance issues.",
+      purpose: "Produce a prioritized findings report for the current changeset.",
+      availability: "on-demand"
+    },
+    {
+      id: "tool-ponytail-audit",
+      name: "ponytail_audit",
+      description: "Audits the repository for unnecessary abstractions, duplication, risky logic, unused code, and maintainability.",
+      purpose: "Produce an actionable repository audit report.",
+      availability: "on-demand"
+    },
+    {
+      id: "tool-ponytail-debt",
+      name: "ponytail_debt",
+      description: "Tracks technical debt — records deferred shortcuts, compromises, risks, and remediation plans.",
+      purpose: "Maintain a technical debt register and prevent workarounds from becoming permanent.",
+      availability: "on-demand"
+    },
+    {
+      id: "tool-ponytail-gain",
+      name: "ponytail_gain",
+      description: "Reports engineering gain — lines added/modified/deleted, reused implementations, tests, token consumption.",
+      purpose: "Measure engineering productivity without fabricating metrics.",
+      availability: "on-demand"
+    }
+  ],
+  permissionPolicy: {
+    network: false,
+    fileSystem: "read",
+    shell: false,
+    maxTokens: 16000,
+    readOnly: true,
+    workspaceAccess: true,
+    writeOperations: false,
+    restrictedPaths: [".git", ".env", "*.pem", "*.key"],
+    humanApprovalRequired: false
+  },
+  inputSchema: {
+    type: "object",
+    properties: {
+      task: { type: "string", enum: ["review", "audit", "debt", "gain", "discipline"], description: "Ponytail task to execute." },
+      ref: { type: "string", description: "Git ref for review (e.g., main, HEAD~3)." },
+      operatingMode: { type: "string", enum: ["LITE", "FULL", "ULTRA", "OFF"] }
+    },
+    required: ["task"]
+  },
+  outputSchema: {
+    type: "object",
+    properties: {
+      findings: { type: "array" },
+      summary: { type: "string" },
+      metrics: { type: "object" }
+    }
+  },
+  compatibility: ["copilot", "claude", "openai"],
+  version: "1.0.0",
+  status: "Ready",
+  changelog: "1.0.0 — Enterprise release with engineering decision ladder, review, audit, debt, and gain modes.",
+  createdAt: iso("2026-11-08T10:00:00Z"),
+  updatedAt: iso("2026-11-08T10:00:00Z"),
+};
+
+export const graphifySkill: Skill = {
+  id: "graphify",
+  name: "Graphify Repository Intelligence",
+  description: "Repository intelligence and knowledge graph skill. Turns any codebase into a navigable knowledge graph with AST extraction, community detection, code impact analysis, data flow tracing, and architecture discovery. Persistent across sessions with honest EXTRACTED/INFERRED/AMBIGUOUS provenance.",
+  version: "1.0.0",
+  category: "Repository Intelligence & Knowledge Graph",
+  tags: ["graphify", "knowledge-graph", "ast-extraction", "code-intelligence", "impact-analysis", "architecture-discovery", "copilot-skill"],
+  author: "AgentForge Engineering (adapted from Graphify-Labs/graphify)",
+  frontmatter: "name: graphify\nversion: 1.0.0\ndescription: Repository intelligence and knowledge graph skill. Turns any codebase into a navigable knowledge graph.\nauthor: AgentForge Engineering (adapted from Graphify-Labs/graphify)\ncategory: Repository Intelligence & Knowledge Graph\ntags: [graphify, knowledge-graph, ast-extraction, code-intelligence, impact-analysis, architecture-discovery, copilot-skill]\ncompatibility: [copilot, claude, openai]\nrequirements: AgentForge v0.1.0+ Workspace, Python 3.9+\nlicense: Apache-2.0",
+  otherTargets: [],
+  requiredTools: ["graphify_build", "graphify_query", "graphify_path", "graphify_explain", "graphify_impact", "graphify_update"],
+  permissions: ["filesystem:read", "shell:execute"],
+  changelog: "1.0.0 — Enterprise release with AST extraction, knowledge graph, impact analysis, and architecture discovery.",
+  requirements: "AgentForge v0.1.0+ Workspace, Python 3.9+ (auto-installed via uv/pip)",
+  instructions: "Execute repository intelligence operations using the Graphify pipeline:\n1. Build: On /graphify, check for existing graphify-out/graph.json. If not found, run the full pipeline: detect files → AST extraction (code) + semantic extraction (docs/papers) → build graph → cluster → label communities → generate HTML.\n2. Query: On graphify query, use the existing graph to answer natural-language questions about the codebase. Expand question vocabulary against graph nodes. Use BFS or DFS traversal. Fall back to inline NetworkX if CLI unavailable.\n3. Path: On graphify path, find the shortest path between two concepts in the graph. Show edge types and community crossings.\n4. Explain: On graphify explain, produce a plain-language explanation of a node: what it is, what it depends on, what depends on it, its community, its architectural role.\n5. Impact: On graphify impact, trace direct and indirect callers, related tests, configuration dependencies, and downstream impacts. Produce a change impact report.\n6. Update: On graphify --update, re-extract only new or changed files. Reuse existing graph data. Do not rebuild from scratch.\n7. Architecture: On graphify architecture, identify architectural layers, service boundaries, circular dependencies, coupling hotspots, and critical components.\nEvidence rules: EXTRACTED (directly from AST), INFERRED (derived through analysis), AMBIGUOUS (insufficient evidence). Never present INFERRED as EXTRACTED. Never invent an edge.",
+  resources: [
+    { id: "res-graphify-skill", name: "SKILL.md", kind: "reference", description: "Master Graphify entrypoint, full pipeline, and honesty rules." },
+    { id: "res-graphify-exports", name: "references/exports.md", kind: "reference", description: "Export formats: HTML, GraphML, Neo4j, FalkorDB, Obsidian, MCP." },
+    { id: "res-graphify-extraction", name: "references/extraction-spec.md", kind: "reference", description: "Semantic extraction specification for subagent dispatch." },
+    { id: "res-graphify-github", name: "references/github-and-merge.md", kind: "reference", description: "GitHub clone and cross-repo merge flow." },
+    { id: "res-graphify-hooks", name: "references/hooks.md", kind: "reference", description: "Post-commit auto-rebuild hook and CLAUDE.md integration." },
+    { id: "res-graphify-query-ref", name: "references/query.md", kind: "reference", description: "Query methodology: vocabulary expansion, BFS/DFS, NetworkX fallback, budget caps." },
+    { id: "res-graphify-transcribe", name: "references/transcribe.md", kind: "reference", description: "Video and audio transcription to text for graph inclusion." },
+    { id: "res-graphify-update", name: "references/update.md", kind: "reference", description: "Incremental update and cluster-only rerun flows." },
+    { id: "res-graphify-add-watch", name: "references/add-watch.md", kind: "reference", description: "Add URL to corpus and file watch auto-rebuild." },
+    { id: "res-cmd-build", name: "commands/build.md", kind: "reference", description: "Graphify build command — full pipeline." },
+    { id: "res-cmd-query", name: "commands/query.md", kind: "reference", description: "Graphify query command — natural-language graph query." },
+    { id: "res-cmd-path", name: "commands/path.md", kind: "reference", description: "Graphify path command — shortest path between concepts." },
+    { id: "res-cmd-explain", name: "commands/explain.md", kind: "reference", description: "Graphify explain command — plain-language node explanation." },
+    { id: "res-cmd-impact", name: "commands/impact.md", kind: "reference", description: "Graphify impact command — change impact report." },
+    { id: "res-adapt-claude-graphify", name: "adapters/claude.md", kind: "reference", description: "Claude Code adapter for Graphify." },
+    { id: "res-adapt-copilot-graphify", name: "adapters/copilot.md", kind: "reference", description: "GitHub Copilot adapter for Graphify." },
+    { id: "res-adapt-generic-graphify", name: "adapters/generic-agent.md", kind: "reference", description: "Generic agent adapter for Graphify." }
+  ],
+  compatibility: ["copilot", "claude", "openai"],
+  status: "Ready",
+  installationState: "installed",
+  createdAt: iso("2026-11-08T11:00:00Z"),
+  updatedAt: iso("2026-11-08T11:00:00Z"),
+};
+
+export const graphifyAgent: Agent = {
+  id: "graphify",
+  name: "Graphify Repository Intelligence Agent",
+  description: "Repository intelligence agent. Builds knowledge graphs from codebases, traces function call paths, generates change impact reports, and discovers architecture — with honest EXTRACTED/INFERRED/AMBIGUOUS provenance.",
+  category: "Repository Intelligence",
+  role: "Repository Intelligence & Knowledge Graph Agent",
+  objective: "Provide deep understanding of an existing repository through code structure analysis, dependency relationship mapping, knowledge graph generation, code impact analysis, and data flow tracing.",
+  instructions: "When invoked as @graphify or active in Copilot/Claude/AgentForge:\n1. Build Graph: Check for existing graphify-out/graph.json. If not found, run the full pipeline: detect files, extract (AST for code, semantic for docs), build graph, cluster, label communities, generate visualization.\n2. Query: Answer natural-language questions about the codebase using the graph. Expand question vocabulary against graph nodes. Use BFS/DFS traversal. Cite source_location for every claim.\n3. Path: Find shortest paths between concepts. Show edge types and community crossings.\n4. Explain: Produce plain-language explanations of nodes: what they are, dependencies, dependents, community, architectural role.\n5. Impact: Trace direct/indirect callers, related tests, config dependencies, downstream impacts. Produce change impact reports.\n6. Update: Re-extract only changed files. Reuse existing graph data. Do not rebuild from scratch.\n7. Architecture: Identify layers, service boundaries, circular dependencies, coupling hotspots, critical components.\nNever invent an edge. Use AMBIGUOUS if unsure. Never present INFERRED as EXTRACTED. Report token costs from actual telemetry.",
+  scope: "Repository structure analysis, knowledge graph generation, code impact analysis, data flow tracing, architecture discovery, and incremental graph updates.",
+  outOfScope: "Modifying source code. Executing destructive operations. Transmitting local source code to external services without explicit consent.",
+  operatingPrinciples: [
+    "Always check for existing graph.json before rebuilding.",
+    "Never invent an edge — use AMBIGUOUS if evidence is insufficient.",
+    "Never present INFERRED relationships as EXTRACTED.",
+    "Report token costs honestly from actual provider telemetry.",
+    "Keep local repository source code local by default.",
+    "Distinguish actual graph generation from conceptual analysis."
+  ],
+  assignedSkillIds: ["graphify"],
+  toolDefinitions: [
+    {
+      id: "tool-graphify-build",
+      name: "graphify_build",
+      description: "Builds a knowledge graph from a repository or directory using AST and semantic extraction.",
+      purpose: "Create or rebuild the persistent knowledge graph.",
+      availability: "on-demand"
+    },
+    {
+      id: "tool-graphify-query",
+      name: "graphify_query",
+      description: "Queries the existing knowledge graph with a natural-language question.",
+      purpose: "Answer questions about the codebase using the graph.",
+      availability: "on-demand"
+    },
+    {
+      id: "tool-graphify-path",
+      name: "graphify_path",
+      description: "Finds the shortest path between two concepts in the knowledge graph.",
+      purpose: "Trace relationships between components.",
+      availability: "on-demand"
+    },
+    {
+      id: "tool-graphify-explain",
+      name: "graphify_explain",
+      description: "Explains a node or concept in the graph in plain language.",
+      purpose: "Understand what a component is and its role in the architecture.",
+      availability: "on-demand"
+    },
+    {
+      id: "tool-graphify-impact",
+      name: "graphify_impact",
+      description: "Generates a change impact report for a function, module, or file.",
+      purpose: "Identify what will be affected by a change before making it.",
+      availability: "on-demand"
+    },
+    {
+      id: "tool-graphify-update",
+      name: "graphify_update",
+      description: "Incrementally updates the graph by re-extracting only new or changed files.",
+      purpose: "Keep the graph current without a full rebuild.",
+      availability: "on-demand"
+    }
+  ],
+  permissionPolicy: {
+    network: true,
+    fileSystem: "read",
+    shell: true,
+    maxTokens: 16000,
+    readOnly: true,
+    workspaceAccess: true,
+    writeOperations: false,
+    restrictedPaths: [".git", ".env", "*.pem", "*.key"],
+    humanApprovalRequired: false
+  },
+  inputSchema: {
+    type: "object",
+    properties: {
+      action: { type: "string", enum: ["build", "query", "path", "explain", "impact", "update", "architecture"], description: "Graphify action to execute." },
+      path: { type: "string", description: "Repository or directory path." },
+      question: { type: "string", description: "Natural-language question for query mode." },
+      target: { type: "string", description: "Target node for explain or impact mode." },
+      mode: { type: "string", enum: ["standard", "deep"], description: "Extraction depth." }
+    },
+    required: ["action"]
+  },
+  outputSchema: {
+    type: "object",
+    properties: {
+      graphStats: { type: "object" },
+      answer: { type: "string" },
+      path: { type: "array" },
+      impactReport: { type: "object" },
+      architectureOverview: { type: "object" }
+    }
+  },
+  compatibility: ["copilot", "claude", "openai"],
+  version: "1.0.0",
+  status: "Ready",
+  changelog: "1.0.0 — Enterprise release with AST extraction, knowledge graph, impact analysis, and architecture discovery.",
+  createdAt: iso("2026-11-08T11:00:00Z"),
+  updatedAt: iso("2026-11-08T11:00:00Z"),
+};
+
+export const securityArchitectureReviewSkill: Skill = {
+  id: "security-architecture-review",
+  name: "Security Architecture Review",
+  description: "Enterprise security architecture review skill. Performs STRIDE threat modeling, risk assessment, attack path analysis, data flow analysis, compliance mapping (OWASP/NIST/PCI/ISO), and prioritized remediation planning. Read-only by default — never performs destructive testing without authorization.",
+  version: "1.0.0",
+  category: "Security & Architecture Assurance",
+  tags: ["security", "architecture", "threat-modeling", "stride", "risk-assessment", "compliance", "owasp", "copilot-skill"],
+  author: "AgentForge Engineering (inspired by SecurityReview.ai methodology)",
+  frontmatter: "name: security-architecture-review\nversion: 1.0.0\ndescription: Enterprise security architecture review skill. STRIDE threat modeling, risk assessment, attack path analysis, compliance mapping, and remediation planning.\nauthor: AgentForge Engineering (inspired by SecurityReview.ai methodology)\ncategory: Security & Architecture Assurance\ntags: [security, architecture, threat-modeling, stride, risk-assessment, compliance, owasp, copilot-skill]\ncompatibility: [copilot, claude, openai]\nrequirements: AgentForge v0.1.0+ Workspace, Read-Only Source Access\nlicense: MIT",
+  otherTargets: [],
+  requiredTools: ["security_architecture_review", "security_threat_model", "security_risk_assessment", "security_attack_path", "security_data_flow", "security_compliance_mapping", "security_remediation_plan"],
+  permissions: ["filesystem:read"],
+  changelog: "1.0.0 — Enterprise release with STRIDE threat modeling, risk assessment, attack path analysis, and compliance mapping.",
+  requirements: "AgentForge v0.1.0+ Workspace, Read-Only Source Access",
+  instructions: "Execute security architecture review following the six-phase workflow:\n1. Architecture Understanding: Inspect source code, API specs, database schemas, infrastructure config, auth flows, and external integrations. Build a system model with users, services, APIs, databases, trust boundaries, and sensitive data.\n2. Threat Modeling (STRIDE): Apply Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, and Elevation of Privilege to each component and trust boundary. Record threat ID, scenario, entry point, exploitability, impact, likelihood, severity, existing controls, mitigation, evidence, and residual risk.\n3. Security Architecture Assessment: Assess IAM, Application Security, API Security, Data Security, Infrastructure/Cloud Security, and AI/Agent Security domains.\n4. Risk Assessment: Rate each finding using Risk = Likelihood × Impact. Classify as Confirmed, Suspected, Assumption, or Missing evidence. Severity: Critical/High/Medium/Low/Informational.\n5. Compliance Mapping: Map findings to OWASP ASVS, OWASP Top 10, NIST CSF, NIST 800-53, PCI DSS, ISO 27001, SOC 2, and CWE. Do not claim formal compliance.\n6. Remediation Planning: Prioritize remediation as Immediate (0-7d), Short-term (1-4w), Medium-term (1-3m), Long-term (3m+). Include effort estimate, action, and verification method.\nRead-only by default. Never perform destructive penetration testing or exploit production systems without authorization.",
+  resources: [
+    { id: "res-sar-skill", name: "SKILL.md", kind: "reference", description: "Master Security Architecture Review entrypoint and six-phase workflow." },
+    { id: "res-sar-arch", name: "references/architecture-assessment.md", kind: "reference", description: "Architecture assessment methodology: system model, components, trust boundaries." },
+    { id: "res-sar-stride", name: "references/stride-methodology.md", kind: "reference", description: "STRIDE threat modeling: six threat types, threat record format, attack path analysis." },
+    { id: "res-sar-trust", name: "references/trust-boundaries.md", kind: "reference", description: "Trust boundary mapping: network, application, process, and AI/agent boundaries." },
+    { id: "res-sar-risk", name: "references/risk-assessment.md", kind: "reference", description: "Risk assessment model: likelihood × impact, severity matrix, finding classification." },
+    { id: "res-sar-controls", name: "references/security-controls.md", kind: "reference", description: "Security controls checklist: IAM, AppSec, API, Data, Infrastructure, AI/Agent." },
+    { id: "res-sar-compliance", name: "references/compliance-mapping.md", kind: "reference", description: "Compliance mapping methodology: OWASP, NIST, PCI, ISO, SOC 2, CWE." },
+    { id: "res-cmd-threat-model", name: "commands/threat-model.md", kind: "reference", description: "Security threat model command — STRIDE threat model generation." },
+    { id: "res-cmd-risk-assessment", name: "commands/risk-assessment.md", kind: "reference", description: "Security risk assessment command — likelihood × impact risk register." },
+    { id: "res-cmd-attack-path", name: "commands/attack-path.md", kind: "reference", description: "Security attack path command — chained threat analysis." },
+    { id: "res-cmd-data-flow", name: "commands/data-flow.md", kind: "reference", description: "Security data flow command — sensitive data tracing and exposure analysis." },
+    { id: "res-cmd-remediation", name: "commands/remediation.md", kind: "reference", description: "Security remediation plan command — prioritized remediation with verification." },
+    { id: "res-adapt-claude-sar", name: "adapters/claude.md", kind: "reference", description: "Claude Code adapter for Security Architecture Review." },
+    { id: "res-adapt-copilot-sar", name: "adapters/copilot.md", kind: "reference", description: "GitHub Copilot adapter for Security Architecture Review." },
+    { id: "res-adapt-generic-sar", name: "adapters/generic-agent.md", kind: "reference", description: "Generic agent adapter for Security Architecture Review." },
+    { id: "res-sar-license", name: "LICENSE", kind: "reference", description: "MIT license (original implementation inspired by SecurityReview.ai methodology)." }
+  ],
+  compatibility: ["copilot", "claude", "openai"],
+  status: "Ready",
+  installationState: "installed",
+  createdAt: iso("2026-11-08T12:00:00Z"),
+  updatedAt: iso("2026-11-08T12:00:00Z"),
+};
+
+export const securityArchitectureReviewAgent: Agent = {
+  id: "security-architecture-review",
+  name: "Security Architecture Review Agent",
+  description: "Enterprise security architect agent. Performs STRIDE threat modeling, risk assessment, attack path analysis, data flow analysis, compliance mapping, and prioritized remediation planning. Read-only by default.",
+  category: "Security & Architecture Assurance",
+  role: "Security Architecture Reviewer",
+  objective: "Identify architecture-level vulnerabilities, security design weaknesses, trust boundary violations, and produce structured threat models, risk registers, and remediation plans.",
+  instructions: "When invoked as @security-architecture-review or active in Copilot/Claude/AgentForge:\n1. Architecture Understanding: Inspect source code, API specs, database schemas, infrastructure config, auth flows, and external integrations. Build a system model with users, services, APIs, databases, trust boundaries, and sensitive data.\n2. STRIDE Threat Model: Apply Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, Elevation of Privilege to each component and boundary. Record threat ID, scenario, entry point, exploitability, impact, likelihood, severity, controls, mitigation, evidence, residual risk.\n3. Security Assessment: Assess IAM, Application Security, API Security, Data Security, Infrastructure/Cloud Security, AI/Agent Security.\n4. Risk Assessment: Rate findings using Risk = Likelihood × Impact. Classify as Confirmed, Suspected, Assumption, Missing evidence. Severity: Critical/High/Medium/Low/Informational.\n5. Compliance Mapping: Map to OWASP ASVS, OWASP Top 10, NIST CSF, NIST 800-53, PCI DSS, ISO 27001, SOC 2, CWE. Do not claim formal compliance.\n6. Remediation: Prioritize as Immediate (0-7d), Short-term (1-4w), Medium-term (1-3m), Long-term (3m+). Include effort, action, verification.\nRead-only by default. Never perform destructive testing or exploit production systems without authorization.",
+  scope: "Security architecture analysis, threat modeling, risk assessment, compliance mapping, and remediation planning.",
+  outOfScope: "Active penetration testing, exploitation of production systems, modifying security configurations, generating exploit code for active use.",
+  operatingPrinciples: [
+    "Read-only analysis. No exploitation or destructive testing without explicit authorization.",
+    "Every finding must have evidence (file, line, config reference).",
+    "Distinguish confirmed findings from suspected, assumptions, and missing evidence.",
+    "Rate risk using likelihood × impact with explained reasoning.",
+    "Never claim formal compliance or certification.",
+    "Always state limitations of the assessment."
+  ],
+  assignedSkillIds: ["security-architecture-review"],
+  toolDefinitions: [
+    {
+      id: "tool-sar-review",
+      name: "security_architecture_review",
+      description: "Performs a full security architecture review of the system.",
+      purpose: "Identify architecture-level vulnerabilities and security design weaknesses.",
+      availability: "on-demand"
+    },
+    {
+      id: "tool-sar-threat-model",
+      name: "security_threat_model",
+      description: "Generates a STRIDE threat model for the system or a specific component.",
+      purpose: "Classify and assess threats across all six STRIDE categories.",
+      availability: "on-demand"
+    },
+    {
+      id: "tool-sar-risk",
+      name: "security_risk_assessment",
+      description: "Produces a risk assessment with likelihood × impact ratings for all findings.",
+      purpose: "Prioritize findings by risk severity.",
+      availability: "on-demand"
+    },
+    {
+      id: "tool-sar-attack-path",
+      name: "security_attack_path",
+      description: "Analyzes attack paths that chain multiple threats across interconnected services.",
+      purpose: "Identify how an attacker can combine threats to achieve a larger objective.",
+      availability: "on-demand"
+    },
+    {
+      id: "tool-sar-data-flow",
+      name: "security_data_flow",
+      description: "Analyzes data flows to identify sensitive data exposure, unencrypted transit, and unauthorized access.",
+      purpose: "Trace sensitive data through the system and identify exposure risks.",
+      availability: "on-demand"
+    },
+    {
+      id: "tool-sar-compliance",
+      name: "security_compliance_mapping",
+      description: "Maps findings to OWASP ASVS, OWASP Top 10, NIST CSF, PCI DSS, ISO 27001, SOC 2, and CWE controls.",
+      purpose: "Provide compliance context for security findings.",
+      availability: "on-demand"
+    },
+    {
+      id: "tool-sar-remediation",
+      name: "security_remediation_plan",
+      description: "Produces a prioritized remediation plan from all security findings.",
+      purpose: "Guide remediation effort by priority, effort, and verification method.",
+      availability: "on-demand"
+    }
+  ],
+  permissionPolicy: {
+    network: false,
+    fileSystem: "read",
+    shell: false,
+    maxTokens: 16000,
+    readOnly: true,
+    workspaceAccess: true,
+    writeOperations: false,
+    restrictedPaths: [".git", ".env", "*.pem", "*.key", "id_rsa*", "credentials*", "secrets*"],
+    humanApprovalRequired: false
+  },
+  inputSchema: {
+    type: "object",
+    properties: {
+      action: { type: "string", enum: ["full-review", "threat-model", "risk-assessment", "attack-path", "data-flow", "compliance-mapping", "remediation-plan", "report"], description: "Security review action to execute." },
+      target: { type: "string", description: "Target component or directory to review." },
+      depth: { type: "string", enum: ["quick", "standard", "deep"], description: "Review depth." },
+      frameworks: { type: "array", items: { type: "string" }, description: "Compliance frameworks to map." }
+    },
+    required: ["action"]
+  },
+  outputSchema: {
+    type: "object",
+    properties: {
+      findings: { type: "array" },
+      riskRegister: { type: "array" },
+      threatModel: { type: "object" },
+      complianceMapping: { type: "object" },
+      remediationPlan: { type: "array" },
+      executiveSummary: { type: "string" }
+    }
+  },
+  compatibility: ["copilot", "claude", "openai"],
+  version: "1.0.0",
+  status: "Ready",
+  changelog: "1.0.0 — Enterprise release with STRIDE threat modeling, risk assessment, attack path analysis, and compliance mapping.",
+  createdAt: iso("2026-11-08T12:00:00Z"),
+  updatedAt: iso("2026-11-08T12:00:00Z"),
+};
+

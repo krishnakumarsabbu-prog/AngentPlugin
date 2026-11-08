@@ -26,6 +26,12 @@ import {
   sentinelAgent,
   bastionSkill,
   bastionAgent,
+  ponytailSkill,
+  ponytailAgent,
+  graphifySkill,
+  graphifyAgent,
+  securityArchitectureReviewSkill,
+  securityArchitectureReviewAgent,
 } from "./sampleData";
 import { DEFAULT_SETTINGS } from "./settingsDefaults";
 import { migrateToCurrent, PersistedStateV2, CURRENT_SCHEMA_VERSION, freshState } from "./migrations";
@@ -278,6 +284,45 @@ export class LocalRepository implements ISkillsStore {
       migrated.agents.push({ ...bastionAgent });
     }
 
+    const existingPonytailSkillIdx = (migrated.skills || []).findIndex((s) => s.id === ponytailSkill.id);
+    if (existingPonytailSkillIdx >= 0) {
+      migrated.skills[existingPonytailSkillIdx] = { ...ponytailSkill };
+    } else {
+      migrated.skills.push({ ...ponytailSkill });
+    }
+    const existingPonytailAgentIdx = (migrated.agents || []).findIndex((a) => a.id === ponytailAgent.id);
+    if (existingPonytailAgentIdx >= 0) {
+      migrated.agents[existingPonytailAgentIdx] = { ...ponytailAgent };
+    } else {
+      migrated.agents.push({ ...ponytailAgent });
+    }
+
+    const existingGraphifySkillIdx = (migrated.skills || []).findIndex((s) => s.id === graphifySkill.id);
+    if (existingGraphifySkillIdx >= 0) {
+      migrated.skills[existingGraphifySkillIdx] = { ...graphifySkill };
+    } else {
+      migrated.skills.push({ ...graphifySkill });
+    }
+    const existingGraphifyAgentIdx = (migrated.agents || []).findIndex((a) => a.id === graphifyAgent.id);
+    if (existingGraphifyAgentIdx >= 0) {
+      migrated.agents[existingGraphifyAgentIdx] = { ...graphifyAgent };
+    } else {
+      migrated.agents.push({ ...graphifyAgent });
+    }
+
+    const existingSARSkillIdx = (migrated.skills || []).findIndex((s) => s.id === securityArchitectureReviewSkill.id);
+    if (existingSARSkillIdx >= 0) {
+      migrated.skills[existingSARSkillIdx] = { ...securityArchitectureReviewSkill };
+    } else {
+      migrated.skills.push({ ...securityArchitectureReviewSkill });
+    }
+    const existingSARAgentIdx = (migrated.agents || []).findIndex((a) => a.id === securityArchitectureReviewAgent.id);
+    if (existingSARAgentIdx >= 0) {
+      migrated.agents[existingSARAgentIdx] = { ...securityArchitectureReviewAgent };
+    } else {
+      migrated.agents.push({ ...securityArchitectureReviewAgent });
+    }
+
     if (raw && (raw as { schemaVersion?: number }).schemaVersion === CURRENT_SCHEMA_VERSION) {
       this.context.globalState.update(STORAGE_KEY, migrated);
       return { ...migrated };
@@ -285,8 +330,8 @@ export class LocalRepository implements ISkillsStore {
     const seeded: PersistedState = {
       schemaVersion: CURRENT_SCHEMA_VERSION,
       settings: { ...DEFAULT_SETTINGS },
-      skills: [{ ...enterpriseSecurityAuditSkill }, { ...anvilSkill }, { ...talonSkill }, { ...sentryCodeReviewSkill }, { ...agenticSecurityScannerSkill }, { ...sentinelSkill }, { ...bastionSkill }],
-      agents: [{ ...enterpriseSecurityAuditorAgent }, { ...anvilAgent }, { ...talonAgent }, { ...sentryCodeReviewAgent }, { ...agenticSecurityScannerAgent }, { ...sentinelAgent }, { ...bastionAgent }],
+      skills: [{ ...enterpriseSecurityAuditSkill }, { ...anvilSkill }, { ...talonSkill }, { ...sentryCodeReviewSkill }, { ...agenticSecurityScannerSkill }, { ...sentinelSkill }, { ...bastionSkill }, { ...ponytailSkill }, { ...graphifySkill }, { ...securityArchitectureReviewSkill }],
+      agents: [{ ...enterpriseSecurityAuditorAgent }, { ...anvilAgent }, { ...talonAgent }, { ...sentryCodeReviewAgent }, { ...agenticSecurityScannerAgent }, { ...sentinelAgent }, { ...bastionAgent }, { ...ponytailAgent }, { ...graphifyAgent }, { ...securityArchitectureReviewAgent }],
       workflows: [],
       executions: [],
       history: migrated.history,
@@ -330,7 +375,10 @@ export class LocalRepository implements ISkillsStore {
               s.id !== sentryCodeReviewSkill.id &&
               s.id !== agenticSecurityScannerSkill.id &&
               s.id !== sentinelSkill.id &&
-              s.id !== bastionSkill.id,
+              s.id !== bastionSkill.id &&
+              s.id !== ponytailSkill.id &&
+              s.id !== graphifySkill.id &&
+              s.id !== securityArchitectureReviewSkill.id,
           ),
           agents: snapshot.agents.filter(
             (a) =>
@@ -340,7 +388,10 @@ export class LocalRepository implements ISkillsStore {
               a.id !== sentryCodeReviewAgent.id &&
               a.id !== agenticSecurityScannerAgent.id &&
               a.id !== sentinelAgent.id &&
-              a.id !== bastionAgent.id,
+              a.id !== bastionAgent.id &&
+              a.id !== ponytailAgent.id &&
+              a.id !== graphifyAgent.id &&
+              a.id !== securityArchitectureReviewAgent.id,
           ),
         };
         const workspaceFile = path.join(workspaceDir, "state.json");
@@ -354,7 +405,10 @@ export class LocalRepository implements ISkillsStore {
             s.id === sentryCodeReviewSkill.id ||
             s.id === agenticSecurityScannerSkill.id ||
             s.id === sentinelSkill.id ||
-            s.id === bastionSkill.id
+            s.id === bastionSkill.id ||
+            s.id === ponytailSkill.id ||
+            s.id === graphifySkill.id ||
+            s.id === securityArchitectureReviewSkill.id
           )
             continue;
           fs.writeFileSync(path.join(skillsDir, `${s.id}.json`), serializeJson(s), "utf8");
@@ -367,7 +421,10 @@ export class LocalRepository implements ISkillsStore {
             a.id === sentryCodeReviewAgent.id ||
             a.id === agenticSecurityScannerAgent.id ||
             a.id === sentinelAgent.id ||
-            a.id === bastionAgent.id
+            a.id === bastionAgent.id ||
+            a.id === ponytailAgent.id ||
+            a.id === graphifyAgent.id ||
+            a.id === securityArchitectureReviewAgent.id
           )
             continue;
           fs.writeFileSync(path.join(agentsDir, `${a.id}.json`), serializeJson(a), "utf8");
@@ -410,6 +467,12 @@ export class LocalRepository implements ISkillsStore {
         ? { ...sentinelSkill }
         : s.id === bastionSkill.id
         ? { ...bastionSkill }
+        : s.id === ponytailSkill.id
+        ? { ...ponytailSkill }
+        : s.id === graphifySkill.id
+        ? { ...graphifySkill }
+        : s.id === securityArchitectureReviewSkill.id
+        ? { ...securityArchitectureReviewSkill }
         : s,
     );
   }
@@ -453,6 +516,15 @@ export class LocalRepository implements ISkillsStore {
     }
     if (id === bastionSkill.id) {
       return { ...bastionSkill };
+    }
+    if (id === ponytailSkill.id) {
+      return { ...ponytailSkill };
+    }
+    if (id === graphifySkill.id) {
+      return { ...graphifySkill };
+    }
+    if (id === securityArchitectureReviewSkill.id) {
+      return { ...securityArchitectureReviewSkill };
     }
     return this.state.skills.find((s) => s.id === id);
   }
@@ -623,6 +695,12 @@ export class LocalRepository implements ISkillsStore {
         ? { ...sentinelAgent }
         : a.id === bastionAgent.id
         ? { ...bastionAgent }
+        : a.id === ponytailAgent.id
+        ? { ...ponytailAgent }
+        : a.id === graphifyAgent.id
+        ? { ...graphifyAgent }
+        : a.id === securityArchitectureReviewAgent.id
+        ? { ...securityArchitectureReviewAgent }
         : a,
     );
   }
@@ -648,6 +726,15 @@ export class LocalRepository implements ISkillsStore {
     }
     if (id === bastionAgent.id) {
       return { ...bastionAgent };
+    }
+    if (id === ponytailAgent.id) {
+      return { ...ponytailAgent };
+    }
+    if (id === graphifyAgent.id) {
+      return { ...graphifyAgent };
+    }
+    if (id === securityArchitectureReviewAgent.id) {
+      return { ...securityArchitectureReviewAgent };
     }
     return this.agentRepo.get(id);
   }

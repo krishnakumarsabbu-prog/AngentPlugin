@@ -118,6 +118,7 @@ export class AgentForgeBridge {
       credentialStore: this.credentialStore,
       agentProvider: (agentId) => this.repo.getAgent(agentId),
       workflowProvider: (wfId) => this.repo.getWorkflow(wfId),
+      skillProvider: (skillId) => this.repo.getSkill(skillId),
       workspaceRoot: workspaceRoot ?? process.cwd(),
     });
   }

@@ -1,16 +1,26 @@
 import React, { useState, useMemo } from "react";
-import {
-  Search,
-  Plus,
-  Trash2,
-  ArrowUp,
-  ArrowDown,
-  AlertTriangle,
-  CheckCircle2,
-  BookOpen,
-} from "lucide-react";
-import type { Skill, PlatformCompatibility } from "../../../types";
+import { Search, Plus, Trash as Trash2, ArrowUp, ArrowDown, Triangle as AlertTriangle, CircleCheck as CheckCircle2, BookOpen } from "lucide-react";
+import type { Skill, PlatformCompatibility, SkillAssignment, SkillActivationMode } from "../../../types";
 import type { AgentBuilderFormState } from "./types";
+
+function defaultActivationMode(skillId: string): SkillActivationMode {
+  switch (skillId) {
+    case "ponytail":
+      return "always-on";
+    case "graphify":
+      return "task-triggered";
+    case "security-architecture-review":
+      return "task-triggered";
+    default:
+      return "always-on";
+  }
+}
+
+const ACTIVATION_MODE_LABELS: Record<SkillActivationMode, string> = {
+  "always-on": "Always On",
+  "task-triggered": "Task Triggered",
+  "manual": "Manual",
+};
 
 interface SkillsSectionProps {
   state: AgentBuilderFormState;
@@ -45,13 +55,21 @@ export const SkillsSection: React.FC<SkillsSectionProps> = ({
 
   const handleAssign = (skillId: string) => {
     if (!state.assignedSkillIds.includes(skillId)) {
-      onChange({ assignedSkillIds: [...state.assignedSkillIds, skillId] });
+      const newIds = [...state.assignedSkillIds, skillId];
+      const newAssignments: SkillAssignment[] = [...(state.skillAssignments || []), {
+        skillId,
+        activationMode: defaultActivationMode(skillId),
+        priority: newIds.length - 1,
+        enabled: true,
+      }];
+      onChange({ assignedSkillIds: newIds, skillAssignments: newAssignments });
     }
   };
 
   const handleRemove = (skillId: string) => {
     onChange({
       assignedSkillIds: state.assignedSkillIds.filter((id) => id !== skillId),
+      skillAssignments: (state.skillAssignments || []).filter((a) => a.skillId !== skillId),
     });
   };
 
@@ -61,7 +79,11 @@ export const SkillsSection: React.FC<SkillsSectionProps> = ({
     const temp = next[index - 1];
     next[index - 1] = next[index];
     next[index] = temp;
-    onChange({ assignedSkillIds: next });
+    const reorderedAssignments = next.map((id, i) => {
+      const existing = (state.skillAssignments || []).find((a) => a.skillId === id);
+      return existing ? { ...existing, priority: i } : { skillId: id, activationMode: defaultActivationMode(id), priority: i, enabled: true };
+    });
+    onChange({ assignedSkillIds: next, skillAssignments: reorderedAssignments });
   };
 
   const handleMoveDown = (index: number) => {
@@ -70,7 +92,18 @@ export const SkillsSection: React.FC<SkillsSectionProps> = ({
     const temp = next[index + 1];
     next[index + 1] = next[index];
     next[index] = temp;
-    onChange({ assignedSkillIds: next });
+    const reorderedAssignments = next.map((id, i) => {
+      const existing = (state.skillAssignments || []).find((a) => a.skillId === id);
+      return existing ? { ...existing, priority: i } : { skillId: id, activationMode: defaultActivationMode(id), priority: i, enabled: true };
+    });
+    onChange({ assignedSkillIds: next, skillAssignments: reorderedAssignments });
+  };
+
+  const handleActivationModeChange = (skillId: string, mode: SkillActivationMode) => {
+    const newAssignments = (state.skillAssignments || []).map((a) =>
+      a.skillId === skillId ? { ...a, activationMode: mode } : a
+    );
+    onChange({ skillAssignments: newAssignments });
   };
 
   const checkPlatformIncompatibility = (skill: Skill | undefined): string | null => {
@@ -180,7 +213,18 @@ export const SkillsSection: React.FC<SkillsSectionProps> = ({
                     )}
                   </div>
 
-                  <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <select
+                      className="input"
+                      style={{ height: "26px", fontSize: "11px", padding: "0 6px", minWidth: "120px" }}
+                      value={(state.skillAssignments || []).find((a) => a.skillId === skillId)?.activationMode || defaultActivationMode(skillId)}
+                      onChange={(e) => handleActivationModeChange(skillId, e.target.value as SkillActivationMode)}
+                      title="Controls when this skill is injected into the agent's prompt"
+                    >
+                      {(Object.keys(ACTIVATION_MODE_LABELS) as SkillActivationMode[]).map((mode) => (
+                        <option key={mode} value={mode}>{ACTIVATION_MODE_LABELS[mode]}</option>
+                      ))}
+                    </select>
                     <button
                       type="button"
                       className="btn btn-icon btn-ghost"

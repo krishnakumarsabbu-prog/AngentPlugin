@@ -2,6 +2,7 @@ export type SkillStatus = "Draft" | "Ready" | "Deprecated";
 export type PlatformCompatibility = "copilot" | "claude" | "openai" | "neutral";
 export type InstallationState = "not-installed" | "installed" | "outdated";
 export type AgentStatus = "Draft" | "Ready" | "Experimental";
+export type SkillActivationMode = "always-on" | "task-triggered" | "manual";
 export type WorkflowStatus = "Draft" | "Ready" | "Active";
 export type ExecutionStatus =
   | "Validating"
@@ -125,6 +126,14 @@ export interface SkillResource {
   description: string;
 }
 
+export interface SkillAssignment {
+  skillId: string;
+  activationMode: SkillActivationMode;
+  priority: number;
+  enabled: boolean;
+  settings?: Record<string, unknown>;
+}
+
 export interface Skill {
   id: string;
   name: string;
@@ -208,6 +217,7 @@ export interface Agent {
   outOfScope?: string;
   operatingPrinciples?: string[];
   assignedSkillIds: string[];
+  skillAssignments?: SkillAssignment[];
   toolDefinitions?: ToolDefinition[];
   permissionPolicy?: PermissionPolicy;
   inputSchema?: JsonSchema;

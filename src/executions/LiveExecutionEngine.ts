@@ -13,6 +13,8 @@ import { OpenAILiveAdapter } from "../adapters/live/OpenAILiveAdapter";
 import { SecureCredentialStore } from "../security/SecureCredentialStore";
 import { PermissionEnforcer } from "../security/PermissionSandbox";
 import { sanitizeAuditDetails } from "../governance/SecuritySanitizer";
+import { SkillContextBuilder } from "../skills/SkillContextBuilder";
+import { Skill } from "../domain/skills/types";
 
 export interface LiveEngineOptions {
   storage: {
@@ -24,6 +26,7 @@ export interface LiveEngineOptions {
   adapter?: LivePlatformAdapter;
   agentProvider?: (agentId: string) => Promise<Agent | undefined>;
   workflowProvider?: (workflowId: string) => Promise<Workflow | undefined>;
+  skillProvider?: (skillId: string) => Promise<Skill | undefined>;
   workspaceRoot?: string;
   timeProvider?: () => string;
 }
@@ -39,6 +42,7 @@ export class LiveExecutionEngine implements WorkflowExecutionEngine {
   private readonly adapter: LivePlatformAdapter;
   private readonly agentProvider?: (agentId: string) => Promise<Agent | undefined>;
   private readonly workflowProvider?: (workflowId: string) => Promise<Workflow | undefined>;
+  private readonly skillContextBuilder?: SkillContextBuilder;
   private readonly workspaceRoot: string;
   private readonly timeProvider: () => string;
 
@@ -51,6 +55,9 @@ export class LiveExecutionEngine implements WorkflowExecutionEngine {
     this.adapter = options.adapter || new OpenAILiveAdapter();
     this.agentProvider = options.agentProvider;
     this.workflowProvider = options.workflowProvider;
+    if (options.skillProvider) {
+      this.skillContextBuilder = new SkillContextBuilder({ getSkill: options.skillProvider });
+    }
     this.workspaceRoot = options.workspaceRoot || process.cwd();
     this.timeProvider = options.timeProvider || (() => new Date().toISOString());
   }
@@ -619,6 +626,24 @@ export class LiveExecutionEngine implements WorkflowExecutionEngine {
           },
         ];
 
+        const initialPrompt =
+          (cfg.prompt as string) ||
+          `Analyze the project context and requirements: ${JSON.stringify(inputs)}. Produce the verified deliverable.`;
+
+        let systemPrompt =
+          agent?.instructions ||
+          `You are an autonomous engineering agent named "${agent?.name || node.name}". Execute your mission and utilize tools safely.`;
+        let activatedSkillIds: string[] = [];
+        if (agent && this.skillContextBuilder) {
+          try {
+            const skillContext = await this.skillContextBuilder.buildContext(agent, initialPrompt);
+            systemPrompt = skillContext.systemPrompt;
+            activatedSkillIds = skillContext.activatedSkills.map((s) => s.skillId);
+          } catch {
+            // fallback to base instructions
+          }
+        }
+
         const sessionConfig: LiveExecutionSessionConfig = {
           sessionId: `sess-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
           platformId,
@@ -629,18 +654,12 @@ export class LiveExecutionEngine implements WorkflowExecutionEngine {
           maxTokens: typeof cfg.maxTokens === "number" ? cfg.maxTokens : 4096,
           maxTurns: typeof cfg.maxTurns === "number" ? cfg.maxTurns : 6,
           timeoutMs: typeof cfg.timeoutMs === "number" ? cfg.timeoutMs : 30000,
-          systemPrompt:
-            agent?.instructions ||
-            `You are an autonomous engineering agent named "${agent?.name || node.name}". Execute your mission and utilize tools safely.`,
+          systemPrompt,
           agentName: agent?.name || node.name,
           permissionPolicy: policy,
           tools: availableTools,
           workspaceRoot: this.workspaceRoot,
         };
-
-        const initialPrompt =
-          (cfg.prompt as string) ||
-          `Analyze the project context and requirements: ${JSON.stringify(inputs)}. Produce the verified deliverable.`;
 
         // Tool executor with sandbox check
         const toolExecutor = async (call: LiveToolCall): Promise<LiveToolResult> => {
@@ -715,6 +734,7 @@ export class LiveExecutionEngine implements WorkflowExecutionEngine {
             toolsExecuted: result.toolCallsMade.map((t) => t.call.name),
             usage: result.usage,
             deliverable: artifact.name,
+            activatedSkillIds,
           },
           artifacts: [artifact],
           summary: `Executed live agent "${agent?.name || node.name}" via ${this.adapter.platformName}. (${result.toolCallsMade.length} tools called).`,

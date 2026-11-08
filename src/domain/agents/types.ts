@@ -2,6 +2,16 @@ import { PlatformCompatibility } from "../skills/types";
 
 export type AgentStatus = "Draft" | "Ready" | "Experimental";
 
+export type SkillActivationMode = "always-on" | "task-triggered" | "manual";
+
+export interface SkillAssignment {
+  skillId: string;
+  activationMode: SkillActivationMode;
+  priority: number;
+  enabled: boolean;
+  settings?: Record<string, unknown>;
+}
+
 export interface ToolDefinition {
   id: string;
   name: string;
@@ -62,6 +72,7 @@ export interface Agent {
   outOfScope?: string;
   operatingPrinciples?: string[];
   assignedSkillIds: string[];
+  skillAssignments?: SkillAssignment[];
   toolDefinitions: ToolDefinition[];
   permissionPolicy: PermissionPolicy;
   inputSchema: JsonSchema;

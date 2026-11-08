@@ -7,6 +7,7 @@ import type {
   JsonSchema,
   TestScenario,
   AgentExportFormat,
+  SkillAssignment,
 } from "../../../types";
 
 export interface AgentBuilderFormState {
@@ -23,6 +24,7 @@ export interface AgentBuilderFormState {
   outOfScope: string;
   operatingPrinciples: string[];
   assignedSkillIds: string[];
+  skillAssignments: SkillAssignment[];
   toolDefinitions: ToolDefinition[];
   permissionPolicy: PermissionPolicy;
   inputSchemaText: string;
@@ -64,6 +66,7 @@ export const DEFAULT_BUILDER_STATE: AgentBuilderFormState = {
     "Produce deterministic, structured outputs conforming to declared contracts.",
   ],
   assignedSkillIds: [],
+  skillAssignments: [],
   toolDefinitions: [],
   permissionPolicy: { ...LEAST_PRIVILEGE_POLICY },
   inputSchemaText: JSON.stringify(
@@ -133,6 +136,7 @@ export function agentToBuilderState(agent: Agent): AgentBuilderFormState {
     outOfScope: agent.outOfScope || "",
     operatingPrinciples: agent.operatingPrinciples ? [...agent.operatingPrinciples] : [],
     assignedSkillIds: agent.assignedSkillIds ? [...agent.assignedSkillIds] : [],
+    skillAssignments: agent.skillAssignments ? agent.skillAssignments.map((s) => ({ ...s })) : [],
     toolDefinitions: agent.toolDefinitions ? agent.toolDefinitions.map((t) => ({ ...t })) : [],
     permissionPolicy: agent.permissionPolicy
       ? {
@@ -199,6 +203,7 @@ export function builderStateToAgent(state: AgentBuilderFormState): Partial<Agent
     outOfScope: state.outOfScope.trim() || undefined,
     operatingPrinciples: state.operatingPrinciples.map((p) => p.trim()).filter(Boolean),
     assignedSkillIds: [...state.assignedSkillIds],
+    skillAssignments: state.skillAssignments.map((s) => ({ ...s })),
     toolDefinitions: state.toolDefinitions.map((t) => ({ ...t })),
     permissionPolicy: { ...state.permissionPolicy },
     inputSchema,

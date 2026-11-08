@@ -131,6 +131,33 @@ function getAllRelativeFiles(dir, baseDir = dir) {
 
 const SENTRY_SYNC_FILES = getAllRelativeFiles(SENTRY_CANONICAL_DIR);
 
+// 5. Ponytail paths & files
+const PONYTAIL_CANONICAL_DIR = path.join(ROOT_DIR, 'skills', 'ponytail');
+const PONYTAIL_TARGET_DIRS = [
+  path.join(ROOT_DIR, '.github', 'skills', 'ponytail'),
+  path.join(ROOT_DIR, '.claude', 'skills', 'ponytail'),
+  path.join(ROOT_DIR, '.agents', 'skills', 'ponytail'),
+];
+const PONYTAIL_SYNC_FILES = getAllRelativeFiles(PONYTAIL_CANONICAL_DIR);
+
+// 6. Graphify paths & files
+const GRAPHIFY_CANONICAL_DIR = path.join(ROOT_DIR, 'skills', 'graphify');
+const GRAPHIFY_TARGET_DIRS = [
+  path.join(ROOT_DIR, '.github', 'skills', 'graphify'),
+  path.join(ROOT_DIR, '.claude', 'skills', 'graphify'),
+  path.join(ROOT_DIR, '.agents', 'skills', 'graphify'),
+];
+const GRAPHIFY_SYNC_FILES = getAllRelativeFiles(GRAPHIFY_CANONICAL_DIR);
+
+// 7. Security Architecture Review paths & files
+const SECURITY_ARCH_REVIEW_CANONICAL_DIR = path.join(ROOT_DIR, 'skills', 'security-architecture-review');
+const SECURITY_ARCH_REVIEW_TARGET_DIRS = [
+  path.join(ROOT_DIR, '.github', 'skills', 'security-architecture-review'),
+  path.join(ROOT_DIR, '.claude', 'skills', 'security-architecture-review'),
+  path.join(ROOT_DIR, '.agents', 'skills', 'security-architecture-review'),
+];
+const SECURITY_ARCH_REVIEW_SYNC_FILES = getAllRelativeFiles(SECURITY_ARCH_REVIEW_CANONICAL_DIR);
+
 function syncDirectory(targetDir) {
   if (!fs.existsSync(targetDir)) {
     fs.mkdirSync(targetDir, { recursive: true });
@@ -192,6 +219,18 @@ function syncSentryDirectory(targetDir) {
   return syncCustomDirectory(SENTRY_CANONICAL_DIR, targetDir, SENTRY_SYNC_FILES);
 }
 
+function syncPonytailDirectory(targetDir) {
+  return syncCustomDirectory(PONYTAIL_CANONICAL_DIR, targetDir, PONYTAIL_SYNC_FILES);
+}
+
+function syncGraphifyDirectory(targetDir) {
+  return syncCustomDirectory(GRAPHIFY_CANONICAL_DIR, targetDir, GRAPHIFY_SYNC_FILES);
+}
+
+function syncSecurityArchReviewDirectory(targetDir) {
+  return syncCustomDirectory(SECURITY_ARCH_REVIEW_CANONICAL_DIR, targetDir, SECURITY_ARCH_REVIEW_SYNC_FILES);
+}
+
 function main() {
   console.log(`Starting synchronization for Enterprise Security Audit...`);
   if (fs.existsSync(CANONICAL_DIR)) {
@@ -229,6 +268,33 @@ function main() {
     }
   }
 
+  console.log(`Starting synchronization for Ponytail...`);
+  if (fs.existsSync(PONYTAIL_CANONICAL_DIR)) {
+    for (const targetDir of PONYTAIL_TARGET_DIRS) {
+      const relativeTarget = path.relative(ROOT_DIR, targetDir);
+      const synced = syncPonytailDirectory(targetDir);
+      console.log(`✓ Synchronized ${synced} files to ${relativeTarget}`);
+    }
+  }
+
+  console.log(`Starting synchronization for Graphify...`);
+  if (fs.existsSync(GRAPHIFY_CANONICAL_DIR)) {
+    for (const targetDir of GRAPHIFY_TARGET_DIRS) {
+      const relativeTarget = path.relative(ROOT_DIR, targetDir);
+      const synced = syncGraphifyDirectory(targetDir);
+      console.log(`✓ Synchronized ${synced} files to ${relativeTarget}`);
+    }
+  }
+
+  console.log(`Starting synchronization for Security Architecture Review...`);
+  if (fs.existsSync(SECURITY_ARCH_REVIEW_CANONICAL_DIR)) {
+    for (const targetDir of SECURITY_ARCH_REVIEW_TARGET_DIRS) {
+      const relativeTarget = path.relative(ROOT_DIR, targetDir);
+      const synced = syncSecurityArchReviewDirectory(targetDir);
+      console.log(`✓ Synchronized ${synced} files to ${relativeTarget}`);
+    }
+  }
+
   console.log('Skill synchronization completed successfully.');
 }
 
@@ -253,4 +319,16 @@ module.exports = {
   SENTRY_TARGET_DIRS,
   SENTRY_SYNC_FILES,
   syncSentryDirectory,
+  PONYTAIL_CANONICAL_DIR,
+  PONYTAIL_TARGET_DIRS,
+  PONYTAIL_SYNC_FILES,
+  syncPonytailDirectory,
+  GRAPHIFY_CANONICAL_DIR,
+  GRAPHIFY_TARGET_DIRS,
+  GRAPHIFY_SYNC_FILES,
+  syncGraphifyDirectory,
+  SECURITY_ARCH_REVIEW_CANONICAL_DIR,
+  SECURITY_ARCH_REVIEW_TARGET_DIRS,
+  SECURITY_ARCH_REVIEW_SYNC_FILES,
+  syncSecurityArchReviewDirectory,
 };
