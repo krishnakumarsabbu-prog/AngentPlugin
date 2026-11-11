@@ -53,7 +53,7 @@ function matchesSkillPurpose(skillId: string, prompt: string): boolean {
   const lower = prompt.toLowerCase();
 
   const purposeKeywords: Record<string, string[]> = {
-    ponytail: [
+    codesculpt: [
       "review", "audit", "debt", "gain", "code quality", "complexity",
       "abstraction", "duplication", "reuse", "minimal", "discipline",
       "engineering", "refactor", "technical debt", "decision ladder",
@@ -163,7 +163,7 @@ ${truncateInstructions(skill.instructions, MAX_INSTRUCTION_LENGTH)}${toolList}`;
 
 export function inferDefaultActivationMode(skillId: string): SkillActivationMode {
   switch (skillId) {
-    case "ponytail":
+    case "codesculpt":
       return "always-on";
     case "graphify":
       return "task-triggered";

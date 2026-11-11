@@ -140,14 +140,14 @@ const PONYTAIL_TARGET_DIRS = [
 ];
 const PONYTAIL_SYNC_FILES = getAllRelativeFiles(PONYTAIL_CANONICAL_DIR);
 
-// 6. Graphify paths & files
-const GRAPHIFY_CANONICAL_DIR = path.join(ROOT_DIR, 'skills', 'graphify');
-const GRAPHIFY_TARGET_DIRS = [
-  path.join(ROOT_DIR, '.github', 'skills', 'graphify'),
-  path.join(ROOT_DIR, '.claude', 'skills', 'graphify'),
-  path.join(ROOT_DIR, '.agents', 'skills', 'graphify'),
+// 6. CodeAtlas paths & files
+const CODE_ATLAS_CANONICAL_DIR = path.join(ROOT_DIR, 'skills', 'code-atlas');
+const CODE_ATLAS_TARGET_DIRS = [
+  path.join(ROOT_DIR, '.github', 'skills', 'code-atlas'),
+  path.join(ROOT_DIR, '.claude', 'skills', 'code-atlas'),
+  path.join(ROOT_DIR, '.agents', 'skills', 'code-atlas'),
 ];
-const GRAPHIFY_SYNC_FILES = getAllRelativeFiles(GRAPHIFY_CANONICAL_DIR);
+const CODE_ATLAS_SYNC_FILES = getAllRelativeFiles(CODE_ATLAS_CANONICAL_DIR);
 
 // 7. Security Architecture Review paths & files
 const SECURITY_ARCH_REVIEW_CANONICAL_DIR = path.join(ROOT_DIR, 'skills', 'security-architecture-review');
@@ -232,8 +232,8 @@ function syncPonytailDirectory(targetDir) {
   return syncCustomDirectory(PONYTAIL_CANONICAL_DIR, targetDir, PONYTAIL_SYNC_FILES);
 }
 
-function syncGraphifyDirectory(targetDir) {
-  return syncCustomDirectory(GRAPHIFY_CANONICAL_DIR, targetDir, GRAPHIFY_SYNC_FILES);
+function syncCodeAtlasDirectory(targetDir) {
+  return syncCustomDirectory(CODE_ATLAS_CANONICAL_DIR, targetDir, CODE_ATLAS_SYNC_FILES);
 }
 
 function syncSecurityArchReviewDirectory(targetDir) {
@@ -290,11 +290,11 @@ function main() {
     }
   }
 
-  console.log(`Starting synchronization for Graphify...`);
-  if (fs.existsSync(GRAPHIFY_CANONICAL_DIR)) {
-    for (const targetDir of GRAPHIFY_TARGET_DIRS) {
+  console.log(`Starting synchronization for CodeAtlas...`);
+  if (fs.existsSync(CODE_ATLAS_CANONICAL_DIR)) {
+    for (const targetDir of CODE_ATLAS_TARGET_DIRS) {
       const relativeTarget = path.relative(ROOT_DIR, targetDir);
-      const synced = syncGraphifyDirectory(targetDir);
+      const synced = syncCodeAtlasDirectory(targetDir);
       console.log(`✓ Synchronized ${synced} files to ${relativeTarget}`);
     }
   }
@@ -345,10 +345,10 @@ module.exports = {
   PONYTAIL_TARGET_DIRS,
   PONYTAIL_SYNC_FILES,
   syncPonytailDirectory,
-  GRAPHIFY_CANONICAL_DIR,
-  GRAPHIFY_TARGET_DIRS,
-  GRAPHIFY_SYNC_FILES,
-  syncGraphifyDirectory,
+  CODE_ATLAS_CANONICAL_DIR,
+  CODE_ATLAS_TARGET_DIRS,
+  CODE_ATLAS_SYNC_FILES,
+  syncCodeAtlasDirectory,
   SECURITY_ARCH_REVIEW_CANONICAL_DIR,
   SECURITY_ARCH_REVIEW_TARGET_DIRS,
   SECURITY_ARCH_REVIEW_SYNC_FILES,

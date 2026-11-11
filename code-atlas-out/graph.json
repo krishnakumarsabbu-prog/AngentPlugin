@@ -1,0 +1,2816 @@
+{
+  "nodes": [
+    {
+      "id": "file_extension_ts",
+      "label": "extension.ts",
+      "file_type": "code",
+      "source_file": "extension.ts",
+      "source_location": null,
+      "community": 11,
+      "community_name": "Community 11"
+    },
+    {
+      "id": "extension_ts_activate",
+      "label": "activate",
+      "file_type": "code",
+      "source_file": "extension.ts",
+      "source_location": "L7",
+      "community": 11,
+      "community_name": "Community 11"
+    },
+    {
+      "id": "extension_ts_deactivate",
+      "label": "deactivate",
+      "file_type": "code",
+      "source_file": "extension.ts",
+      "source_location": "L32",
+      "community": 11,
+      "community_name": "Community 11"
+    },
+    {
+      "id": "file_agents_AgentExporter_ts",
+      "label": "AgentExporter.ts",
+      "file_type": "code",
+      "source_file": "agents/AgentExporter.ts",
+      "source_location": null,
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "agents_AgentExporter_ts_exportagentconfig",
+      "label": "exportAgentConfig",
+      "file_type": "code",
+      "source_file": "agents/AgentExporter.ts",
+      "source_location": "L11",
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "agents_AgentExporter_ts_generatecopilotinstructions",
+      "label": "generateCopilotInstructions",
+      "file_type": "code",
+      "source_file": "agents/AgentExporter.ts",
+      "source_location": "L63",
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "agents_AgentExporter_ts_generateclaudesubagent",
+      "label": "generateClaudeSubagent",
+      "file_type": "code",
+      "source_file": "agents/AgentExporter.ts",
+      "source_location": "L125",
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "agents_AgentExporter_ts_generateopenaiassistant",
+      "label": "generateOpenAIAssistant",
+      "file_type": "code",
+      "source_file": "agents/AgentExporter.ts",
+      "source_location": "L168",
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "file_agents_AgentValidator_ts",
+      "label": "AgentValidator.ts",
+      "file_type": "code",
+      "source_file": "agents/AgentValidator.ts",
+      "source_location": null,
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "agents_AgentValidator_ts_defaultagentvalidationcontext",
+      "label": "defaultAgentValidationContext",
+      "file_type": "code",
+      "source_file": "agents/AgentValidator.ts",
+      "source_location": "L52",
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "agents_AgentValidator_ts_validateagent",
+      "label": "validateAgent",
+      "file_type": "code",
+      "source_file": "agents/AgentValidator.ts",
+      "source_location": "L59",
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "agents_AgentValidator_ts_validatejsonschema",
+      "label": "validateJsonSchema",
+      "file_type": "code",
+      "source_file": "agents/AgentValidator.ts",
+      "source_location": "L435",
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "file_bridge_AgentForgeBridge_ts",
+      "label": "AgentForgeBridge.ts",
+      "file_type": "code",
+      "source_file": "bridge/AgentForgeBridge.ts",
+      "source_location": null,
+      "community": 2,
+      "community_name": "Community 2"
+    },
+    {
+      "id": "bridge_AgentForgeBridge_ts_agentforgebridge",
+      "label": "AgentForgeBridge",
+      "file_type": "code",
+      "source_file": "bridge/AgentForgeBridge.ts",
+      "source_location": "L59",
+      "community": 2,
+      "community_name": "Community 2"
+    },
+    {
+      "id": "bridge_AgentForgeBridge_ts_getnonce",
+      "label": "getNonce",
+      "file_type": "code",
+      "source_file": "bridge/AgentForgeBridge.ts",
+      "source_location": "L1270",
+      "community": 2,
+      "community_name": "Community 2"
+    },
+    {
+      "id": "bridge_AgentForgeBridge_ts_serializeexport",
+      "label": "serializeExport",
+      "file_type": "code",
+      "source_file": "bridge/AgentForgeBridge.ts",
+      "source_location": "L1279",
+      "community": 2,
+      "community_name": "Community 2"
+    },
+    {
+      "id": "bridge_AgentForgeBridge_ts_serializeimportpreview",
+      "label": "serializeImportPreview",
+      "file_type": "code",
+      "source_file": "bridge/AgentForgeBridge.ts",
+      "source_location": "L1293",
+      "community": 2,
+      "community_name": "Community 2"
+    },
+    {
+      "id": "file_bridge_messages_ts",
+      "label": "messages.ts",
+      "file_type": "code",
+      "source_file": "bridge/messages.ts",
+      "source_location": null,
+      "community": 2,
+      "community_name": "Community 2"
+    },
+    {
+      "id": "bridge_messages_ts_ismessagetype",
+      "label": "isMessageType",
+      "file_type": "code",
+      "source_file": "bridge/messages.ts",
+      "source_location": "L322",
+      "community": 2,
+      "community_name": "Community 2"
+    },
+    {
+      "id": "bridge_messages_ts_isbasemessage",
+      "label": "isBaseMessage",
+      "file_type": "code",
+      "source_file": "bridge/messages.ts",
+      "source_location": "L326",
+      "community": 2,
+      "community_name": "Community 2"
+    },
+    {
+      "id": "file_bridge_messageValidator_ts",
+      "label": "messageValidator.ts",
+      "file_type": "code",
+      "source_file": "bridge/messageValidator.ts",
+      "source_location": null,
+      "community": 2,
+      "community_name": "Community 2"
+    },
+    {
+      "id": "bridge_messageValidator_ts_validateincomingmessage",
+      "label": "validateIncomingMessage",
+      "file_type": "code",
+      "source_file": "bridge/messageValidator.ts",
+      "source_location": "L9",
+      "community": 2,
+      "community_name": "Community 2"
+    },
+    {
+      "id": "bridge_messageValidator_ts_validatepayload",
+      "label": "validatePayload",
+      "file_type": "code",
+      "source_file": "bridge/messageValidator.ts",
+      "source_location": "L24",
+      "community": 2,
+      "community_name": "Community 2"
+    },
+    {
+      "id": "bridge_messageValidator_ts_makeresponse",
+      "label": "makeResponse",
+      "file_type": "code",
+      "source_file": "bridge/messageValidator.ts",
+      "source_location": "L410",
+      "community": 2,
+      "community_name": "Community 2"
+    },
+    {
+      "id": "bridge_messageValidator_ts_unsupportedresponse",
+      "label": "unsupportedResponse",
+      "file_type": "code",
+      "source_file": "bridge/messageValidator.ts",
+      "source_location": "L420",
+      "community": 2,
+      "community_name": "Community 2"
+    },
+    {
+      "id": "file_commands_openAgentForge_ts",
+      "label": "openAgentForge.ts",
+      "file_type": "code",
+      "source_file": "commands/openAgentForge.ts",
+      "source_location": null,
+      "community": 3,
+      "community_name": "Community 3"
+    },
+    {
+      "id": "commands_openAgentForge_ts_registercommands",
+      "label": "registerCommands",
+      "file_type": "code",
+      "source_file": "commands/openAgentForge.ts",
+      "source_location": "L7",
+      "community": 3,
+      "community_name": "Community 3"
+    },
+    {
+      "id": "file_domain_index_ts",
+      "label": "index.ts",
+      "file_type": "code",
+      "source_file": "domain/index.ts",
+      "source_location": null,
+      "community": 4,
+      "community_name": "Community 4"
+    },
+    {
+      "id": "file_executions_LiveExecutionEngine_ts",
+      "label": "LiveExecutionEngine.ts",
+      "file_type": "code",
+      "source_file": "executions/LiveExecutionEngine.ts",
+      "source_location": null,
+      "community": 5,
+      "community_name": "Community 5"
+    },
+    {
+      "id": "executions_LiveExecutionEngine_ts_liveexecutionengine",
+      "label": "LiveExecutionEngine",
+      "file_type": "code",
+      "source_file": "executions/LiveExecutionEngine.ts",
+      "source_location": "L39",
+      "community": 5,
+      "community_name": "Community 5"
+    },
+    {
+      "id": "file_executions_LocalSimulationEngine_ts",
+      "label": "LocalSimulationEngine.ts",
+      "file_type": "code",
+      "source_file": "executions/LocalSimulationEngine.ts",
+      "source_location": null,
+      "community": 5,
+      "community_name": "Community 5"
+    },
+    {
+      "id": "executions_LocalSimulationEngine_ts_sanitizesecrets",
+      "label": "sanitizeSecrets",
+      "file_type": "code",
+      "source_file": "executions/LocalSimulationEngine.ts",
+      "source_location": "L23",
+      "community": 5,
+      "community_name": "Community 5"
+    },
+    {
+      "id": "executions_LocalSimulationEngine_ts_localsimulationengine",
+      "label": "LocalSimulationEngine",
+      "file_type": "code",
+      "source_file": "executions/LocalSimulationEngine.ts",
+      "source_location": "L63",
+      "community": 5,
+      "community_name": "Community 5"
+    },
+    {
+      "id": "file_governance_SecuritySanitizer_ts",
+      "label": "SecuritySanitizer.ts",
+      "file_type": "code",
+      "source_file": "governance/SecuritySanitizer.ts",
+      "source_location": null,
+      "community": 6,
+      "community_name": "Community 6"
+    },
+    {
+      "id": "governance_SecuritySanitizer_ts_sanitizeauditdetails",
+      "label": "sanitizeAuditDetails",
+      "file_type": "code",
+      "source_file": "governance/SecuritySanitizer.ts",
+      "source_location": "L22",
+      "community": 6,
+      "community_name": "Community 6"
+    },
+    {
+      "id": "governance_SecuritySanitizer_ts_validateworkspacepath",
+      "label": "validateWorkspacePath",
+      "file_type": "code",
+      "source_file": "governance/SecuritySanitizer.ts",
+      "source_location": "L56",
+      "community": 6,
+      "community_name": "Community 6"
+    },
+    {
+      "id": "governance_SecuritySanitizer_ts_validatepermissionpolicy",
+      "label": "validatePermissionPolicy",
+      "file_type": "code",
+      "source_file": "governance/SecuritySanitizer.ts",
+      "source_location": "L101",
+      "community": 6,
+      "community_name": "Community 6"
+    },
+    {
+      "id": "file_integrations_PlatformIntegrationService_ts",
+      "label": "PlatformIntegrationService.ts",
+      "file_type": "code",
+      "source_file": "integrations/PlatformIntegrationService.ts",
+      "source_location": null,
+      "community": 7,
+      "community_name": "Community 7"
+    },
+    {
+      "id": "integrations_PlatformIntegrationService_ts_platformintegrationservice",
+      "label": "PlatformIntegrationService",
+      "file_type": "code",
+      "source_file": "integrations/PlatformIntegrationService.ts",
+      "source_location": "L11",
+      "community": 7,
+      "community_name": "Community 7"
+    },
+    {
+      "id": "file_packages_PackageManagerService_ts",
+      "label": "PackageManagerService.ts",
+      "file_type": "code",
+      "source_file": "packages/PackageManagerService.ts",
+      "source_location": null,
+      "community": 8,
+      "community_name": "Community 8"
+    },
+    {
+      "id": "packages_PackageManagerService_ts_inmemorypackagestorage",
+      "label": "InMemoryPackageStorage",
+      "file_type": "code",
+      "source_file": "packages/PackageManagerService.ts",
+      "source_location": "L18",
+      "community": 8,
+      "community_name": "Community 8"
+    },
+    {
+      "id": "packages_PackageManagerService_ts_packagemanagerservice",
+      "label": "PackageManagerService",
+      "file_type": "code",
+      "source_file": "packages/PackageManagerService.ts",
+      "source_location": "L41",
+      "community": 8,
+      "community_name": "Community 8"
+    },
+    {
+      "id": "file_panels_AgentForgePanel_ts",
+      "label": "AgentForgePanel.ts",
+      "file_type": "code",
+      "source_file": "panels/AgentForgePanel.ts",
+      "source_location": null,
+      "community": 9,
+      "community_name": "Community 9"
+    },
+    {
+      "id": "panels_AgentForgePanel_ts_agentforgepanel",
+      "label": "AgentForgePanel",
+      "file_type": "code",
+      "source_file": "panels/AgentForgePanel.ts",
+      "source_location": "L4",
+      "community": 9,
+      "community_name": "Community 9"
+    },
+    {
+      "id": "file_providers_AgentForgeViewProvider_ts",
+      "label": "AgentForgeViewProvider.ts",
+      "file_type": "code",
+      "source_file": "providers/AgentForgeViewProvider.ts",
+      "source_location": null,
+      "community": 10,
+      "community_name": "Community 10"
+    },
+    {
+      "id": "providers_AgentForgeViewProvider_ts_agentforgeviewprovider",
+      "label": "AgentForgeViewProvider",
+      "file_type": "code",
+      "source_file": "providers/AgentForgeViewProvider.ts",
+      "source_location": "L5",
+      "community": 10,
+      "community_name": "Community 10"
+    },
+    {
+      "id": "file_security_PermissionSandbox_ts",
+      "label": "PermissionSandbox.ts",
+      "file_type": "code",
+      "source_file": "security/PermissionSandbox.ts",
+      "source_location": null,
+      "community": 12,
+      "community_name": "Community 12"
+    },
+    {
+      "id": "security_PermissionSandbox_ts_permissionenforcer",
+      "label": "PermissionEnforcer",
+      "file_type": "code",
+      "source_file": "security/PermissionSandbox.ts",
+      "source_location": "L27",
+      "community": 12,
+      "community_name": "Community 12"
+    },
+    {
+      "id": "file_security_SecureCredentialStore_ts",
+      "label": "SecureCredentialStore.ts",
+      "file_type": "code",
+      "source_file": "security/SecureCredentialStore.ts",
+      "source_location": null,
+      "community": 12,
+      "community_name": "Community 12"
+    },
+    {
+      "id": "security_SecureCredentialStore_ts_inmemorysecretstorage",
+      "label": "InMemorySecretStorage",
+      "file_type": "code",
+      "source_file": "security/SecureCredentialStore.ts",
+      "source_location": "L13",
+      "community": 12,
+      "community_name": "Community 12"
+    },
+    {
+      "id": "security_SecureCredentialStore_ts_securecredentialstore",
+      "label": "SecureCredentialStore",
+      "file_type": "code",
+      "source_file": "security/SecureCredentialStore.ts",
+      "source_location": "L38",
+      "community": 12,
+      "community_name": "Community 12"
+    },
+    {
+      "id": "file_services_EvaluationService_ts",
+      "label": "EvaluationService.ts",
+      "file_type": "code",
+      "source_file": "services/EvaluationService.ts",
+      "source_location": null,
+      "community": 13,
+      "community_name": "Community 13"
+    },
+    {
+      "id": "services_EvaluationService_ts_evaluateskill",
+      "label": "evaluateSkill",
+      "file_type": "code",
+      "source_file": "services/EvaluationService.ts",
+      "source_location": "L22",
+      "community": 13,
+      "community_name": "Community 13"
+    },
+    {
+      "id": "services_EvaluationService_ts_evaluateagent",
+      "label": "evaluateAgent",
+      "file_type": "code",
+      "source_file": "services/EvaluationService.ts",
+      "source_location": "L325",
+      "community": 13,
+      "community_name": "Community 13"
+    },
+    {
+      "id": "services_EvaluationService_ts_evaluatepipeline",
+      "label": "evaluatePipeline",
+      "file_type": "code",
+      "source_file": "services/EvaluationService.ts",
+      "source_location": "L634",
+      "community": 13,
+      "community_name": "Community 13"
+    },
+    {
+      "id": "services_EvaluationService_ts_checkcycle",
+      "label": "checkCycle",
+      "file_type": "code",
+      "source_file": "services/EvaluationService.ts",
+      "source_location": "L728",
+      "community": 13,
+      "community_name": "Community 13"
+    },
+    {
+      "id": "file_services_interfaces_ts",
+      "label": "interfaces.ts",
+      "file_type": "code",
+      "source_file": "services/interfaces.ts",
+      "source_location": null,
+      "community": 13,
+      "community_name": "Community 13"
+    },
+    {
+      "id": "file_skills_SkillContextBuilder_ts",
+      "label": "SkillContextBuilder.ts",
+      "file_type": "code",
+      "source_file": "skills/SkillContextBuilder.ts",
+      "source_location": null,
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillContextBuilder_ts_shouldactivate",
+      "label": "shouldActivate",
+      "file_type": "code",
+      "source_file": "skills/SkillContextBuilder.ts",
+      "source_location": "L25",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillContextBuilder_ts_matchesskillpurpose",
+      "label": "matchesSkillPurpose",
+      "file_type": "code",
+      "source_file": "skills/SkillContextBuilder.ts",
+      "source_location": "L52",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillContextBuilder_ts_truncateinstructions",
+      "label": "truncateInstructions",
+      "file_type": "code",
+      "source_file": "skills/SkillContextBuilder.ts",
+      "source_location": "L80",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillContextBuilder_ts_skillcontextbuilder",
+      "label": "SkillContextBuilder",
+      "file_type": "code",
+      "source_file": "skills/SkillContextBuilder.ts",
+      "source_location": "L85",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillContextBuilder_ts_inferdefaultactivationmode",
+      "label": "inferDefaultActivationMode",
+      "file_type": "code",
+      "source_file": "skills/SkillContextBuilder.ts",
+      "source_location": "L164",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "file_skills_SkillHistory_ts",
+      "label": "SkillHistory.ts",
+      "file_type": "code",
+      "source_file": "skills/SkillHistory.ts",
+      "source_location": null,
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillHistory_ts_createhistorystore",
+      "label": "createHistoryStore",
+      "file_type": "code",
+      "source_file": "skills/SkillHistory.ts",
+      "source_location": "L23",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillHistory_ts_appendchangelog",
+      "label": "appendChangelog",
+      "file_type": "code",
+      "source_file": "skills/SkillHistory.ts",
+      "source_location": "L65",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillHistory_ts_cloneskill",
+      "label": "cloneSkill",
+      "file_type": "code",
+      "source_file": "skills/SkillHistory.ts",
+      "source_location": "L72",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillHistory_ts_clonehistory",
+      "label": "cloneHistory",
+      "file_type": "code",
+      "source_file": "skills/SkillHistory.ts",
+      "source_location": "L84",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "file_skills_SkillPackageService_ts",
+      "label": "SkillPackageService.ts",
+      "file_type": "code",
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": null,
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillPackageService_ts_skillpackageservice",
+      "label": "SkillPackageService",
+      "file_type": "code",
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L54",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillPackageService_ts_parsepackageinput",
+      "label": "parsePackageInput",
+      "file_type": "code",
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L235",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillPackageService_ts_parseskillmarkdown",
+      "label": "parseSkillMarkdown",
+      "file_type": "code",
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L275",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillPackageService_ts_extractfrontmatter",
+      "label": "extractFrontmatter",
+      "file_type": "code",
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L309",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillPackageService_ts_applyfrontmatter",
+      "label": "applyFrontmatter",
+      "file_type": "code",
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L315",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillPackageService_ts_applybody",
+      "label": "applyBody",
+      "file_type": "code",
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L338",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillPackageService_ts_splitsections",
+      "label": "splitSections",
+      "file_type": "code",
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L382",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillPackageService_ts_parselist",
+      "label": "parseList",
+      "file_type": "code",
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L399",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillPackageService_ts_parseresourcelist",
+      "label": "parseResourceList",
+      "file_type": "code",
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L408",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillPackageService_ts_parsesimpleyaml",
+      "label": "parseSimpleYaml",
+      "file_type": "code",
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L431",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillPackageService_ts_parsescalar",
+      "label": "parseScalar",
+      "file_type": "code",
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L478",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillPackageService_ts_detectduplicate",
+      "label": "detectDuplicate",
+      "file_type": "code",
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L488",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillPackageService_ts_comparesemver",
+      "label": "compareSemver",
+      "file_type": "code",
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L501",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillPackageService_ts_slugify",
+      "label": "slugify",
+      "file_type": "code",
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L511",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillPackageService_ts_resourcefilename",
+      "label": "resourceFileName",
+      "file_type": "code",
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L520",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillPackageService_ts_resourcestub",
+      "label": "resourceStub",
+      "file_type": "code",
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L526",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "file_skills_SkillService_ts",
+      "label": "SkillService.ts",
+      "file_type": "code",
+      "source_file": "skills/SkillService.ts",
+      "source_location": null,
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillService_ts_skillservice",
+      "label": "SkillService",
+      "file_type": "code",
+      "source_file": "skills/SkillService.ts",
+      "source_location": "L18",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillService_ts_skillvalidationerror",
+      "label": "SkillValidationError",
+      "file_type": "code",
+      "source_file": "skills/SkillService.ts",
+      "source_location": "L110",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillService_ts_formatfindings",
+      "label": "formatFindings",
+      "file_type": "code",
+      "source_file": "skills/SkillService.ts",
+      "source_location": "L117",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "file_skills_SkillValidator_ts",
+      "label": "SkillValidator.ts",
+      "file_type": "code",
+      "source_file": "skills/SkillValidator.ts",
+      "source_location": null,
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillValidator_ts_defaultvalidationcontext",
+      "label": "defaultValidationContext",
+      "file_type": "code",
+      "source_file": "skills/SkillValidator.ts",
+      "source_location": "L53",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillValidator_ts_validateskill",
+      "label": "validateSkill",
+      "file_type": "code",
+      "source_file": "skills/SkillValidator.ts",
+      "source_location": "L60",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillValidator_ts_validateresource",
+      "label": "validateResource",
+      "file_type": "code",
+      "source_file": "skills/SkillValidator.ts",
+      "source_location": "L178",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillValidator_ts_validatefrontmatter",
+      "label": "validateFrontmatter",
+      "file_type": "code",
+      "source_file": "skills/SkillValidator.ts",
+      "source_location": "L209",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillValidator_ts_scanunsupporteddeclarations",
+      "label": "scanUnsupportedDeclarations",
+      "file_type": "code",
+      "source_file": "skills/SkillValidator.ts",
+      "source_location": "L233",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_SkillValidator_ts_comparedrafttostored",
+      "label": "compareDraftToStored",
+      "file_type": "code",
+      "source_file": "skills/SkillValidator.ts",
+      "source_location": "L264",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "file_storage_AgentRepository_ts",
+      "label": "AgentRepository.ts",
+      "file_type": "code",
+      "source_file": "storage/AgentRepository.ts",
+      "source_location": null,
+      "community": 15,
+      "community_name": "Community 15"
+    },
+    {
+      "id": "storage_AgentRepository_ts_agentrepository",
+      "label": "AgentRepository",
+      "file_type": "code",
+      "source_file": "storage/AgentRepository.ts",
+      "source_location": "L9",
+      "community": 15,
+      "community_name": "Community 15"
+    },
+    {
+      "id": "file_storage_AuditRepository_ts",
+      "label": "AuditRepository.ts",
+      "file_type": "code",
+      "source_file": "storage/AuditRepository.ts",
+      "source_location": null,
+      "community": 15,
+      "community_name": "Community 15"
+    },
+    {
+      "id": "storage_AuditRepository_ts_auditrepository",
+      "label": "AuditRepository",
+      "file_type": "code",
+      "source_file": "storage/AuditRepository.ts",
+      "source_location": "L9",
+      "community": 15,
+      "community_name": "Community 15"
+    },
+    {
+      "id": "file_storage_LocalRepository_ts",
+      "label": "LocalRepository.ts",
+      "file_type": "code",
+      "source_file": "storage/LocalRepository.ts",
+      "source_location": null,
+      "community": 15,
+      "community_name": "Community 15"
+    },
+    {
+      "id": "storage_LocalRepository_ts_localrepository",
+      "label": "LocalRepository",
+      "file_type": "code",
+      "source_file": "storage/LocalRepository.ts",
+      "source_location": "L57",
+      "community": 15,
+      "community_name": "Community 15"
+    },
+    {
+      "id": "file_storage_migrations_ts",
+      "label": "migrations.ts",
+      "file_type": "code",
+      "source_file": "storage/migrations.ts",
+      "source_location": null,
+      "community": 15,
+      "community_name": "Community 15"
+    },
+    {
+      "id": "storage_migrations_ts_migratetocurrent",
+      "label": "migrateToCurrent",
+      "file_type": "code",
+      "source_file": "storage/migrations.ts",
+      "source_location": "L64",
+      "community": 15,
+      "community_name": "Community 15"
+    },
+    {
+      "id": "storage_migrations_ts_freshstate",
+      "label": "freshState",
+      "file_type": "code",
+      "source_file": "storage/migrations.ts",
+      "source_location": "L87",
+      "community": 15,
+      "community_name": "Community 15"
+    },
+    {
+      "id": "file_storage_safeStorage_ts",
+      "label": "safeStorage.ts",
+      "file_type": "code",
+      "source_file": "storage/safeStorage.ts",
+      "source_location": null,
+      "community": 15,
+      "community_name": "Community 15"
+    },
+    {
+      "id": "storage_safeStorage_ts_createsafestorage",
+      "label": "createSafeStorage",
+      "file_type": "code",
+      "source_file": "storage/safeStorage.ts",
+      "source_location": "L31",
+      "community": 15,
+      "community_name": "Community 15"
+    },
+    {
+      "id": "storage_safeStorage_ts_serializejson",
+      "label": "serializeJson",
+      "file_type": "code",
+      "source_file": "storage/safeStorage.ts",
+      "source_location": "L37",
+      "community": 15,
+      "community_name": "Community 15"
+    },
+    {
+      "id": "file_storage_sampleData_ts",
+      "label": "sampleData.ts",
+      "file_type": "code",
+      "source_file": "storage/sampleData.ts",
+      "source_location": null,
+      "community": 15,
+      "community_name": "Community 15"
+    },
+    {
+      "id": "file_storage_settingsDefaults_ts",
+      "label": "settingsDefaults.ts",
+      "file_type": "code",
+      "source_file": "storage/settingsDefaults.ts",
+      "source_location": null,
+      "community": 15,
+      "community_name": "Community 15"
+    },
+    {
+      "id": "file_storage_WorkflowRepository_ts",
+      "label": "WorkflowRepository.ts",
+      "file_type": "code",
+      "source_file": "storage/WorkflowRepository.ts",
+      "source_location": null,
+      "community": 15,
+      "community_name": "Community 15"
+    },
+    {
+      "id": "storage_WorkflowRepository_ts_workflowrepository",
+      "label": "WorkflowRepository",
+      "file_type": "code",
+      "source_file": "storage/WorkflowRepository.ts",
+      "source_location": "L9",
+      "community": 15,
+      "community_name": "Community 15"
+    },
+    {
+      "id": "file_workflows_WorkflowComparison_ts",
+      "label": "WorkflowComparison.ts",
+      "file_type": "code",
+      "source_file": "workflows/WorkflowComparison.ts",
+      "source_location": null,
+      "community": 16,
+      "community_name": "Community 16"
+    },
+    {
+      "id": "workflows_WorkflowComparison_ts_compareworkflows",
+      "label": "compareWorkflows",
+      "file_type": "code",
+      "source_file": "workflows/WorkflowComparison.ts",
+      "source_location": "L116",
+      "community": 16,
+      "community_name": "Community 16"
+    },
+    {
+      "id": "workflows_WorkflowComparison_ts_compareexecutions",
+      "label": "compareExecutions",
+      "file_type": "code",
+      "source_file": "workflows/WorkflowComparison.ts",
+      "source_location": "L367",
+      "community": 16,
+      "community_name": "Community 16"
+    },
+    {
+      "id": "workflows_WorkflowComparison_ts_filterexecutions",
+      "label": "filterExecutions",
+      "file_type": "code",
+      "source_file": "workflows/WorkflowComparison.ts",
+      "source_location": "L538",
+      "community": 16,
+      "community_name": "Community 16"
+    },
+    {
+      "id": "workflows_WorkflowComparison_ts_sortexecutions",
+      "label": "sortExecutions",
+      "file_type": "code",
+      "source_file": "workflows/WorkflowComparison.ts",
+      "source_location": "L608",
+      "community": 16,
+      "community_name": "Community 16"
+    },
+    {
+      "id": "file_workflows_workflowFormat_ts",
+      "label": "workflowFormat.ts",
+      "file_type": "code",
+      "source_file": "workflows/workflowFormat.ts",
+      "source_location": null,
+      "community": 16,
+      "community_name": "Community 16"
+    },
+    {
+      "id": "workflows_workflowFormat_ts_exportworkflowpackage",
+      "label": "exportWorkflowPackage",
+      "file_type": "code",
+      "source_file": "workflows/workflowFormat.ts",
+      "source_location": "L18",
+      "community": 16,
+      "community_name": "Community 16"
+    },
+    {
+      "id": "workflows_workflowFormat_ts_parseworkflowpackage",
+      "label": "parseWorkflowPackage",
+      "file_type": "code",
+      "source_file": "workflows/workflowFormat.ts",
+      "source_location": "L54",
+      "community": 16,
+      "community_name": "Community 16"
+    },
+    {
+      "id": "workflows_workflowFormat_ts_sanitizeworkflow",
+      "label": "sanitizeWorkflow",
+      "file_type": "code",
+      "source_file": "workflows/workflowFormat.ts",
+      "source_location": "L135",
+      "community": 16,
+      "community_name": "Community 16"
+    },
+    {
+      "id": "file_workflows_WorkflowValidator_ts",
+      "label": "WorkflowValidator.ts",
+      "file_type": "code",
+      "source_file": "workflows/WorkflowValidator.ts",
+      "source_location": null,
+      "community": 16,
+      "community_name": "Community 16"
+    },
+    {
+      "id": "workflows_WorkflowValidator_ts_validatenodeconfiguration",
+      "label": "validateNodeConfiguration",
+      "file_type": "code",
+      "source_file": "workflows/WorkflowValidator.ts",
+      "source_location": "L65",
+      "community": 16,
+      "community_name": "Community 16"
+    },
+    {
+      "id": "workflows_WorkflowValidator_ts_detectgraphcycles",
+      "label": "detectGraphCycles",
+      "file_type": "code",
+      "source_file": "workflows/WorkflowValidator.ts",
+      "source_location": "L374",
+      "community": 16,
+      "community_name": "Community 16"
+    },
+    {
+      "id": "workflows_WorkflowValidator_ts_dfs",
+      "label": "dfs",
+      "file_type": "code",
+      "source_file": "workflows/WorkflowValidator.ts",
+      "source_location": "L396",
+      "community": 16,
+      "community_name": "Community 16"
+    },
+    {
+      "id": "workflows_WorkflowValidator_ts_validateworkflow",
+      "label": "validateWorkflow",
+      "file_type": "code",
+      "source_file": "workflows/WorkflowValidator.ts",
+      "source_location": "L434",
+      "community": 16,
+      "community_name": "Community 16"
+    },
+    {
+      "id": "file_skills_install_adapters_ts",
+      "label": "adapters.ts",
+      "file_type": "code",
+      "source_file": "skills/install/adapters.ts",
+      "source_location": null,
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "file_skills_install_installationService_ts",
+      "label": "installationService.ts",
+      "file_type": "code",
+      "source_file": "skills/install/installationService.ts",
+      "source_location": null,
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_install_installationService_ts_inmemoryartifactsstore",
+      "label": "InMemoryArtifactsStore",
+      "file_type": "code",
+      "source_file": "skills/install/installationService.ts",
+      "source_location": "L19",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_install_installationService_ts_createinstallregistry",
+      "label": "createInstallRegistry",
+      "file_type": "code",
+      "source_file": "skills/install/installationService.ts",
+      "source_location": "L60",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_install_installationService_ts_installationservice",
+      "label": "InstallationService",
+      "file_type": "code",
+      "source_file": "skills/install/installationService.ts",
+      "source_location": "L106",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "file_skills_install_platforms_ts",
+      "label": "platforms.ts",
+      "file_type": "code",
+      "source_file": "skills/install/platforms.ts",
+      "source_location": null,
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_install_platforms_ts_safejoin",
+      "label": "safeJoin",
+      "file_type": "code",
+      "source_file": "skills/install/platforms.ts",
+      "source_location": "L6",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_install_platforms_ts_copilotinstalladapter",
+      "label": "CopilotInstallAdapter",
+      "file_type": "code",
+      "source_file": "skills/install/platforms.ts",
+      "source_location": "L145",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_install_platforms_ts_claudeinstalladapter",
+      "label": "ClaudeInstallAdapter",
+      "file_type": "code",
+      "source_file": "skills/install/platforms.ts",
+      "source_location": "L160",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_install_platforms_ts_openaiinstalladapter",
+      "label": "OpenAiInstallAdapter",
+      "file_type": "code",
+      "source_file": "skills/install/platforms.ts",
+      "source_location": "L175",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_install_platforms_ts_neutralinstalladapter",
+      "label": "NeutralInstallAdapter",
+      "file_type": "code",
+      "source_file": "skills/install/platforms.ts",
+      "source_location": "L195",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "file_skills_install_skillMarkdown_ts",
+      "label": "skillMarkdown.ts",
+      "file_type": "code",
+      "source_file": "skills/install/skillMarkdown.ts",
+      "source_location": null,
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_install_skillMarkdown_ts_yamlescape",
+      "label": "yamlEscape",
+      "file_type": "code",
+      "source_file": "skills/install/skillMarkdown.ts",
+      "source_location": "L3",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_install_skillMarkdown_ts_skilltoyamlfrontmatter",
+      "label": "skillToYamlFrontmatter",
+      "file_type": "code",
+      "source_file": "skills/install/skillMarkdown.ts",
+      "source_location": "L10",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "skills_install_skillMarkdown_ts_buildskillmarkdown",
+      "label": "buildSkillMarkdown",
+      "file_type": "code",
+      "source_file": "skills/install/skillMarkdown.ts",
+      "source_location": "L45",
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "file_skills_install_types_ts",
+      "label": "types.ts",
+      "file_type": "code",
+      "source_file": "skills/install/types.ts",
+      "source_location": null,
+      "community": 14,
+      "community_name": "Community 14"
+    },
+    {
+      "id": "file_services_persona_IncrementalCrawlStore_ts",
+      "label": "IncrementalCrawlStore.ts",
+      "file_type": "code",
+      "source_file": "services/persona/IncrementalCrawlStore.ts",
+      "source_location": null,
+      "community": 13,
+      "community_name": "Community 13"
+    },
+    {
+      "id": "services_persona_IncrementalCrawlStore_ts_incrementalcrawlstore",
+      "label": "IncrementalCrawlStore",
+      "file_type": "code",
+      "source_file": "services/persona/IncrementalCrawlStore.ts",
+      "source_location": "L28",
+      "community": 13,
+      "community_name": "Community 13"
+    },
+    {
+      "id": "file_services_persona_PersonaAdaptiveEngine_ts",
+      "label": "PersonaAdaptiveEngine.ts",
+      "file_type": "code",
+      "source_file": "services/persona/PersonaAdaptiveEngine.ts",
+      "source_location": null,
+      "community": 13,
+      "community_name": "Community 13"
+    },
+    {
+      "id": "services_persona_PersonaAdaptiveEngine_ts_personaadaptiveengine",
+      "label": "PersonaAdaptiveEngine",
+      "file_type": "code",
+      "source_file": "services/persona/PersonaAdaptiveEngine.ts",
+      "source_location": "L44",
+      "community": 13,
+      "community_name": "Community 13"
+    },
+    {
+      "id": "file_services_persona_PersonaSecuritySandbox_ts",
+      "label": "PersonaSecuritySandbox.ts",
+      "file_type": "code",
+      "source_file": "services/persona/PersonaSecuritySandbox.ts",
+      "source_location": null,
+      "community": 13,
+      "community_name": "Community 13"
+    },
+    {
+      "id": "services_persona_PersonaSecuritySandbox_ts_personasecuritysandbox",
+      "label": "PersonaSecuritySandbox",
+      "file_type": "code",
+      "source_file": "services/persona/PersonaSecuritySandbox.ts",
+      "source_location": "L16",
+      "community": 13,
+      "community_name": "Community 13"
+    },
+    {
+      "id": "file_services_persona_RepositoryCrawler_ts",
+      "label": "RepositoryCrawler.ts",
+      "file_type": "code",
+      "source_file": "services/persona/RepositoryCrawler.ts",
+      "source_location": null,
+      "community": 13,
+      "community_name": "Community 13"
+    },
+    {
+      "id": "services_persona_RepositoryCrawler_ts_repositorycrawler",
+      "label": "RepositoryCrawler",
+      "file_type": "code",
+      "source_file": "services/persona/RepositoryCrawler.ts",
+      "source_location": "L70",
+      "community": 13,
+      "community_name": "Community 13"
+    },
+    {
+      "id": "file_services_persona_SkillCompiler_ts",
+      "label": "SkillCompiler.ts",
+      "file_type": "code",
+      "source_file": "services/persona/SkillCompiler.ts",
+      "source_location": null,
+      "community": 13,
+      "community_name": "Community 13"
+    },
+    {
+      "id": "services_persona_SkillCompiler_ts_skillcompiler",
+      "label": "SkillCompiler",
+      "file_type": "code",
+      "source_file": "services/persona/SkillCompiler.ts",
+      "source_location": "L11",
+      "community": 13,
+      "community_name": "Community 13"
+    },
+    {
+      "id": "file_services_persona_SkillQualityEvaluator_ts",
+      "label": "SkillQualityEvaluator.ts",
+      "file_type": "code",
+      "source_file": "services/persona/SkillQualityEvaluator.ts",
+      "source_location": null,
+      "community": 13,
+      "community_name": "Community 13"
+    },
+    {
+      "id": "services_persona_SkillQualityEvaluator_ts_skillqualityevaluator",
+      "label": "SkillQualityEvaluator",
+      "file_type": "code",
+      "source_file": "services/persona/SkillQualityEvaluator.ts",
+      "source_location": "L8",
+      "community": 13,
+      "community_name": "Community 13"
+    },
+    {
+      "id": "file_domain_agents_types_ts",
+      "label": "types.ts",
+      "file_type": "code",
+      "source_file": "domain/agents/types.ts",
+      "source_location": null,
+      "community": 4,
+      "community_name": "Community 4"
+    },
+    {
+      "id": "file_domain_evaluations_types_ts",
+      "label": "types.ts",
+      "file_type": "code",
+      "source_file": "domain/evaluations/types.ts",
+      "source_location": null,
+      "community": 4,
+      "community_name": "Community 4"
+    },
+    {
+      "id": "file_domain_executions_types_ts",
+      "label": "types.ts",
+      "file_type": "code",
+      "source_file": "domain/executions/types.ts",
+      "source_location": null,
+      "community": 4,
+      "community_name": "Community 4"
+    },
+    {
+      "id": "file_domain_governance_types_ts",
+      "label": "types.ts",
+      "file_type": "code",
+      "source_file": "domain/governance/types.ts",
+      "source_location": null,
+      "community": 4,
+      "community_name": "Community 4"
+    },
+    {
+      "id": "file_domain_integrations_types_ts",
+      "label": "types.ts",
+      "file_type": "code",
+      "source_file": "domain/integrations/types.ts",
+      "source_location": null,
+      "community": 4,
+      "community_name": "Community 4"
+    },
+    {
+      "id": "file_domain_packages_types_ts",
+      "label": "types.ts",
+      "file_type": "code",
+      "source_file": "domain/packages/types.ts",
+      "source_location": null,
+      "community": 4,
+      "community_name": "Community 4"
+    },
+    {
+      "id": "file_domain_persona_catalog_ts",
+      "label": "catalog.ts",
+      "file_type": "code",
+      "source_file": "domain/persona/catalog.ts",
+      "source_location": null,
+      "community": 4,
+      "community_name": "Community 4"
+    },
+    {
+      "id": "domain_persona_catalog_ts_getpersonabyid",
+      "label": "getPersonaById",
+      "file_type": "code",
+      "source_file": "domain/persona/catalog.ts",
+      "source_location": "L402",
+      "community": 4,
+      "community_name": "Community 4"
+    },
+    {
+      "id": "domain_persona_catalog_ts_getallpersonas",
+      "label": "getAllPersonas",
+      "file_type": "code",
+      "source_file": "domain/persona/catalog.ts",
+      "source_location": "L406",
+      "community": 4,
+      "community_name": "Community 4"
+    },
+    {
+      "id": "file_domain_persona_types_ts",
+      "label": "types.ts",
+      "file_type": "code",
+      "source_file": "domain/persona/types.ts",
+      "source_location": null,
+      "community": 4,
+      "community_name": "Community 4"
+    },
+    {
+      "id": "file_domain_skills_types_ts",
+      "label": "types.ts",
+      "file_type": "code",
+      "source_file": "domain/skills/types.ts",
+      "source_location": null,
+      "community": 4,
+      "community_name": "Community 4"
+    },
+    {
+      "id": "file_domain_workflows_types_ts",
+      "label": "types.ts",
+      "file_type": "code",
+      "source_file": "domain/workflows/types.ts",
+      "source_location": null,
+      "community": 4,
+      "community_name": "Community 4"
+    },
+    {
+      "id": "file_agents_adapters_CapabilityMatrix_ts",
+      "label": "CapabilityMatrix.ts",
+      "file_type": "code",
+      "source_file": "agents/adapters/CapabilityMatrix.ts",
+      "source_location": null,
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "file_agents_adapters_ClaudeAgentAdapter_ts",
+      "label": "ClaudeAgentAdapter.ts",
+      "file_type": "code",
+      "source_file": "agents/adapters/ClaudeAgentAdapter.ts",
+      "source_location": null,
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "agents_adapters_ClaudeAgentAdapter_ts_claudeagentadapter",
+      "label": "ClaudeAgentAdapter",
+      "file_type": "code",
+      "source_file": "agents/adapters/ClaudeAgentAdapter.ts",
+      "source_location": "L11",
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "file_agents_adapters_CopilotAgentAdapter_ts",
+      "label": "CopilotAgentAdapter.ts",
+      "file_type": "code",
+      "source_file": "agents/adapters/CopilotAgentAdapter.ts",
+      "source_location": null,
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "agents_adapters_CopilotAgentAdapter_ts_copilotagentadapter",
+      "label": "CopilotAgentAdapter",
+      "file_type": "code",
+      "source_file": "agents/adapters/CopilotAgentAdapter.ts",
+      "source_location": "L11",
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "file_agents_adapters_index_ts",
+      "label": "index.ts",
+      "file_type": "code",
+      "source_file": "agents/adapters/index.ts",
+      "source_location": null,
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "agents_adapters_index_ts_getplatformadapter",
+      "label": "getPlatformAdapter",
+      "file_type": "code",
+      "source_file": "agents/adapters/index.ts",
+      "source_location": "L29",
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "agents_adapters_index_ts_getallplatformadapters",
+      "label": "getAllPlatformAdapters",
+      "file_type": "code",
+      "source_file": "agents/adapters/index.ts",
+      "source_location": "L33",
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "agents_adapters_index_ts_getcapabilitymatrix",
+      "label": "getCapabilityMatrix",
+      "file_type": "code",
+      "source_file": "agents/adapters/index.ts",
+      "source_location": "L37",
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "agents_adapters_index_ts_analyzeagentcompatibility",
+      "label": "analyzeAgentCompatibility",
+      "file_type": "code",
+      "source_file": "agents/adapters/index.ts",
+      "source_location": "L57",
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "agents_adapters_index_ts_exportagentforplatform",
+      "label": "exportAgentForPlatform",
+      "file_type": "code",
+      "source_file": "agents/adapters/index.ts",
+      "source_location": "L93",
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "file_agents_adapters_OpenAIAgentAdapter_ts",
+      "label": "OpenAIAgentAdapter.ts",
+      "file_type": "code",
+      "source_file": "agents/adapters/OpenAIAgentAdapter.ts",
+      "source_location": null,
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "agents_adapters_OpenAIAgentAdapter_ts_openaiagentadapter",
+      "label": "OpenAIAgentAdapter",
+      "file_type": "code",
+      "source_file": "agents/adapters/OpenAIAgentAdapter.ts",
+      "source_location": "L11",
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "file_agents_adapters_types_ts",
+      "label": "types.ts",
+      "file_type": "code",
+      "source_file": "agents/adapters/types.ts",
+      "source_location": null,
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "file_agents_install_AgentInstallationService_ts",
+      "label": "AgentInstallationService.ts",
+      "file_type": "code",
+      "source_file": "agents/install/AgentInstallationService.ts",
+      "source_location": null,
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "agents_install_AgentInstallationService_ts_inmemoryagentartifactsstore",
+      "label": "InMemoryAgentArtifactsStore",
+      "file_type": "code",
+      "source_file": "agents/install/AgentInstallationService.ts",
+      "source_location": "L23",
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "agents_install_AgentInstallationService_ts_safejoin",
+      "label": "safeJoin",
+      "file_type": "code",
+      "source_file": "agents/install/AgentInstallationService.ts",
+      "source_location": "L69",
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "agents_install_AgentInstallationService_ts_agentinstallationservice",
+      "label": "AgentInstallationService",
+      "file_type": "code",
+      "source_file": "agents/install/AgentInstallationService.ts",
+      "source_location": "L79",
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "file_agents_install_types_ts",
+      "label": "types.ts",
+      "file_type": "code",
+      "source_file": "agents/install/types.ts",
+      "source_location": null,
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "file_adapters_live_OpenAILiveAdapter_ts",
+      "label": "OpenAILiveAdapter.ts",
+      "file_type": "code",
+      "source_file": "adapters/live/OpenAILiveAdapter.ts",
+      "source_location": null,
+      "community": 0,
+      "community_name": "Community 0"
+    },
+    {
+      "id": "adapters_live_OpenAILiveAdapter_ts_openailiveadapter",
+      "label": "OpenAILiveAdapter",
+      "file_type": "code",
+      "source_file": "adapters/live/OpenAILiveAdapter.ts",
+      "source_location": "L20",
+      "community": 0,
+      "community_name": "Community 0"
+    },
+    {
+      "id": "file_adapters_live_types_ts",
+      "label": "types.ts",
+      "file_type": "code",
+      "source_file": "adapters/live/types.ts",
+      "source_location": null,
+      "community": 0,
+      "community_name": "Community 0"
+    }
+  ],
+  "links": [
+    {
+      "source": "file_extension_ts",
+      "target": "extension_ts_activate",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "extension.ts",
+      "source_location": "L7"
+    },
+    {
+      "source": "file_extension_ts",
+      "target": "extension_ts_deactivate",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "extension.ts",
+      "source_location": "L32"
+    },
+    {
+      "source": "file_agents_AgentExporter_ts",
+      "target": "agents_AgentExporter_ts_exportagentconfig",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/AgentExporter.ts",
+      "source_location": "L11"
+    },
+    {
+      "source": "file_agents_AgentExporter_ts",
+      "target": "agents_AgentExporter_ts_generatecopilotinstructions",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/AgentExporter.ts",
+      "source_location": "L63"
+    },
+    {
+      "source": "file_agents_AgentExporter_ts",
+      "target": "agents_AgentExporter_ts_generateclaudesubagent",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/AgentExporter.ts",
+      "source_location": "L125"
+    },
+    {
+      "source": "file_agents_AgentExporter_ts",
+      "target": "agents_AgentExporter_ts_generateopenaiassistant",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/AgentExporter.ts",
+      "source_location": "L168"
+    },
+    {
+      "source": "file_agents_AgentValidator_ts",
+      "target": "agents_AgentValidator_ts_defaultagentvalidationcontext",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/AgentValidator.ts",
+      "source_location": "L52"
+    },
+    {
+      "source": "file_agents_AgentValidator_ts",
+      "target": "agents_AgentValidator_ts_validateagent",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/AgentValidator.ts",
+      "source_location": "L59"
+    },
+    {
+      "source": "file_agents_AgentValidator_ts",
+      "target": "agents_AgentValidator_ts_validatejsonschema",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/AgentValidator.ts",
+      "source_location": "L435"
+    },
+    {
+      "source": "file_bridge_AgentForgeBridge_ts",
+      "target": "bridge_AgentForgeBridge_ts_agentforgebridge",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "bridge/AgentForgeBridge.ts",
+      "source_location": "L59"
+    },
+    {
+      "source": "file_bridge_AgentForgeBridge_ts",
+      "target": "bridge_AgentForgeBridge_ts_getnonce",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "bridge/AgentForgeBridge.ts",
+      "source_location": "L1270"
+    },
+    {
+      "source": "file_bridge_AgentForgeBridge_ts",
+      "target": "bridge_AgentForgeBridge_ts_serializeexport",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "bridge/AgentForgeBridge.ts",
+      "source_location": "L1279"
+    },
+    {
+      "source": "file_bridge_AgentForgeBridge_ts",
+      "target": "bridge_AgentForgeBridge_ts_serializeimportpreview",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "bridge/AgentForgeBridge.ts",
+      "source_location": "L1293"
+    },
+    {
+      "source": "file_bridge_messages_ts",
+      "target": "bridge_messages_ts_ismessagetype",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "bridge/messages.ts",
+      "source_location": "L322"
+    },
+    {
+      "source": "file_bridge_messages_ts",
+      "target": "bridge_messages_ts_isbasemessage",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "bridge/messages.ts",
+      "source_location": "L326"
+    },
+    {
+      "source": "file_bridge_messageValidator_ts",
+      "target": "bridge_messageValidator_ts_validateincomingmessage",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "bridge/messageValidator.ts",
+      "source_location": "L9"
+    },
+    {
+      "source": "file_bridge_messageValidator_ts",
+      "target": "bridge_messageValidator_ts_validatepayload",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "bridge/messageValidator.ts",
+      "source_location": "L24"
+    },
+    {
+      "source": "file_bridge_messageValidator_ts",
+      "target": "bridge_messageValidator_ts_makeresponse",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "bridge/messageValidator.ts",
+      "source_location": "L410"
+    },
+    {
+      "source": "file_bridge_messageValidator_ts",
+      "target": "bridge_messageValidator_ts_unsupportedresponse",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "bridge/messageValidator.ts",
+      "source_location": "L420"
+    },
+    {
+      "source": "file_commands_openAgentForge_ts",
+      "target": "commands_openAgentForge_ts_registercommands",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "commands/openAgentForge.ts",
+      "source_location": "L7"
+    },
+    {
+      "source": "file_executions_LiveExecutionEngine_ts",
+      "target": "executions_LiveExecutionEngine_ts_liveexecutionengine",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "executions/LiveExecutionEngine.ts",
+      "source_location": "L39"
+    },
+    {
+      "source": "file_executions_LocalSimulationEngine_ts",
+      "target": "executions_LocalSimulationEngine_ts_sanitizesecrets",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "executions/LocalSimulationEngine.ts",
+      "source_location": "L23"
+    },
+    {
+      "source": "file_executions_LocalSimulationEngine_ts",
+      "target": "executions_LocalSimulationEngine_ts_localsimulationengine",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "executions/LocalSimulationEngine.ts",
+      "source_location": "L63"
+    },
+    {
+      "source": "file_governance_SecuritySanitizer_ts",
+      "target": "governance_SecuritySanitizer_ts_sanitizeauditdetails",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "governance/SecuritySanitizer.ts",
+      "source_location": "L22"
+    },
+    {
+      "source": "file_governance_SecuritySanitizer_ts",
+      "target": "governance_SecuritySanitizer_ts_validateworkspacepath",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "governance/SecuritySanitizer.ts",
+      "source_location": "L56"
+    },
+    {
+      "source": "file_governance_SecuritySanitizer_ts",
+      "target": "governance_SecuritySanitizer_ts_validatepermissionpolicy",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "governance/SecuritySanitizer.ts",
+      "source_location": "L101"
+    },
+    {
+      "source": "file_integrations_PlatformIntegrationService_ts",
+      "target": "integrations_PlatformIntegrationService_ts_platformintegrationservice",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "integrations/PlatformIntegrationService.ts",
+      "source_location": "L11"
+    },
+    {
+      "source": "file_packages_PackageManagerService_ts",
+      "target": "packages_PackageManagerService_ts_inmemorypackagestorage",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "packages/PackageManagerService.ts",
+      "source_location": "L18"
+    },
+    {
+      "source": "file_packages_PackageManagerService_ts",
+      "target": "packages_PackageManagerService_ts_packagemanagerservice",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "packages/PackageManagerService.ts",
+      "source_location": "L41"
+    },
+    {
+      "source": "file_panels_AgentForgePanel_ts",
+      "target": "panels_AgentForgePanel_ts_agentforgepanel",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "panels/AgentForgePanel.ts",
+      "source_location": "L4"
+    },
+    {
+      "source": "file_providers_AgentForgeViewProvider_ts",
+      "target": "providers_AgentForgeViewProvider_ts_agentforgeviewprovider",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "providers/AgentForgeViewProvider.ts",
+      "source_location": "L5"
+    },
+    {
+      "source": "file_security_PermissionSandbox_ts",
+      "target": "security_PermissionSandbox_ts_permissionenforcer",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "security/PermissionSandbox.ts",
+      "source_location": "L27"
+    },
+    {
+      "source": "file_security_SecureCredentialStore_ts",
+      "target": "security_SecureCredentialStore_ts_inmemorysecretstorage",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "security/SecureCredentialStore.ts",
+      "source_location": "L13"
+    },
+    {
+      "source": "file_security_SecureCredentialStore_ts",
+      "target": "security_SecureCredentialStore_ts_securecredentialstore",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "security/SecureCredentialStore.ts",
+      "source_location": "L38"
+    },
+    {
+      "source": "file_services_EvaluationService_ts",
+      "target": "services_EvaluationService_ts_evaluateskill",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "services/EvaluationService.ts",
+      "source_location": "L22"
+    },
+    {
+      "source": "file_services_EvaluationService_ts",
+      "target": "services_EvaluationService_ts_evaluateagent",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "services/EvaluationService.ts",
+      "source_location": "L325"
+    },
+    {
+      "source": "file_services_EvaluationService_ts",
+      "target": "services_EvaluationService_ts_evaluatepipeline",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "services/EvaluationService.ts",
+      "source_location": "L634"
+    },
+    {
+      "source": "file_services_EvaluationService_ts",
+      "target": "services_EvaluationService_ts_checkcycle",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "services/EvaluationService.ts",
+      "source_location": "L728"
+    },
+    {
+      "source": "file_skills_SkillContextBuilder_ts",
+      "target": "skills_SkillContextBuilder_ts_shouldactivate",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillContextBuilder.ts",
+      "source_location": "L25"
+    },
+    {
+      "source": "file_skills_SkillContextBuilder_ts",
+      "target": "skills_SkillContextBuilder_ts_matchesskillpurpose",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillContextBuilder.ts",
+      "source_location": "L52"
+    },
+    {
+      "source": "file_skills_SkillContextBuilder_ts",
+      "target": "skills_SkillContextBuilder_ts_truncateinstructions",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillContextBuilder.ts",
+      "source_location": "L80"
+    },
+    {
+      "source": "file_skills_SkillContextBuilder_ts",
+      "target": "skills_SkillContextBuilder_ts_skillcontextbuilder",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillContextBuilder.ts",
+      "source_location": "L85"
+    },
+    {
+      "source": "file_skills_SkillContextBuilder_ts",
+      "target": "skills_SkillContextBuilder_ts_inferdefaultactivationmode",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillContextBuilder.ts",
+      "source_location": "L164"
+    },
+    {
+      "source": "file_skills_SkillHistory_ts",
+      "target": "skills_SkillHistory_ts_createhistorystore",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillHistory.ts",
+      "source_location": "L23"
+    },
+    {
+      "source": "file_skills_SkillHistory_ts",
+      "target": "skills_SkillHistory_ts_appendchangelog",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillHistory.ts",
+      "source_location": "L65"
+    },
+    {
+      "source": "file_skills_SkillHistory_ts",
+      "target": "skills_SkillHistory_ts_cloneskill",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillHistory.ts",
+      "source_location": "L72"
+    },
+    {
+      "source": "file_skills_SkillHistory_ts",
+      "target": "skills_SkillHistory_ts_clonehistory",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillHistory.ts",
+      "source_location": "L84"
+    },
+    {
+      "source": "file_skills_SkillPackageService_ts",
+      "target": "skills_SkillPackageService_ts_skillpackageservice",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L54"
+    },
+    {
+      "source": "file_skills_SkillPackageService_ts",
+      "target": "skills_SkillPackageService_ts_parsepackageinput",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L235"
+    },
+    {
+      "source": "file_skills_SkillPackageService_ts",
+      "target": "skills_SkillPackageService_ts_parseskillmarkdown",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L275"
+    },
+    {
+      "source": "file_skills_SkillPackageService_ts",
+      "target": "skills_SkillPackageService_ts_extractfrontmatter",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L309"
+    },
+    {
+      "source": "file_skills_SkillPackageService_ts",
+      "target": "skills_SkillPackageService_ts_applyfrontmatter",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L315"
+    },
+    {
+      "source": "file_skills_SkillPackageService_ts",
+      "target": "skills_SkillPackageService_ts_applybody",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L338"
+    },
+    {
+      "source": "file_skills_SkillPackageService_ts",
+      "target": "skills_SkillPackageService_ts_splitsections",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L382"
+    },
+    {
+      "source": "file_skills_SkillPackageService_ts",
+      "target": "skills_SkillPackageService_ts_parselist",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L399"
+    },
+    {
+      "source": "file_skills_SkillPackageService_ts",
+      "target": "skills_SkillPackageService_ts_parseresourcelist",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L408"
+    },
+    {
+      "source": "file_skills_SkillPackageService_ts",
+      "target": "skills_SkillPackageService_ts_parsesimpleyaml",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L431"
+    },
+    {
+      "source": "file_skills_SkillPackageService_ts",
+      "target": "skills_SkillPackageService_ts_parsescalar",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L478"
+    },
+    {
+      "source": "file_skills_SkillPackageService_ts",
+      "target": "skills_SkillPackageService_ts_detectduplicate",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L488"
+    },
+    {
+      "source": "file_skills_SkillPackageService_ts",
+      "target": "skills_SkillPackageService_ts_comparesemver",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L501"
+    },
+    {
+      "source": "file_skills_SkillPackageService_ts",
+      "target": "skills_SkillPackageService_ts_slugify",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L511"
+    },
+    {
+      "source": "file_skills_SkillPackageService_ts",
+      "target": "skills_SkillPackageService_ts_resourcefilename",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L520"
+    },
+    {
+      "source": "file_skills_SkillPackageService_ts",
+      "target": "skills_SkillPackageService_ts_resourcestub",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillPackageService.ts",
+      "source_location": "L526"
+    },
+    {
+      "source": "file_skills_SkillService_ts",
+      "target": "skills_SkillService_ts_skillservice",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillService.ts",
+      "source_location": "L18"
+    },
+    {
+      "source": "file_skills_SkillService_ts",
+      "target": "skills_SkillService_ts_skillvalidationerror",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillService.ts",
+      "source_location": "L110"
+    },
+    {
+      "source": "file_skills_SkillService_ts",
+      "target": "skills_SkillService_ts_formatfindings",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillService.ts",
+      "source_location": "L117"
+    },
+    {
+      "source": "file_skills_SkillValidator_ts",
+      "target": "skills_SkillValidator_ts_defaultvalidationcontext",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillValidator.ts",
+      "source_location": "L53"
+    },
+    {
+      "source": "file_skills_SkillValidator_ts",
+      "target": "skills_SkillValidator_ts_validateskill",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillValidator.ts",
+      "source_location": "L60"
+    },
+    {
+      "source": "file_skills_SkillValidator_ts",
+      "target": "skills_SkillValidator_ts_validateresource",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillValidator.ts",
+      "source_location": "L178"
+    },
+    {
+      "source": "file_skills_SkillValidator_ts",
+      "target": "skills_SkillValidator_ts_validatefrontmatter",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillValidator.ts",
+      "source_location": "L209"
+    },
+    {
+      "source": "file_skills_SkillValidator_ts",
+      "target": "skills_SkillValidator_ts_scanunsupporteddeclarations",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillValidator.ts",
+      "source_location": "L233"
+    },
+    {
+      "source": "file_skills_SkillValidator_ts",
+      "target": "skills_SkillValidator_ts_comparedrafttostored",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/SkillValidator.ts",
+      "source_location": "L264"
+    },
+    {
+      "source": "file_storage_AgentRepository_ts",
+      "target": "storage_AgentRepository_ts_agentrepository",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "storage/AgentRepository.ts",
+      "source_location": "L9"
+    },
+    {
+      "source": "file_storage_AuditRepository_ts",
+      "target": "storage_AuditRepository_ts_auditrepository",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "storage/AuditRepository.ts",
+      "source_location": "L9"
+    },
+    {
+      "source": "file_storage_LocalRepository_ts",
+      "target": "storage_LocalRepository_ts_localrepository",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "storage/LocalRepository.ts",
+      "source_location": "L57"
+    },
+    {
+      "source": "file_storage_migrations_ts",
+      "target": "storage_migrations_ts_migratetocurrent",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "storage/migrations.ts",
+      "source_location": "L64"
+    },
+    {
+      "source": "file_storage_migrations_ts",
+      "target": "storage_migrations_ts_freshstate",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "storage/migrations.ts",
+      "source_location": "L87"
+    },
+    {
+      "source": "file_storage_safeStorage_ts",
+      "target": "storage_safeStorage_ts_createsafestorage",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "storage/safeStorage.ts",
+      "source_location": "L31"
+    },
+    {
+      "source": "file_storage_safeStorage_ts",
+      "target": "storage_safeStorage_ts_serializejson",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "storage/safeStorage.ts",
+      "source_location": "L37"
+    },
+    {
+      "source": "file_storage_WorkflowRepository_ts",
+      "target": "storage_WorkflowRepository_ts_workflowrepository",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "storage/WorkflowRepository.ts",
+      "source_location": "L9"
+    },
+    {
+      "source": "file_workflows_WorkflowComparison_ts",
+      "target": "workflows_WorkflowComparison_ts_compareworkflows",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "workflows/WorkflowComparison.ts",
+      "source_location": "L116"
+    },
+    {
+      "source": "file_workflows_WorkflowComparison_ts",
+      "target": "workflows_WorkflowComparison_ts_compareexecutions",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "workflows/WorkflowComparison.ts",
+      "source_location": "L367"
+    },
+    {
+      "source": "file_workflows_WorkflowComparison_ts",
+      "target": "workflows_WorkflowComparison_ts_filterexecutions",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "workflows/WorkflowComparison.ts",
+      "source_location": "L538"
+    },
+    {
+      "source": "file_workflows_WorkflowComparison_ts",
+      "target": "workflows_WorkflowComparison_ts_sortexecutions",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "workflows/WorkflowComparison.ts",
+      "source_location": "L608"
+    },
+    {
+      "source": "file_workflows_workflowFormat_ts",
+      "target": "workflows_workflowFormat_ts_exportworkflowpackage",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "workflows/workflowFormat.ts",
+      "source_location": "L18"
+    },
+    {
+      "source": "file_workflows_workflowFormat_ts",
+      "target": "workflows_workflowFormat_ts_parseworkflowpackage",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "workflows/workflowFormat.ts",
+      "source_location": "L54"
+    },
+    {
+      "source": "file_workflows_workflowFormat_ts",
+      "target": "workflows_workflowFormat_ts_sanitizeworkflow",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "workflows/workflowFormat.ts",
+      "source_location": "L135"
+    },
+    {
+      "source": "file_workflows_WorkflowValidator_ts",
+      "target": "workflows_WorkflowValidator_ts_validatenodeconfiguration",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "workflows/WorkflowValidator.ts",
+      "source_location": "L65"
+    },
+    {
+      "source": "file_workflows_WorkflowValidator_ts",
+      "target": "workflows_WorkflowValidator_ts_detectgraphcycles",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "workflows/WorkflowValidator.ts",
+      "source_location": "L374"
+    },
+    {
+      "source": "file_workflows_WorkflowValidator_ts",
+      "target": "workflows_WorkflowValidator_ts_dfs",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "workflows/WorkflowValidator.ts",
+      "source_location": "L396"
+    },
+    {
+      "source": "file_workflows_WorkflowValidator_ts",
+      "target": "workflows_WorkflowValidator_ts_validateworkflow",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "workflows/WorkflowValidator.ts",
+      "source_location": "L434"
+    },
+    {
+      "source": "file_skills_install_installationService_ts",
+      "target": "skills_install_installationService_ts_inmemoryartifactsstore",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/install/installationService.ts",
+      "source_location": "L19"
+    },
+    {
+      "source": "file_skills_install_installationService_ts",
+      "target": "skills_install_installationService_ts_createinstallregistry",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/install/installationService.ts",
+      "source_location": "L60"
+    },
+    {
+      "source": "file_skills_install_installationService_ts",
+      "target": "skills_install_installationService_ts_installationservice",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/install/installationService.ts",
+      "source_location": "L106"
+    },
+    {
+      "source": "file_skills_install_platforms_ts",
+      "target": "skills_install_platforms_ts_safejoin",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/install/platforms.ts",
+      "source_location": "L6"
+    },
+    {
+      "source": "file_skills_install_platforms_ts",
+      "target": "skills_install_platforms_ts_copilotinstalladapter",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/install/platforms.ts",
+      "source_location": "L145"
+    },
+    {
+      "source": "file_skills_install_platforms_ts",
+      "target": "skills_install_platforms_ts_claudeinstalladapter",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/install/platforms.ts",
+      "source_location": "L160"
+    },
+    {
+      "source": "file_skills_install_platforms_ts",
+      "target": "skills_install_platforms_ts_openaiinstalladapter",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/install/platforms.ts",
+      "source_location": "L175"
+    },
+    {
+      "source": "file_skills_install_platforms_ts",
+      "target": "skills_install_platforms_ts_neutralinstalladapter",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/install/platforms.ts",
+      "source_location": "L195"
+    },
+    {
+      "source": "file_skills_install_skillMarkdown_ts",
+      "target": "skills_install_skillMarkdown_ts_yamlescape",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/install/skillMarkdown.ts",
+      "source_location": "L3"
+    },
+    {
+      "source": "file_skills_install_skillMarkdown_ts",
+      "target": "skills_install_skillMarkdown_ts_skilltoyamlfrontmatter",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/install/skillMarkdown.ts",
+      "source_location": "L10"
+    },
+    {
+      "source": "file_skills_install_skillMarkdown_ts",
+      "target": "skills_install_skillMarkdown_ts_buildskillmarkdown",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skills/install/skillMarkdown.ts",
+      "source_location": "L45"
+    },
+    {
+      "source": "file_services_persona_IncrementalCrawlStore_ts",
+      "target": "services_persona_IncrementalCrawlStore_ts_incrementalcrawlstore",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "services/persona/IncrementalCrawlStore.ts",
+      "source_location": "L28"
+    },
+    {
+      "source": "file_services_persona_PersonaAdaptiveEngine_ts",
+      "target": "services_persona_PersonaAdaptiveEngine_ts_personaadaptiveengine",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "services/persona/PersonaAdaptiveEngine.ts",
+      "source_location": "L44"
+    },
+    {
+      "source": "file_services_persona_PersonaSecuritySandbox_ts",
+      "target": "services_persona_PersonaSecuritySandbox_ts_personasecuritysandbox",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "services/persona/PersonaSecuritySandbox.ts",
+      "source_location": "L16"
+    },
+    {
+      "source": "file_services_persona_RepositoryCrawler_ts",
+      "target": "services_persona_RepositoryCrawler_ts_repositorycrawler",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "services/persona/RepositoryCrawler.ts",
+      "source_location": "L70"
+    },
+    {
+      "source": "file_services_persona_SkillCompiler_ts",
+      "target": "services_persona_SkillCompiler_ts_skillcompiler",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "services/persona/SkillCompiler.ts",
+      "source_location": "L11"
+    },
+    {
+      "source": "file_services_persona_SkillQualityEvaluator_ts",
+      "target": "services_persona_SkillQualityEvaluator_ts_skillqualityevaluator",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "services/persona/SkillQualityEvaluator.ts",
+      "source_location": "L8"
+    },
+    {
+      "source": "file_domain_persona_catalog_ts",
+      "target": "domain_persona_catalog_ts_getpersonabyid",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "domain/persona/catalog.ts",
+      "source_location": "L402"
+    },
+    {
+      "source": "file_domain_persona_catalog_ts",
+      "target": "domain_persona_catalog_ts_getallpersonas",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "domain/persona/catalog.ts",
+      "source_location": "L406"
+    },
+    {
+      "source": "file_agents_adapters_ClaudeAgentAdapter_ts",
+      "target": "agents_adapters_ClaudeAgentAdapter_ts_claudeagentadapter",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/adapters/ClaudeAgentAdapter.ts",
+      "source_location": "L11"
+    },
+    {
+      "source": "file_agents_adapters_CopilotAgentAdapter_ts",
+      "target": "agents_adapters_CopilotAgentAdapter_ts_copilotagentadapter",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/adapters/CopilotAgentAdapter.ts",
+      "source_location": "L11"
+    },
+    {
+      "source": "file_agents_adapters_index_ts",
+      "target": "agents_adapters_index_ts_getplatformadapter",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/adapters/index.ts",
+      "source_location": "L29"
+    },
+    {
+      "source": "file_agents_adapters_index_ts",
+      "target": "agents_adapters_index_ts_getallplatformadapters",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/adapters/index.ts",
+      "source_location": "L33"
+    },
+    {
+      "source": "file_agents_adapters_index_ts",
+      "target": "agents_adapters_index_ts_getcapabilitymatrix",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/adapters/index.ts",
+      "source_location": "L37"
+    },
+    {
+      "source": "file_agents_adapters_index_ts",
+      "target": "agents_adapters_index_ts_analyzeagentcompatibility",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/adapters/index.ts",
+      "source_location": "L57"
+    },
+    {
+      "source": "file_agents_adapters_index_ts",
+      "target": "agents_adapters_index_ts_exportagentforplatform",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/adapters/index.ts",
+      "source_location": "L93"
+    },
+    {
+      "source": "file_agents_adapters_OpenAIAgentAdapter_ts",
+      "target": "agents_adapters_OpenAIAgentAdapter_ts_openaiagentadapter",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/adapters/OpenAIAgentAdapter.ts",
+      "source_location": "L11"
+    },
+    {
+      "source": "file_agents_install_AgentInstallationService_ts",
+      "target": "agents_install_AgentInstallationService_ts_inmemoryagentartifactsstore",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/install/AgentInstallationService.ts",
+      "source_location": "L23"
+    },
+    {
+      "source": "file_agents_install_AgentInstallationService_ts",
+      "target": "agents_install_AgentInstallationService_ts_safejoin",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/install/AgentInstallationService.ts",
+      "source_location": "L69"
+    },
+    {
+      "source": "file_agents_install_AgentInstallationService_ts",
+      "target": "agents_install_AgentInstallationService_ts_agentinstallationservice",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/install/AgentInstallationService.ts",
+      "source_location": "L79"
+    },
+    {
+      "source": "file_adapters_live_OpenAILiveAdapter_ts",
+      "target": "adapters_live_OpenAILiveAdapter_ts_openailiveadapter",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "adapters/live/OpenAILiveAdapter.ts",
+      "source_location": "L20"
+    }
+  ],
+  "directed": false,
+  "communities": {
+    "0": 3,
+    "1": 28,
+    "2": 13,
+    "3": 2,
+    "4": 13,
+    "5": 5,
+    "6": 4,
+    "7": 2,
+    "8": 3,
+    "9": 2,
+    "10": 2,
+    "11": 3,
+    "12": 5,
+    "13": 18,
+    "14": 55,
+    "15": 16,
+    "16": 14
+  }
+}

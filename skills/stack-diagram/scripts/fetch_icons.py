@@ -50,7 +50,7 @@ import pathlib
 def fetch(url, *, timeout=30):
     """Fetch bytes from a URL, or return None on failure."""
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "stack-diagram/1.0"})
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (compatible; stack-diagram/1.0)"})
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             return resp.read()
     except Exception:
@@ -92,12 +92,26 @@ def try_svgl(slug, name):
         title = item.get("title", "")
         if normalize(title) == target:
             route = item.get("route", "")
-            if route:
-                if route.startswith("/"):
-                    route = f"https://www.svgl.app{route}"
-                svg = fetch(route)
+            light_url = None
+            dark_url = None
+            if isinstance(route, dict):
+                light_url = route.get("light") or route.get("default")
+                dark_url = route.get("dark")
+            else:
+                light_url = route
+            if light_url:
+                if light_url.startswith("/"):
+                    light_url = f"https://www.svgl.app{light_url}"
+                svg = fetch(light_url)
                 if svg:
-                    return svg, "svg"
+                    dark_result = None
+                    if dark_url:
+                        if dark_url.startswith("/"):
+                            dark_url = f"https://www.svgl.app{dark_url}"
+                        dark_svg = fetch(dark_url)
+                        if dark_svg:
+                            dark_result = (dark_svg, "svg")
+                    return svg, "svg", dark_result
     return None
 
 def try_devicon(slug, name):
@@ -105,7 +119,7 @@ def try_devicon(slug, name):
     url = f"https://raw.githubusercontent.com/devicons/devicon/master/icons/{slug}/{slug}-original.svg"
     svg = fetch(url)
     if svg:
-        return svg, "svg"
+        return svg, "svg", None
     return None
 
 def try_gilbarbara(slug, name):
@@ -114,7 +128,7 @@ def try_gilbarbara(slug, name):
         url = f"https://cdn.jsdelivr.net/gh/gilbarbara/logos@master/logos/{pattern}"
         svg = fetch(url)
         if svg:
-            return svg, "svg"
+            return svg, "svg", None
     return None
 
 def try_aws(service, name):
@@ -123,11 +137,11 @@ def try_aws(service, name):
     url = f"https://d1.awsstatic.com/aws-icons/{group}/{service}_64x64.53535.13light.svg"
     svg = fetch(url)
     if svg:
-        return svg, "svg"
+        return svg, "svg", None
     url2 = f"https://d1.awsstatic.com/aws-icons/{group}/{service}_64.53535.13light.svg"
     svg = fetch(url2)
     if svg:
-        return svg, "svg"
+        return svg, "svg", None
     return None
 
 def try_gcp(product, name):
@@ -135,7 +149,7 @@ def try_gcp(product, name):
     url = f"https://cloud.google.com/icons/images/{product}.png"
     img = fetch(url)
     if img:
-        return img, "png"
+        return img, "png", None
     return None
 
 def try_azure(service, name):
@@ -143,7 +157,7 @@ def try_azure(service, name):
     url = f"https://learn.microsoft.com/azure/architecture/icons/{service}.svg"
     svg = fetch(url)
     if svg:
-        return svg, "svg"
+        return svg, "svg", None
     return None
 
 def try_explicit_url(url, name):
@@ -154,7 +168,7 @@ def try_explicit_url(url, name):
     ext = url.rsplit(".", 1)[-1].lower() if "." in url else "svg"
     if ext not in ("svg", "png", "webp", "jpg", "jpeg"):
         ext = "svg"
-    return data, ext
+    return data, ext, None
 
 # --- main ---------------------------------------------------------------------
 
@@ -209,8 +223,11 @@ def main():
                 result = try_gilbarbara(slug, name)
 
         if result:
-            data, ext = result
+            data, ext, dark = result
             save_icon(outdir, name, data, ext)
+            if dark:
+                ddata, dext = dark
+                save_icon(outdir, name, ddata, dext, dark=True)
             manifest["icons"].append({"name": name, "ext": ext, "source": kind})
             print(f"  {name}: fetched ({ext})")
         else:
@@ -223,7 +240,7 @@ def main():
     )
     total = len(manifest["icons"])
     fallbacks = len(manifest["fallbacks"])
-    print(f"\nFetched {total} icons, {fallbacks} fallbacks → {outdir}")
+    print(f"\nFetched {total} icons, {fallbacks} fallbacks -> {outdir}")
 
 
 if __name__ == "__main__":

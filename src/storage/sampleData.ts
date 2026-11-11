@@ -1880,37 +1880,35 @@ export const bastionAgent: Agent = {
   updatedAt: iso("2026-10-22T10:00:00Z"),
 };
 
-export const ponytailSkill: Skill = {
-  id: "ponytail",
-  name: "Engineering Discipline",
+export const codeSculptSkill: Skill = {
+  id: "codesculpt",
+  name: "CodeSculpt",
   description: "Controls code quality, complexity, maintainability, and implementation discipline.",
   version: "1.0.0",
   category: "Engineering Discipline & Token Optimization",
-  tags: ["ponytail", "engineering-discipline", "code-review", "token-optimization", "minimalism", "copilot-skill"],
-  author: "AgentForge Engineering (adapted from DietrichGebert/ponytail)",
-  frontmatter: "name: ponytail\nversion: 1.0.0\ndescription: Controls code quality, complexity, maintainability, and implementation discipline.\nauthor: AgentForge Engineering (adapted from DietrichGebert/ponytail)\ncategory: Engineering Discipline & Token Optimization\ntags: [ponytail, engineering-discipline, code-review, token-optimization, minimalism, copilot-skill]\ncompatibility: [copilot, claude, openai]\nrequirements: AgentForge v0.1.0+ Workspace\nlicense: Apache-2.0 / MIT Dual License (AgentForge Enterprise)",
+  tags: ["codesculpt", "engineering-discipline", "code-review", "token-optimization", "minimalism", "copilot-skill"],
+  author: "AgentForge Engineering",
+  frontmatter: "name: codesculpt\nversion: 1.0.0\ndescription: Controls code quality, complexity, maintainability, and implementation discipline.\nauthor: AgentForge Engineering\ncategory: Engineering Discipline & Token Optimization\ntags: [codesculpt, engineering-discipline, code-review, token-optimization, minimalism, copilot-skill]\ncompatibility: [copilot, claude, openai]\nrequirements: AgentForge v0.1.0+ Workspace",
   otherTargets: [],
-  requiredTools: ["ponytail_review", "ponytail_audit", "ponytail_debt", "ponytail_gain"],
+  requiredTools: ["codesculpt_review", "codesculpt_audit", "codesculpt_debt", "codesculpt_gain"],
   permissions: ["filesystem:read"],
   changelog: "1.0.0 — Enterprise release with engineering decision ladder, review, audit, debt, and gain modes.",
   requirements: "AgentForge v0.1.0+ Workspace",
-  instructions: "Apply Ponytail engineering discipline before writing or modifying code:\n1. Decision Ladder: Walk the 8-rung ladder — need to exist? already supported? reuse existing? stdlib? platform? existing dependency? smaller implementation? only then new code.\n2. Repository Inspection: Understand affected files, trace callers and dependencies, identify related tests, identify backward compatibility risks.\n3. Quality Guardrails: Never sacrifice security, input validation, error handling, data integrity, accessibility, correctness, or regression tests.\n4. Review Mode: Review the current diff for bugs, complexity, security, missing tests, and performance — prioritize by severity.\n5. Audit Mode: Audit the repository for unnecessary abstractions, duplication, risky logic, unused code, and maintainability problems.\n6. Debt Tracking: Record deferred shortcuts with compromise, reason, risk, remediation, and priority.\n7. Gain Reporting: Report lines added/modified/deleted, reused implementations, dependencies, tests, and token consumption — never fabricate metrics.\nOperating modes: LITE, FULL (default), ULTRA (strictest minimalism), OFF (disable Ponytail only, not security policies).",
+  instructions: "Apply CodeSculpt engineering discipline before writing or modifying code:\n1. Decision Ladder: Walk the 8-rung ladder — need to exist? already supported? reuse existing? stdlib? platform? existing dependency? smaller implementation? only then new code.\n2. Repository Inspection: Understand affected files, trace callers and dependencies, identify related tests, identify backward compatibility risks.\n3. Quality Guardrails: Never sacrifice security, input validation, error handling, data integrity, accessibility, correctness, or regression tests.\n4. Review Mode: Review the current diff for bugs, complexity, security, missing tests, and performance — prioritize by severity.\n5. Audit Mode: Audit the repository for unnecessary abstractions, duplication, risky logic, unused code, and maintainability problems.\n6. Debt Tracking: Record deferred shortcuts with compromise, reason, risk, remediation, and priority.\n7. Gain Reporting: Report lines added/modified/deleted, reused implementations, dependencies, tests, and token consumption — never fabricate metrics.\nOperating modes: LITE, FULL (default), ULTRA (strictest minimalism), OFF (disable CodeSculpt only, not security policies).",
   resources: [
-    { id: "res-ponytail-skill", name: "SKILL.md", kind: "reference", description: "Master Ponytail entrypoint, decision ladder, and operating modes." },
-    { id: "res-ponytail-decision", name: "references/decision-ladder.md", kind: "reference", description: "Detailed 8-rung engineering decision ladder with examples." },
-    { id: "res-ponytail-quality", name: "references/engineering-quality.md", kind: "reference", description: "Non-negotiable quality guardrails: security, validation, errors, data, accessibility, correctness, tests." },
-    { id: "res-ponytail-review", name: "references/review-methodology.md", kind: "reference", description: "Diff review methodology: bugs, complexity, security, missing tests, performance, maintainability." },
-    { id: "res-ponytail-audit", name: "references/audit-methodology.md", kind: "reference", description: "Repository audit methodology: abstractions, duplication, risky logic, unused code, maintainability." },
-    { id: "res-ponytail-debt", name: "references/debt-management.md", kind: "reference", description: "Technical debt tracking format, lifecycle, and integration with review and audit." },
-    { id: "res-cmd-review", name: "commands/review.md", kind: "reference", description: "Ponytail review command — diff review with prioritized findings." },
-    { id: "res-cmd-audit", name: "commands/audit.md", kind: "reference", description: "Ponytail audit command — repository-wide structural audit." },
-    { id: "res-cmd-debt", name: "commands/debt.md", kind: "reference", description: "Ponytail debt command — track and report technical debt." },
-    { id: "res-cmd-gain", name: "commands/gain.md", kind: "reference", description: "Ponytail gain command — report engineering gain metrics." },
-    { id: "res-adapt-claude", name: "adapters/claude.md", kind: "reference", description: "Claude Code adapter for Ponytail." },
-    { id: "res-adapt-copilot", name: "adapters/copilot.md", kind: "reference", description: "GitHub Copilot adapter for Ponytail." },
-    { id: "res-adapt-generic", name: "adapters/generic-agent.md", kind: "reference", description: "Generic agent adapter for Ponytail." },
-    { id: "res-ponytail-license", name: "LICENSE", kind: "reference", description: "Dual license: Apache-2.0 / MIT (AgentForge Enterprise, adapted from DietrichGebert/ponytail)." },
-    { id: "res-ponytail-license-md", name: "license.md", kind: "reference", description: "AgentForge Enterprise dual license terms (Apache-2.0 / MIT)." }
+    { id: "res-codesculpt-skill", name: "SKILL.md", kind: "reference", description: "Master CodeSculpt entrypoint, decision ladder, and operating modes." },
+    { id: "res-codesculpt-decision", name: "references/decision-ladder.md", kind: "reference", description: "Detailed 8-rung engineering decision ladder with examples." },
+    { id: "res-codesculpt-quality", name: "references/engineering-quality.md", kind: "reference", description: "Non-negotiable quality guardrails: security, validation, errors, data, accessibility, correctness, tests." },
+    { id: "res-codesculpt-review", name: "references/review-methodology.md", kind: "reference", description: "Diff review methodology: bugs, complexity, security, missing tests, performance, maintainability." },
+    { id: "res-codesculpt-audit", name: "references/audit-methodology.md", kind: "reference", description: "Repository audit methodology: abstractions, duplication, risky logic, unused code, maintainability." },
+    { id: "res-codesculpt-debt", name: "references/debt-management.md", kind: "reference", description: "Technical debt tracking format, lifecycle, and integration with review and audit." },
+    { id: "res-cmd-review", name: "commands/review.md", kind: "reference", description: "CodeSculpt review command — diff review with prioritized findings." },
+    { id: "res-cmd-audit", name: "commands/audit.md", kind: "reference", description: "CodeSculpt audit command — repository-wide structural audit." },
+    { id: "res-cmd-debt", name: "commands/debt.md", kind: "reference", description: "CodeSculpt debt command — track and report technical debt." },
+    { id: "res-cmd-gain", name: "commands/gain.md", kind: "reference", description: "CodeSculpt gain command — report engineering gain metrics." },
+    { id: "res-adapt-claude", name: "adapters/claude.md", kind: "reference", description: "Claude Code adapter for CodeSculpt." },
+    { id: "res-adapt-copilot", name: "adapters/copilot.md", kind: "reference", description: "GitHub Copilot adapter for CodeSculpt." },
+    { id: "res-adapt-generic", name: "adapters/generic-agent.md", kind: "reference", description: "Generic agent adapter for CodeSculpt." }
   ],
   compatibility: ["copilot", "claude", "openai"],
   status: "Ready",
@@ -1919,14 +1917,14 @@ export const ponytailSkill: Skill = {
   updatedAt: iso("2026-11-08T10:00:00Z"),
 };
 
-export const ponytailAgent: Agent = {
-  id: "ponytail",
-  name: "Engineering Discipline",
+export const codeSculptAgent: Agent = {
+  id: "codesculpt",
+  name: "CodeSculpt",
   description: "Controls code quality, complexity, maintainability, and implementation discipline.",
   category: "Engineering Discipline",
   role: "Senior Engineering Discipline Agent",
   objective: "Controls code quality, complexity, maintainability, and implementation discipline.",
-  instructions: "When invoked as @ponytail or active in Copilot/Claude/AgentForge:\n1. Decision Ladder: Before writing code, walk the 8-rung ladder (need to exist → already supported → reuse → stdlib → platform → existing dependency → smaller implementation → new code).\n2. Inspect: Understand affected files, trace callers, identify tests, assess backward compatibility.\n3. Guardrails: Never sacrifice security, input validation, error handling, data integrity, accessibility, correctness, or regression tests.\n4. Review: On /ponytail-review, review the current diff for bugs, complexity, security, missing tests, and performance — prioritize by severity (BLOCKING/WARNING/NIT).\n5. Audit: On /ponytail-audit, audit the repository for unnecessary abstractions, duplication, risky logic, unused code, and maintainability.\n6. Debt: On /ponytail-debt, track deferred shortcuts with compromise, reason, risk, remediation, and priority.\n7. Gain: On /ponytail-gain, report lines added/modified/deleted, reused implementations, dependencies, tests, and token consumption — never fabricate metrics.",
+  instructions: "When invoked as @codesculpt or active in Copilot/Claude/AgentForge:\n1. Decision Ladder: Before writing code, walk the 8-rung ladder (need to exist → already supported → reuse → stdlib → platform → existing dependency → smaller implementation → new code).\n2. Inspect: Understand affected files, trace callers, identify tests, assess backward compatibility.\n3. Guardrails: Never sacrifice security, input validation, error handling, data integrity, accessibility, correctness, or regression tests.\n4. Review: On /codesculpt-review, review the current diff for bugs, complexity, security, missing tests, and performance — prioritize by severity (BLOCKING/WARNING/NIT).\n5. Audit: On /codesculpt-audit, audit the repository for unnecessary abstractions, duplication, risky logic, unused code, and maintainability.\n6. Debt: On /codesculpt-debt, track deferred shortcuts with compromise, reason, risk, remediation, and priority.\n7. Gain: On /codesculpt-gain, report lines added/modified/deleted, reused implementations, dependencies, tests, and token consumption — never fabricate metrics.",
   scope: "Code inspection, reuse analysis, diff review, repository audit, technical debt tracking, and engineering gain reporting.",
   outOfScope: "Modifying code without first inspecting existing implementations. Adding dependencies without justification. Removing security validation or tests.",
   operatingPrinciples: [
@@ -1936,32 +1934,32 @@ export const ponytailAgent: Agent = {
     "Never fabricate token savings, test counts, or execution metrics.",
     "Treat temporary workarounds as debt — record them, do not let them become permanent."
   ],
-  assignedSkillIds: ["ponytail"],
+  assignedSkillIds: ["codesculpt"],
   toolDefinitions: [
     {
-      id: "tool-ponytail-review",
-      name: "ponytail_review",
+      id: "tool-codesculpt-review",
+      name: "codesculpt_review",
       description: "Reviews the current diff for bugs, complexity, security, missing tests, and performance issues.",
       purpose: "Produce a prioritized findings report for the current changeset.",
       availability: "on-demand"
     },
     {
-      id: "tool-ponytail-audit",
-      name: "ponytail_audit",
+      id: "tool-codesculpt-audit",
+      name: "codesculpt_audit",
       description: "Audits the repository for unnecessary abstractions, duplication, risky logic, unused code, and maintainability.",
       purpose: "Produce an actionable repository audit report.",
       availability: "on-demand"
     },
     {
-      id: "tool-ponytail-debt",
-      name: "ponytail_debt",
+      id: "tool-codesculpt-debt",
+      name: "codesculpt_debt",
       description: "Tracks technical debt — records deferred shortcuts, compromises, risks, and remediation plans.",
       purpose: "Maintain a technical debt register and prevent workarounds from becoming permanent.",
       availability: "on-demand"
     },
     {
-      id: "tool-ponytail-gain",
-      name: "ponytail_gain",
+      id: "tool-codesculpt-gain",
+      name: "codesculpt_gain",
       description: "Reports engineering gain — lines added/modified/deleted, reused implementations, tests, token consumption.",
       purpose: "Measure engineering productivity without fabricating metrics.",
       availability: "on-demand"
@@ -1981,7 +1979,7 @@ export const ponytailAgent: Agent = {
   inputSchema: {
     type: "object",
     properties: {
-      task: { type: "string", enum: ["review", "audit", "debt", "gain", "discipline"], description: "Ponytail task to execute." },
+      task: { type: "string", enum: ["review", "audit", "debt", "gain", "discipline"], description: "CodeSculpt task to execute." },
       ref: { type: "string", description: "Git ref for review (e.g., main, HEAD~3)." },
       operatingMode: { type: "string", enum: ["LITE", "FULL", "ULTRA", "OFF"] }
     },

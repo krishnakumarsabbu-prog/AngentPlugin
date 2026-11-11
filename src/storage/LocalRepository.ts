@@ -26,8 +26,8 @@ import {
   sentinelAgent,
   bastionSkill,
   bastionAgent,
-  ponytailSkill,
-  ponytailAgent,
+  codeSculptSkill,
+  codeSculptAgent,
   graphifySkill,
   graphifyAgent,
   securityArchitectureReviewSkill,
@@ -286,17 +286,17 @@ export class LocalRepository implements ISkillsStore {
       migrated.agents.push({ ...bastionAgent });
     }
 
-    const existingPonytailSkillIdx = (migrated.skills || []).findIndex((s) => s.id === ponytailSkill.id);
-    if (existingPonytailSkillIdx >= 0) {
-      migrated.skills[existingPonytailSkillIdx] = { ...ponytailSkill };
+    const existingCodeSculptSkillIdx = (migrated.skills || []).findIndex((s) => s.id === codeSculptSkill.id);
+    if (existingCodeSculptSkillIdx >= 0) {
+      migrated.skills[existingCodeSculptSkillIdx] = { ...codeSculptSkill };
     } else {
-      migrated.skills.push({ ...ponytailSkill });
+      migrated.skills.push({ ...codeSculptSkill });
     }
-    const existingPonytailAgentIdx = (migrated.agents || []).findIndex((a) => a.id === ponytailAgent.id);
-    if (existingPonytailAgentIdx >= 0) {
-      migrated.agents[existingPonytailAgentIdx] = { ...ponytailAgent };
+    const existingCodeSculptAgentIdx = (migrated.agents || []).findIndex((a) => a.id === codeSculptAgent.id);
+    if (existingCodeSculptAgentIdx >= 0) {
+      migrated.agents[existingCodeSculptAgentIdx] = { ...codeSculptAgent };
     } else {
-      migrated.agents.push({ ...ponytailAgent });
+      migrated.agents.push({ ...codeSculptAgent });
     }
 
     const existingGraphifySkillIdx = (migrated.skills || []).findIndex((s) => s.id === graphifySkill.id);
@@ -345,8 +345,8 @@ export class LocalRepository implements ISkillsStore {
     const seeded: PersistedState = {
       schemaVersion: CURRENT_SCHEMA_VERSION,
       settings: { ...DEFAULT_SETTINGS },
-      skills: [{ ...enterpriseSecurityAuditSkill }, { ...anvilSkill }, { ...talonSkill }, { ...sentryCodeReviewSkill }, { ...agenticSecurityScannerSkill }, { ...sentinelSkill }, { ...bastionSkill }, { ...ponytailSkill }, { ...graphifySkill }, { ...securityArchitectureReviewSkill }, { ...stackDiagramSkill }],
-      agents: [{ ...enterpriseSecurityAuditorAgent }, { ...anvilAgent }, { ...talonAgent }, { ...sentryCodeReviewAgent }, { ...agenticSecurityScannerAgent }, { ...sentinelAgent }, { ...bastionAgent }, { ...ponytailAgent }, { ...graphifyAgent }, { ...securityArchitectureReviewAgent }, { ...stackDiagramAgent }],
+      skills: [{ ...enterpriseSecurityAuditSkill }, { ...anvilSkill }, { ...talonSkill }, { ...sentryCodeReviewSkill }, { ...agenticSecurityScannerSkill }, { ...sentinelSkill }, { ...bastionSkill }, { ...codeSculptSkill }, { ...graphifySkill }, { ...securityArchitectureReviewSkill }, { ...stackDiagramSkill }],
+      agents: [{ ...enterpriseSecurityAuditorAgent }, { ...anvilAgent }, { ...talonAgent }, { ...sentryCodeReviewAgent }, { ...agenticSecurityScannerAgent }, { ...sentinelAgent }, { ...bastionAgent }, { ...codeSculptAgent }, { ...graphifyAgent }, { ...securityArchitectureReviewAgent }, { ...stackDiagramAgent }],
       workflows: [],
       executions: [],
       history: migrated.history,
@@ -391,7 +391,7 @@ export class LocalRepository implements ISkillsStore {
               s.id !== agenticSecurityScannerSkill.id &&
               s.id !== sentinelSkill.id &&
               s.id !== bastionSkill.id &&
-              s.id !== ponytailSkill.id &&
+              s.id !== codeSculptSkill.id &&
               s.id !== graphifySkill.id &&
               s.id !== securityArchitectureReviewSkill.id &&
               s.id !== stackDiagramSkill.id,
@@ -405,7 +405,7 @@ export class LocalRepository implements ISkillsStore {
               a.id !== agenticSecurityScannerAgent.id &&
               a.id !== sentinelAgent.id &&
               a.id !== bastionAgent.id &&
-              a.id !== ponytailAgent.id &&
+              a.id !== codeSculptAgent.id &&
               a.id !== graphifyAgent.id &&
               a.id !== securityArchitectureReviewAgent.id &&
               a.id !== stackDiagramAgent.id,
@@ -423,7 +423,7 @@ export class LocalRepository implements ISkillsStore {
             s.id === agenticSecurityScannerSkill.id ||
             s.id === sentinelSkill.id ||
             s.id === bastionSkill.id ||
-            s.id === ponytailSkill.id ||
+            s.id === codeSculptSkill.id ||
             s.id === graphifySkill.id ||
             s.id === securityArchitectureReviewSkill.id ||
             s.id === stackDiagramSkill.id
@@ -440,7 +440,7 @@ export class LocalRepository implements ISkillsStore {
             a.id === agenticSecurityScannerAgent.id ||
             a.id === sentinelAgent.id ||
             a.id === bastionAgent.id ||
-            a.id === ponytailAgent.id ||
+            a.id === codeSculptAgent.id ||
             a.id === graphifyAgent.id ||
             a.id === securityArchitectureReviewAgent.id ||
             a.id === stackDiagramAgent.id
@@ -486,8 +486,8 @@ export class LocalRepository implements ISkillsStore {
         ? { ...sentinelSkill }
         : s.id === bastionSkill.id
         ? { ...bastionSkill }
-        : s.id === ponytailSkill.id
-        ? { ...ponytailSkill }
+        : s.id === codeSculptSkill.id
+        ? { ...codeSculptSkill }
         : s.id === graphifySkill.id
         ? { ...graphifySkill }
         : s.id === securityArchitectureReviewSkill.id
@@ -538,8 +538,8 @@ export class LocalRepository implements ISkillsStore {
     if (id === bastionSkill.id) {
       return { ...bastionSkill };
     }
-    if (id === ponytailSkill.id) {
-      return { ...ponytailSkill };
+    if (id === codeSculptSkill.id) {
+      return { ...codeSculptSkill };
     }
     if (id === graphifySkill.id) {
       return { ...graphifySkill };
@@ -719,8 +719,8 @@ export class LocalRepository implements ISkillsStore {
         ? { ...sentinelAgent }
         : a.id === bastionAgent.id
         ? { ...bastionAgent }
-        : a.id === ponytailAgent.id
-        ? { ...ponytailAgent }
+        : a.id === codeSculptAgent.id
+        ? { ...codeSculptAgent }
         : a.id === graphifyAgent.id
         ? { ...graphifyAgent }
         : a.id === securityArchitectureReviewAgent.id
@@ -753,8 +753,8 @@ export class LocalRepository implements ISkillsStore {
     if (id === bastionAgent.id) {
       return { ...bastionAgent };
     }
-    if (id === ponytailAgent.id) {
-      return { ...ponytailAgent };
+    if (id === codeSculptAgent.id) {
+      return { ...codeSculptAgent };
     }
     if (id === graphifyAgent.id) {
       return { ...graphifyAgent };

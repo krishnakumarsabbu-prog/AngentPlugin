@@ -5,7 +5,7 @@ import type { AgentBuilderFormState } from "./types";
 
 function defaultActivationMode(skillId: string): SkillActivationMode {
   switch (skillId) {
-    case "ponytail":
+    case "codesculpt":
       return "always-on";
     case "graphify":
       return "task-triggered";

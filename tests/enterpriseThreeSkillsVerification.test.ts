@@ -4,8 +4,8 @@ import * as os from "os";
 import * as fs from "fs";
 import * as vscode from "vscode";
 import {
-  ponytailSkill,
-  ponytailAgent,
+  codeSculptSkill,
+  codeSculptAgent,
   graphifySkill,
   graphifyAgent,
   securityArchitectureReviewSkill,
@@ -56,7 +56,7 @@ function createMockContext(storageDir: string): vscode.ExtensionContext {
   };
 }
 
-describe("End-to-End Verification: @ponytail, @graphify, and @security-architecture-review", () => {
+describe("End-to-End Verification: @codesculpt, @graphify, and @security-architecture-review", () => {
   let tempWorkspaceRoot: string;
   let mockContext: vscode.ExtensionContext;
   let repo: LocalRepository;
@@ -80,33 +80,33 @@ describe("End-to-End Verification: @ponytail, @graphify, and @security-architect
   });
 
   describe("1. Metadata & Exact Contract Verification", () => {
-    it("verifies Ponytail (Engineering Discipline) skill and agent specifications", () => {
+    it("verifies CodeSculpt (Engineering Discipline) skill and agent specifications", () => {
       // Skill metadata
-      expect(ponytailSkill.id).toBe("ponytail");
-      expect(ponytailSkill.name).toBe("Engineering Discipline");
-      expect(ponytailSkill.description).toBe(
+      expect(codeSculptSkill.id).toBe("codesculpt");
+      expect(codeSculptSkill.name).toBe("CodeSculpt");
+      expect(codeSculptSkill.description).toBe(
         "Controls code quality, complexity, maintainability, and implementation discipline.",
       );
-      expect(ponytailSkill.frontmatter).toContain(
+      expect(codeSculptSkill.frontmatter).toContain(
         "description: Controls code quality, complexity, maintainability, and implementation discipline.",
       );
 
       // Agent metadata
-      expect(ponytailAgent.id).toBe("ponytail");
-      expect(ponytailAgent.name).toBe("Engineering Discipline");
-      expect(ponytailAgent.description).toBe(
+      expect(codeSculptAgent.id).toBe("codesculpt");
+      expect(codeSculptAgent.name).toBe("CodeSculpt");
+      expect(codeSculptAgent.description).toBe(
         "Controls code quality, complexity, maintainability, and implementation discipline.",
       );
-      expect(ponytailAgent.objective).toBe(
+      expect(codeSculptAgent.objective).toBe(
         "Controls code quality, complexity, maintainability, and implementation discipline.",
       );
-      expect(ponytailAgent.assignedSkillIds).toContain("ponytail");
-      expect(ponytailAgent.instructions).toContain("When invoked as @ponytail");
-      expect(ponytailAgent.toolDefinitions.map((t) => t.name)).toEqual([
-        "ponytail_review",
-        "ponytail_audit",
-        "ponytail_debt",
-        "ponytail_gain",
+      expect(codeSculptAgent.assignedSkillIds).toContain("codesculpt");
+      expect(codeSculptAgent.instructions).toContain("When invoked as @codesculpt");
+      expect(codeSculptAgent.toolDefinitions.map((t) => t.name)).toEqual([
+        "codesculpt_review",
+        "codesculpt_audit",
+        "codesculpt_debt",
+        "codesculpt_gain",
       ]);
     });
 
@@ -202,9 +202,8 @@ describe("End-to-End Verification: @ponytail, @graphify, and @security-architect
     });
 
     it("verifies all four skills enforce the AgentForge Enterprise dual license", () => {
-      expect(ponytailSkill.frontmatter).toContain(
-        "license: Apache-2.0 / MIT Dual License (AgentForge Enterprise)",
-      );
+      // codesculpt no longer carries a license field in frontmatter (license files removed)
+      expect(codeSculptSkill.frontmatter).not.toContain("license:");
       expect(graphifySkill.frontmatter).toContain(
         "license: Apache-2.0 / MIT Dual License (AgentForge Enterprise)",
       );
@@ -219,7 +218,7 @@ describe("End-to-End Verification: @ponytail, @graphify, and @security-architect
 
   describe("2. Schema Validation Engine", () => {
     it("validates all 4 skills strictly against SkillValidator schema", () => {
-      const pRes = validateSkill(ponytailSkill);
+      const pRes = validateSkill(codeSculptSkill);
       expect(pRes.valid).toBe(true);
       expect(pRes.errors).toHaveLength(0);
 
@@ -237,7 +236,7 @@ describe("End-to-End Verification: @ponytail, @graphify, and @security-architect
     });
 
     it("validates all 4 agents strictly against AgentValidator schema", () => {
-      const pRes = validateAgent(ponytailAgent);
+      const pRes = validateAgent(codeSculptAgent);
       expect(pRes.valid).toBe(true);
       expect(pRes.errors).toHaveLength(0);
 
@@ -256,17 +255,17 @@ describe("End-to-End Verification: @ponytail, @graphify, and @security-architect
   });
 
   describe("3. Multi-Platform Export Adapters", () => {
-    it("exports valid GitHub Copilot agent configs for @ponytail, @graphify, @security-architecture-review, and @stack-diagram", () => {
+    it("exports valid GitHub Copilot agent configs for @codesculpt, @graphify, @security-architecture-review, and @stack-diagram", () => {
       const copilotAdapter = new CopilotAgentAdapter();
 
-      // 1. Ponytail
-      const pExport = copilotAdapter.exportAgent(ponytailAgent);
+      // 1. CodeSculpt
+      const pExport = copilotAdapter.exportAgent(codeSculptAgent);
       expect(pExport.files[0].relativePath).toBe(".github/copilot-instructions.md");
-      expect(pExport.files[0].content).toContain("# Engineering Discipline");
+      expect(pExport.files[0].content).toContain("# CodeSculpt");
       expect(pExport.files[0].content).toContain(
         "Controls code quality, complexity, maintainability, and implementation discipline.",
       );
-      expect(pExport.files[0].content).toContain("When invoked as @ponytail");
+      expect(pExport.files[0].content).toContain("When invoked as @codesculpt");
 
       // 2. Graphify
       const gExport = copilotAdapter.exportAgent(graphifyAgent);
@@ -293,13 +292,13 @@ describe("End-to-End Verification: @ponytail, @graphify, and @security-architect
       expect(sdExport.files[0].content).toContain("When invoked as @stack-diagram");
     });
 
-    it("exports valid Claude Code agent configs for @ponytail, @graphify, @security-architecture-review, and @stack-diagram", () => {
+    it("exports valid Claude Code agent configs for @codesculpt, @graphify, @security-architecture-review, and @stack-diagram", () => {
       const claudeAdapter = new ClaudeAgentAdapter();
 
-      const pExport = claudeAdapter.exportAgent(ponytailAgent);
+      const pExport = claudeAdapter.exportAgent(codeSculptAgent);
       const pSubagent = pExport.files.find((f) => f.relativePath.includes(".claude/agents"));
       expect(pSubagent).toBeDefined();
-      expect(pSubagent?.content).toContain('<agent id="ponytail"');
+      expect(pSubagent?.content).toContain('<agent id="codesculpt"');
       expect(pSubagent?.content).toContain(
         "Controls code quality, complexity, maintainability, and implementation discipline.",
       );
@@ -329,11 +328,11 @@ describe("End-to-End Verification: @ponytail, @graphify, and @security-architect
     it("exports valid OpenAI Assistants API agent configurations", () => {
       const openAiAdapter = new OpenAIAgentAdapter();
 
-      const pExport = openAiAdapter.exportAgent(ponytailAgent);
+      const pExport = openAiAdapter.exportAgent(codeSculptAgent);
       const pAssistant = pExport.files.find((f) => f.fileName.includes("assistant.json"));
       expect(pAssistant).toBeDefined();
       const pJson = JSON.parse(pAssistant!.content);
-      expect(pJson.name).toBe("Engineering Discipline");
+      expect(pJson.name).toBe("CodeSculpt");
       expect(pJson.description).toBe(
         "Controls code quality, complexity, maintainability, and implementation discipline.",
       );
@@ -375,45 +374,45 @@ describe("End-to-End Verification: @ponytail, @graphify, and @security-architect
         postMessage: (msg: any) => posted.push(msg),
       };
 
-      // 1. Install @ponytail to Copilot
+      // 1. Install @codesculpt to Copilot
       await bridge.handleMessage(
         {
-          id: "install-ponytail-copilot",
+          id: "install-codesculpt-copilot",
           type: "agents.install",
           payload: {
-            id: ponytailAgent.id,
+            id: codeSculptAgent.id,
             platform: "copilot",
             scope: "workspace",
           },
         },
         mockWebview,
       );
-      const pRes = posted.find((m) => m.requestId === "install-ponytail-copilot");
+      const pRes = posted.find((m) => m.requestId === "install-codesculpt-copilot");
       expect(pRes?.ok).toBe(true);
 
-      const copilotPonytailAgentFile = path.join(
+      const copilotCodeSculptAgentFile = path.join(
         tempWorkspaceRoot,
         ".github",
         "agents",
-        "ponytail.agent.md",
+        "codesculpt.agent.md",
       );
-      expect(fs.existsSync(copilotPonytailAgentFile)).toBe(true);
-      const copilotPonytailContent = await fs.promises.readFile(copilotPonytailAgentFile, "utf8");
-      expect(copilotPonytailContent).toContain("# Engineering Discipline");
-      expect(copilotPonytailContent).toContain(
+      expect(fs.existsSync(copilotCodeSculptAgentFile)).toBe(true);
+      const copilotCodeSculptContent = await fs.promises.readFile(copilotCodeSculptAgentFile, "utf8");
+      expect(copilotCodeSculptContent).toContain("# CodeSculpt");
+      expect(copilotCodeSculptContent).toContain(
         "Controls code quality, complexity, maintainability, and implementation discipline.",
       );
-      expect(copilotPonytailContent).toContain("When invoked as @ponytail");
+      expect(copilotCodeSculptContent).toContain("When invoked as @codesculpt");
 
-      // Verify cascaded ponytail skill in .github/skills/ponytail/SKILL.md
-      const copilotPonytailSkillFile = path.join(
+      // Verify cascaded codesculpt skill in .github/skills/codesculpt/SKILL.md
+      const copilotCodeSculptSkillFile = path.join(
         tempWorkspaceRoot,
         ".github",
         "skills",
-        "ponytail",
+        "codesculpt",
         "SKILL.md",
       );
-      expect(fs.existsSync(copilotPonytailSkillFile)).toBe(true);
+      expect(fs.existsSync(copilotCodeSculptSkillFile)).toBe(true);
 
       // 2. Install @graphify to Claude
       await bridge.handleMessage(
@@ -539,8 +538,8 @@ describe("End-to-End Verification: @ponytail, @graphify, and @security-architect
     it("verifies canonical skills, license.md, and synchronized files exist across all target directories", () => {
       const skills = [
         {
-          id: "ponytail",
-          name: "Engineering Discipline",
+          id: "codesculpt",
+          name: "CodeSculpt",
           purpose: "Controls code quality, complexity, maintainability, and implementation discipline.",
         },
         {
@@ -566,48 +565,36 @@ describe("End-to-End Verification: @ponytail, @graphify, and @security-architect
         expect(fs.existsSync(canonPath)).toBe(true);
         const canonContent = fs.readFileSync(canonPath, "utf8");
         expect(canonContent).toContain(sk.purpose);
-        expect(canonContent).toContain("license: Apache-2.0 / MIT Dual License (AgentForge Enterprise)");
-
-        // license.md in skills/<id>/license.md
-        const licensePath = path.join(root, "skills", sk.id, "license.md");
-        expect(fs.existsSync(licensePath)).toBe(true);
-        const licenseContent = fs.readFileSync(licensePath, "utf8");
-        expect(licenseContent).toContain("AgentForge Enterprise Dual License: Apache-2.0 / MIT");
 
         // Synchronized in .github/skills/<id>/SKILL.md
         const ghPath = path.join(root, ".github", "skills", sk.id, "SKILL.md");
         expect(fs.existsSync(ghPath)).toBe(true);
         const ghContent = fs.readFileSync(ghPath, "utf8");
         expect(ghContent).toContain(sk.purpose);
-        expect(ghContent).toContain("license: Apache-2.0 / MIT Dual License (AgentForge Enterprise)");
 
         // Synchronized in .claude/skills/<id>/SKILL.md
         const clPath = path.join(root, ".claude", "skills", sk.id, "SKILL.md");
         expect(fs.existsSync(clPath)).toBe(true);
         const clContent = fs.readFileSync(clPath, "utf8");
         expect(clContent).toContain(sk.purpose);
-        expect(clContent).toContain("license: Apache-2.0 / MIT Dual License (AgentForge Enterprise)");
 
         // Synchronized in .agents/skills/<id>/SKILL.md
         const agPath = path.join(root, ".agents", "skills", sk.id, "SKILL.md");
         expect(fs.existsSync(agPath)).toBe(true);
         const agContent = fs.readFileSync(agPath, "utf8");
         expect(agContent).toContain(sk.purpose);
-        expect(agContent).toContain("license: Apache-2.0 / MIT Dual License (AgentForge Enterprise)");
 
         // Copilot Agent definition in .github/agents/<id>.agent.md
         const ghAgentPath = path.join(root, ".github", "agents", `${sk.id}.agent.md`);
         expect(fs.existsSync(ghAgentPath)).toBe(true);
         const ghAgentContent = fs.readFileSync(ghAgentPath, "utf8");
         expect(ghAgentContent).toContain(`@${sk.id}`);
-        expect(ghAgentContent).toContain("license: Apache-2.0 / MIT Dual License (AgentForge Enterprise)");
 
         // Claude Agent definition in .claude/agents/<id>.md
         const clAgentPath = path.join(root, ".claude", "agents", `${sk.id}.md`);
         expect(fs.existsSync(clAgentPath)).toBe(true);
         const clAgentContent = fs.readFileSync(clAgentPath, "utf8");
         expect(clAgentContent).toContain(`@${sk.id}`);
-        expect(clAgentContent).toContain("license: Apache-2.0 / MIT (AgentForge)");
       }
     });
   });

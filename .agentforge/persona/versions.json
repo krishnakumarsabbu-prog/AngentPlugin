@@ -1,6 +1,11 @@
 [
   {
     "version": "0.1.0-test",
+    "timestamp": "2026-11-08T16:38:57.719Z",
+    "note": "Initial acceptance snapshot"
+  },
+  {
+    "version": "0.1.0-test",
     "timestamp": "2026-11-08T06:03:50.601Z",
     "note": "Initial acceptance snapshot"
   },
