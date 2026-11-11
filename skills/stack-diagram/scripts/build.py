@@ -25,6 +25,11 @@ MIME = {
     "jpeg": "image/jpeg",
 }
 
+EXTERNAL_RE = re.compile(
+    r"(?ix)(?:(?:src|href|srcset|poster)\s*=\s*[\"']?https?://"
+    r"|url\(\s*[\"']?https?://|@import\s+(?:url\()?\s*[\"']?https?://)"
+)
+
 
 def b64(p):
     return base64.b64encode(pathlib.Path(p).read_bytes()).decode()
@@ -66,6 +71,13 @@ def main():
             continue
         tok = f"%%ICON_{f.stem}%%"
         if tok in html:
+            if f.suffix.lower() == ".svg":
+                svg_text = f.read_text(encoding="utf-8", errors="ignore")
+                if EXTERNAL_RE.search(svg_text):
+                    sys.exit(
+                        f"external resource reference in icon {f.name}: "
+                        "the diagram must be fully self-contained."
+                    )
             html = html.replace(
                 tok, f"data:{MIME[f.suffix.lstrip('.')]};base64,{b64(f)}"
             )
@@ -77,10 +89,7 @@ def main():
             f"(missing icon files in {icondir}? forgot --fonts?)"
         )
 
-    external = re.findall(
-        r"(?ix)(?:(?:src|href|srcset|poster)\s*=\s*[\"']?https?://|url\(\s*[\"']?https?://|@import\s+(?:url\()?\s*[\"']?https?://)",
-        html,
-    )
+    external = EXTERNAL_RE.findall(html)
     if external:
         sys.exit(
             "external resource reference(s) found: "
