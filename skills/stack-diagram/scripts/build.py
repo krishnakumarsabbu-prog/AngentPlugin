@@ -78,7 +78,7 @@ def main():
         )
 
     external = re.findall(
-        r"(?ix)(?:(?:src|href)\s*=\s*[\"']https?://|url\(\s*[\"']?https?://|@import\s+(?:url\()?\s*[\"']?https?://)",
+        r"(?ix)(?:(?:src|href|srcset|poster)\s*=\s*[\"']?https?://|url\(\s*[\"']?https?://|@import\s+(?:url\()?\s*[\"']?https?://)",
         html,
     )
     if external:
