@@ -1,6 +1,6 @@
 # stack-diagram
 
-Agent skill: describe your stack in a sentence, get an architecture diagram with official logos.
+Agent skill: describe your stack in a sentence, get an architecture diagram with local brand logos. Fully offline.
 
 ## What it does
 
@@ -15,13 +15,13 @@ One self-contained HTML file is the source of truth; PNG / TSX / artifact are de
 ## Requirements
 
 - Python 3.9+ (standard library only for `fetch_icons.py`, `build.py`, `share.py`)
-- Network access to fetch logos from svgl, devicon, gilbarbara/logos, and vendor icon packages
+- No network access — logos are resolved only from local files under `assets/logos/`
 - Playwright + Chromium for PNG rendering (optional)
 
 ## Quick start
 
 ```bash
-# 1. Fetch icons for your stack
+# 1. Resolve logos from assets/logos/ (no downloads, no network)
 python3 scripts/fetch_icons.py icons/ react fastapi postgres redis
 
 # 2. Write a draft HTML using assets/template.html
@@ -41,22 +41,18 @@ python3 scripts/render_png.py architecture.html architecture.png
 - **React/TSX**: dependency-free React component from the same model
 - **Light and dark themes**: every diagram supports both
 
-## Logo sources
+## Local logo library
 
-Official logos fetched from:
-1. svgl (api.svgl.app)
-2. devicon (raw.githubusercontent.com/devicons/devicon)
-3. gilbarbara/logos (cdn.jsdelivr.net/gh/gilbarbara/logos)
-4. AWS Architecture Icons (aws.amazon.com/architecture/icons)
-5. Google Cloud Icons (cloud.google.com/icons)
-6. Azure Architecture Icons (learn.microsoft.com/azure/architecture/icons)
-
-simple-icons is deliberately NOT used — its glyphs are monochrome redraws, not official marks.
+Place logos you are allowed to use under `assets/logos/` (or pass `--logos DIR`).
+`fetch_icons.py` looks up files by name, relative path, or vendor-qualified name.
+Dark variants can live in `assets/logos/_dark/` or use a `<name>.dark.<ext>` suffix.
+Missing logos become clean text-placeholder tiles. The skill never downloads logos
+and never contacts an external service.
 
 ## License
 
 Dual License: Apache-2.0 / MIT (AgentForge Enterprise) — see [license.md](license.md) and [LICENSE](LICENSE). Bundled fonts are SIL OFL 1.1.
 
-## Source
+## Attribution
 
-Upstream repository: https://github.com/caru-ini/stack-diagram
+Upstream project: caru-ini/stack-diagram. See [license.md](license.md) and [LICENSE](LICENSE).

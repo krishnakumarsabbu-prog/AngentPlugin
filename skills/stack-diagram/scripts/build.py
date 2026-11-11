@@ -77,6 +77,17 @@ def main():
             f"(missing icon files in {icondir}? forgot --fonts?)"
         )
 
+    external = re.findall(
+        r"(?ix)(?:(?:src|href)\s*=\s*[\"']https?://|url\(\s*[\"']?https?://|@import\s+(?:url\()?\s*[\"']?https?://)",
+        html,
+    )
+    if external:
+        sys.exit(
+            "external resource reference(s) found: "
+            f"{len(external)}. The diagram must be fully self-contained; "
+            "use local or base64-encoded assets only (no network access)."
+        )
+
     out.write_text(html, encoding="utf-8")
     print(f"built {out} ({len(html) // 1024} KB)")
 

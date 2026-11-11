@@ -47,7 +47,12 @@ def main():
 
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
-        page = browser.new_page(viewport={"width": args.width, "height": args.height})
+        # Offline context: the rendered document must never make a network request.
+        context = browser.new_context(
+            viewport={"width": args.width, "height": args.height},
+            offline=True,
+        )
+        page = context.new_page()
 
         page.set_content(html_content)
 
@@ -86,6 +91,7 @@ def main():
             page.screenshot(path=str(png_path), full_page=True)
             print(f"rendered {png_path} ({args.width}x{body_height}px, {theme})")
 
+        context.close()
         browser.close()
 
 

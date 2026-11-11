@@ -2,9 +2,13 @@
 
 ## Prerequisites
 
-- **Python 3.9+**: Required for icon fetching, HTML building, and PNG rendering.
-- **Network access**: Required to fetch logos from svgl, devicon, gilbarbara/logos, and vendor icon packages.
+- **Python 3.9+**: Required for local icon resolution, HTML building, and PNG rendering.
+- **No network access**: The skill never downloads logos or contacts external services. Place allowed logo files under `assets/logos/` (or pass `--logos DIR`); missing logos become text placeholder tiles.
 - **Playwright + Chromium** (optional, for PNG only): `pip install playwright && python3 -m playwright install --with-deps chromium`
+
+## Local logos
+
+`fetch_icons.py` resolves logos only from local files. Put SVG/PNG/WebP/JPG files under `assets/logos/`, or point to another local folder with `--logos DIR`. Dark variants can live in `_dark/` or use a `<name>.dark.<ext>` suffix. No download step exists.
 
 ## AgentForge installation
 
@@ -60,5 +64,5 @@ artifacts/stack-diagram/[diagram-name]/
 ## Limitations
 
 - PNG export requires Playwright + Chromium. If not installed, HTML is still generated.
-- Logo fetching requires network access. If unavailable, text fallback tiles are used.
+- Logos are local-only. If a logo is missing, text fallback tiles are used. The skill makes no network requests.
 - Public sharing is disabled by default. Any external publication requires explicit user approval.

@@ -2,7 +2,7 @@
 name: stack-diagram
 description: "Create cloud-architecture-style diagrams of tech stacks, system architectures, infra layouts, and service topologies — with real brand logos, grouped containers, and clean orthogonal arrows — delivered as self-contained HTML, a PNG image, a React/TSX component, or a live artifact. Use this skill whenever the user asks for an architecture / system / stack / infra diagram, a tech-stack overview, a service topology, a cloud-vendor-style diagram, or wants tech logos arranged into a picture of how their services connect — in any language, even if they don't name an output format, and even if the tools involved aren't cloud services."
 license: Apache-2.0 / MIT Dual License (AgentForge Enterprise); bundled fonts are SIL OFL 1.1
-compatibility: Python 3.9+ and network access to fetch logos; PNG output also needs Playwright with Chromium
+compatibility: Python 3.9+; fully offline (no network access). PNG output also needs Playwright with Chromium
 ---
 
 # stack-diagram
@@ -12,13 +12,13 @@ Produces engineering-drawing-style architecture diagrams: real logos on white ti
 ## Requirements
 
 - Python 3.9+ (standard library only for `fetch_icons.py`, `build.py` and `share.py`)
-- Network access to the icon sources (svgl.app, raw.githubusercontent.com, cdn.jsdelivr.net, aws.amazon.com and d1.awsstatic.com for AWS icons, plus the brand's own site or repo for `name=URL`) when fetching icons
+- No network access is required or used. Logos are resolved only from local files under `assets/logos/` (or `--logos DIR`); missing logos become text placeholder tiles.
 - Playwright + Chromium for `render_png.py`: `pip install playwright && python3 -m playwright install --with-deps chromium`
 
 ## Workflow
 
 1. Settle the content (nodes, groups, edges)
-2. Fetch icons — `scripts/fetch_icons.py`
+2. Resolve local icons — `scripts/fetch_icons.py`
 3. Plan coordinates — read `references/geometry.md`
 4. Build the HTML from `assets/template.html` — `scripts/build.py`
 5. Render and inspect (PNG) — `scripts/render_png.py`
@@ -29,7 +29,7 @@ Produces engineering-drawing-style architecture diagrams: real logos on white ti
 ## Step 1 — Settle the content
 
 Collect from the user (or the repository, if they asked to diagram the repo):
-- **Nodes**: each component, service, database, external API, dev tool, etc. For each node: a display name, a role label (1–3 words under the name), and a technology identifier for icon fetching.
+- **Nodes**: each component, service, database, external API, dev tool, etc. For each node: a display name, a role label (1–3 words under the name), and a technology identifier for local icon lookup.
 - **Groups**: boundary boxes that cluster nodes (e.g. "AWS VPC", "Public Subnet", "Application Boundary", "External Services"). Groups can nest.
 - **Edges**: connections between nodes. Each edge has a source, target, an optional label (1–2 words, monospace), a class (`accent` / `neutral` / `dashed`), and a direction.
 
@@ -40,30 +40,27 @@ Distinguish:
 
 Never include secrets, API keys, passwords, or private certificate values in any node, label, edge, or metadata.
 
-## Step 2 — Fetch icons
+## Step 2 — Resolve local icons
 
 ```bash
-python3 scripts/fetch_icons.py icons/ node1 node2:slug node3=https://example.com/logo.svg node4:aws/AWS-Lambda
+python3 scripts/fetch_icons.py icons/ node1 node2:slug node3=./logos/example.svg node4:aws/AWS-Lambda
 ```
 
 Spec forms:
-- `name` → slug == name (e.g. `hono`)
-- `name:slug` → different slug (e.g. `betterauth:better-auth`)
-- `name=URL` → explicit URL (e.g. `orpc=https://orpc.unnoq.com/logo.webp`)
-- `name:aws/Service` → official AWS icon (e.g. `lambda:aws/AWS-Lambda`)
-- `name:gcp/Product` → official Google Cloud icon (e.g. `run:gcp/Cloud-Run`)
-- `name:azure/Service` → official Azure icon (e.g. `vault:azure/Key-Vaults`)
+- `name` → local logo with the same name (e.g. `hono`)
+- `name:slug` → local logo under a different name (e.g. `betterauth:better-auth`)
+- `name=PATH` → copy a local image file (e.g. `orpc=./logos/orpc.webp`)
+- `name:aws/Service` → local AWS logo (e.g. `lambda:aws/AWS-Lambda`)
+- `name:gcp/Product` → local Google Cloud logo (e.g. `run:gcp/Cloud-Run`)
+- `name:azure/Service` → local Azure logo (e.g. `vault:azure/Key-Vaults`)
 
-Source priority chain:
-1. svgl — `api.svgl.app?search={s}` → route (light variant when split)
-2. devicon — `raw.githubusercontent.com/devicons/devicon/master/icons/{s}/{s}-original.svg`
-3. gilbarbara/logos — `cdn.jsdelivr.net/gh/gilbarbara/logos/logos/{s}-icon.svg` then `{s}.svg`
+Local lookup order:
+1. exact relative path inside `assets/logos/` (or `--logos DIR`)
+2. file stem, case- and separator-insensitive
+3. vendor-qualified name without its prefix
+4. dark variant in `_dark/` or `<name>.dark.<ext>`
 
-simple-icons is deliberately NOT a source — its glyphs are monochrome redraws, not the official marks.
-
-AWS, GCP, and Azure specs skip the chain and read each vendor's own icon package directly.
-
-Never break diagram generation because one logo cannot be fetched. The fetch script writes a text fallback tile when a logo is unavailable — use it and continue.
+This step never opens a network connection and never downloads a logo. Put the logos you are allowed to use under `assets/logos/`. When a logo is missing, the script writes a text-placeholder SVG so the diagram build never breaks. Do not substitute remote URLs.
 
 ## Step 3 — Plan coordinates
 
@@ -182,7 +179,7 @@ AWS VPC, Public Subnet, Private Subnet, Kubernetes Cluster, Application Boundary
 ## AgentForge integration notes
 
 - Activation mode: TASK_TRIGGERED
-- Permissions: workspace read access for repository inspection, workspace write access for generated artifacts, network access for logo retrieval, optional Playwright/Chromium for PNG generation.
+- Permissions: workspace read access for repository inspection, workspace write access for generated artifacts, no network access, optional local Playwright/Chromium for PNG generation.
 - Output location: `artifacts/stack-diagram/[diagram-name]/` within the workspace.
 - Disable upstream public-sharing behavior by default. Any external publication requires explicit user approval.
 - Compatible agents: Software Developer, Full Stack Developer, Principal Engineer, Solution Architect, Enterprise Architect, DevOps Engineer, Platform Engineer, Technical Lead.

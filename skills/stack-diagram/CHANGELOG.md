@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0 — 2026-11-11
+
+- Removed all network access from the skill. `fetch_icons.py` now resolves logos only from local files (`assets/logos/` or `--logos DIR`).
+- Bundled Geist and JetBrains Mono fonts under `assets/fonts/`.
+- Fixed template icon markup so local logos actually render.
+- Added offline enforcement to `build.py` (rejects external resource URLs) and `render_png.py` (offline browser context).
+- Updated docs and agent instructions to prohibit logo downloads.
+
 ## 1.0.0 — 2026-11-08
 
 - Integrated upstream stack-diagram skill (MIT, caru-ini/stack-diagram).

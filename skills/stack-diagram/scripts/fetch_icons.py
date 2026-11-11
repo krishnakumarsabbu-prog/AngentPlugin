@@ -1,248 +1,195 @@
 #!/usr/bin/env python3
-"""Fetch brand logos with a fallback chain, unmodified, for diagram builds.
+"""Resolve brand logos from local files only. This script never uses the network.
 
 Usage:
-    python3 fetch_icons.py OUTDIR spec [spec ...]
+    python3 fetch_icons.py OUTDIR [--logos LOGODIR] spec [spec ...]
 
 Spec forms:
-    name           -> slug == name (e.g. hono)
-    name:slug      -> different slug (e.g. betterauth:better-auth)
-    name=URL       -> explicit URL (e.g. orpc=https://orpc.unnoq.com/logo.webp)
-    name:aws/Service -> official AWS icon (e.g. lambda:aws/AWS-Lambda)
-    name:gcp/Product -> official Google Cloud icon (e.g. run:gcp/Cloud-Run)
-    name:azure/Service -> official Azure icon (e.g. vault:azure/Key-Vaults)
+    name              -> look up a local logo named name
+    name:slug         -> look up a local logo named slug
+    name=PATH         -> copy a local image file
+    name:aws/Service  -> look up a local logo named Service (and aws/Service)
+    name:gcp/Product  -> look up a local logo named Product (and gcp/Product)
+    name:azure/Service-> look up a local logo named Service (and azure/Service)
 
-Sources tried in order:
-    1. svgl api.svgl.app?search={s} -> route (light variant when split)
-    2. devicon raw.githubusercontent.com/devicons/devicon/master/icons/{s}/{s}-original.svg
-    3. gilbarbara/logos cdn.jsdelivr.net/gh/gilbarbara/logos/logos/{s}-icon.svg then {s}.svg
+Lookup order:
+    1. the exact relative path inside LOGODIR
+    2. the file stem (case- and separator-insensitive)
+    3. the vendor-qualified name without its prefix
+    4. a matching dark variant in LOGODIR/_dark or <name>.dark.<ext>
 
-simple-icons is deliberately not a source: its glyphs are monochrome redraws, not the
-official marks. When every source misses, pass the official file as name=URL.
-
-aws/ specs and the slugs aws, amazonwebservices and aws-* skip the chain and read AWS's own
-package (aws.amazon.com/architecture/icons): gilbarbara's aws-* files keep an older color set.
-gcp/ specs and the slugs gcp-* and google-cloud-* do the same with Google's packages
-(cloud.google.com/icons). The slugs gcp and google-cloud are the Google Cloud mark, through the chain.
-azure/ specs and the slugs azure, microsoft-azure and azure-* do the same with Microsoft's package
-(learn.microsoft.com/azure/architecture/icons).
-
-svgl is matched by normalized title equality (search is fuzzy — a loose match would
-silently ship the wrong brand's logo, so non-exact hits fall through to next source).
-
-Writes OUTDIR/<name>.<ext> and OUTDIR/manifest.json, plus OUTDIR/_dark/<name>.<ext> when
-the source has a dark-theme variant (for group labels). Flags white/near-white fills (use
-the dark variant instead so the logo is visible on the graph-paper background).
-
-Graceful fallback: if every source fails, writes a text-placeholder SVG so the diagram
-build never breaks on a missing icon.
+No remote source is contacted. When a logo is missing, a text-placeholder SVG is
+written so diagram generation never breaks. Put logos under assets/logos/ (or pass
+--logos DIR); the skill does not download anything.
 """
 
 import json
+import pathlib
 import re
 import sys
-import urllib.request
-import urllib.error
-import pathlib
 
-# --- helpers -----------------------------------------------------------------
+IMAGE_EXTS = {".svg", ".png", ".webp", ".jpg", ".jpeg"}
+DEFAULT_LOGOS = pathlib.Path(__file__).resolve().parent.parent / "assets" / "logos"
 
-def fetch(url, *, timeout=30):
-    """Fetch bytes from a URL, or return None on failure."""
-    try:
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (compatible; stack-diagram/1.0)"})
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            return resp.read()
-    except Exception:
-        return None
 
-def normalize(s):
-    """Normalize a slug for comparison: lowercase, strip separators."""
-    return re.sub(r"[-_./\s]+", "", s.lower())
+def normalize_key(value):
+    """Normalize a name for case- and separator-insensitive lookup."""
+    return re.sub(r"[^a-z0-9]+", "", value.lower())
+
 
 def save_icon(outdir, name, data, ext, *, dark=False):
     """Write icon bytes to OUTDIR/<name>.<ext> (or OUTDIR/_dark/...)."""
-    d = outdir if not dark else (outdir / "_dark")
-    d.mkdir(parents=True, exist_ok=True)
-    p = d / f"{name}.{ext}"
-    p.write_bytes(data)
-    return p
+    target_dir = outdir if not dark else (outdir / "_dark")
+    target_dir.mkdir(parents=True, exist_ok=True)
+    path = target_dir / f"{name}.{ext.lstrip('.')}"
+    path.write_bytes(data)
+    return path
+
 
 def placeholder_svg(name):
-    """Return a text-placeholder SVG for when all logo sources fail."""
-    safe = name.replace("<", "&lt;").replace("&", "&amp;")
+    """Return a text-placeholder SVG for when a local logo is missing."""
+    safe = name.replace("&", "&amp;").replace("<", "&lt;")
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60">
 <rect width="60" height="60" rx="8" fill="#f0f0f0" stroke="#ccc" stroke-width="1"/>
 <text x="30" y="36" font-family="sans-serif" font-size="10" fill="#888" text-anchor="middle">{safe}</text>
 </svg>'''.encode()
 
-# --- source functions ---------------------------------------------------------
 
-def try_svgl(slug, name):
-    """Try svgl API: search for slug, match by normalized title equality."""
-    data = fetch(f"https://api.svgl.app?search={urllib.parse.quote(slug)}")
-    if not data:
-        return None
-    try:
-        items = json.loads(data)
-    except json.JSONDecodeError:
-        return None
-    target = normalize(slug)
-    for item in items:
-        title = item.get("title", "")
-        if normalize(title) == target:
-            route = item.get("route", "")
-            light_url = None
-            dark_url = None
-            if isinstance(route, dict):
-                light_url = route.get("light") or route.get("default")
-                dark_url = route.get("dark")
-            else:
-                light_url = route
-            if light_url:
-                if light_url.startswith("/"):
-                    light_url = f"https://www.svgl.app{light_url}"
-                svg = fetch(light_url)
-                if svg:
-                    dark_result = None
-                    if dark_url:
-                        if dark_url.startswith("/"):
-                            dark_url = f"https://www.svgl.app{dark_url}"
-                        dark_svg = fetch(dark_url)
-                        if dark_svg:
-                            dark_result = (dark_svg, "svg")
-                    return svg, "svg", dark_result
+def index_logos(logo_dir):
+    """Index local light/dark logo files by relative path, stem, and normalized key."""
+    light = {}
+    dark = {}
+    if not logo_dir or not logo_dir.is_dir():
+        return light, dark
+
+    for path in logo_dir.rglob("*"):
+        if not path.is_file() or path.suffix.lower() not in IMAGE_EXTS:
+            continue
+        rel = path.relative_to(logo_dir).with_suffix("").as_posix()
+        parts = rel.split("/")
+        is_dark = any(part.lower() in ("_dark", "dark") for part in parts[:-1])
+        stem = parts[-1]
+        if stem.lower().endswith(".dark"):
+            stem = stem[:-5]
+            is_dark = True
+
+        keys = {rel, stem, parts[-1]}
+        if is_dark:
+            keys = {k[:-5] if k.lower().endswith(".dark") else k for k in keys}
+        bucket = dark if is_dark else light
+        for key in keys:
+            bucket.setdefault(key, path)
+            bucket.setdefault(normalize_key(key), path)
+
+    return light, dark
+
+
+def candidate_keys(value):
+    """Return lookup keys for a spec value."""
+    raw = value.strip().replace("\\", "/")
+    base = raw.rsplit("/", 1)[-1]
+    keys = {raw, base}
+    for prefix in ("aws/", "gcp/", "azure/"):
+        if raw.lower().startswith(prefix):
+            keys.add(raw[len(prefix):])
+            keys.add(raw.replace("/", "-"))
+            keys.add(f"{prefix[:-1]}-{base}")
+    expanded = set()
+    for key in keys:
+        expanded.add(key)
+        expanded.add(normalize_key(key))
+    return [key for key in expanded if key]
+
+
+def find_logo(index, value):
+    """Find a local logo by spec value."""
+    for key in candidate_keys(value):
+        hit = index.get(key)
+        if hit:
+            return hit
     return None
 
-def try_devicon(slug, name):
-    """Try devicon: raw GitHub URL for {slug}/{slug}-original.svg."""
-    url = f"https://raw.githubusercontent.com/devicons/devicon/master/icons/{slug}/{slug}-original.svg"
-    svg = fetch(url)
-    if svg:
-        return svg, "svg", None
+
+def resolve_local_path(value):
+    """Return a local image path if value is an existing local file."""
+    path = pathlib.Path(value).expanduser()
+    if path.is_file() and path.suffix.lower() in IMAGE_EXTS:
+        return path
     return None
 
-def try_gilbarbara(slug, name):
-    """Try gilbarbara/logos: jsdelivr CDN for {slug}-icon.svg then {slug}.svg."""
-    for pattern in (f"{slug}-icon.svg", f"{slug}.svg"):
-        url = f"https://cdn.jsdelivr.net/gh/gilbarbara/logos@master/logos/{pattern}"
-        svg = fetch(url)
-        if svg:
-            return svg, "svg", None
-    return None
-
-def try_aws(service, name):
-    """Fetch official AWS architecture icon."""
-    group = "Arch-Service_64" if not service.startswith("AWS-") else "Arch_64"
-    url = f"https://d1.awsstatic.com/aws-icons/{group}/{service}_64x64.53535.13light.svg"
-    svg = fetch(url)
-    if svg:
-        return svg, "svg", None
-    url2 = f"https://d1.awsstatic.com/aws-icons/{group}/{service}_64.53535.13light.svg"
-    svg = fetch(url2)
-    if svg:
-        return svg, "svg", None
-    return None
-
-def try_gcp(product, name):
-    """Fetch official Google Cloud icon."""
-    url = f"https://cloud.google.com/icons/images/{product}.png"
-    img = fetch(url)
-    if img:
-        return img, "png", None
-    return None
-
-def try_azure(service, name):
-    """Fetch official Azure architecture icon."""
-    url = f"https://learn.microsoft.com/azure/architecture/icons/{service}.svg"
-    svg = fetch(url)
-    if svg:
-        return svg, "svg", None
-    return None
-
-def try_explicit_url(url, name):
-    """Fetch from an explicit URL provided by the user."""
-    data = fetch(url)
-    if not data:
-        return None
-    ext = url.rsplit(".", 1)[-1].lower() if "." in url else "svg"
-    if ext not in ("svg", "png", "webp", "jpg", "jpeg"):
-        ext = "svg"
-    return data, ext, None
-
-# --- main ---------------------------------------------------------------------
 
 def parse_spec(spec):
     """Parse a spec string into (name, kind, value)."""
     if "=" in spec:
-        name, url = spec.split("=", 1)
-        return name, "url", url
-    if ":aws/" in spec:
-        name, service = spec.split(":aws/", 1)
-        return name, "aws", service
-    if ":gcp/" in spec:
-        name, product = spec.split(":gcp/", 1)
-        return name, "gcp", product
-    if ":azure/" in spec:
-        name, service = spec.split(":azure/", 1)
-        return name, "azure", service
+        name, value = spec.split("=", 1)
+        return name, "path", value
     if ":" in spec:
         name, slug = spec.split(":", 1)
-        return name, "slug", slug
-    return spec, "slug", spec
+        return name, "local", slug
+    return spec, "local", spec
+
 
 def main():
     args = sys.argv[1:]
+    logo_dir = DEFAULT_LOGOS
+    if "--logos" in args:
+        i = args.index("--logos")
+        if i + 1 >= len(args):
+            print("error: --logos requires a directory")
+            sys.exit(1)
+        logo_dir = pathlib.Path(args[i + 1]).expanduser()
+        del args[i:i + 2]
+
     if len(args) < 2:
         print(__doc__)
         sys.exit(1)
+
     outdir = pathlib.Path(args[0])
     specs = args[1:]
     outdir.mkdir(parents=True, exist_ok=True)
+    light_index, dark_index = index_logos(logo_dir)
 
-    manifest = {"icons": [], "fallbacks": []}
+    manifest = {"icons": [], "fallbacks": [], "dark": [], "logo_dir": str(logo_dir)}
 
     for spec in specs:
         name, kind, value = parse_spec(spec)
-        result = None
+        source = None
 
-        if kind == "url":
-            result = try_explicit_url(value, name)
-        elif kind == "aws":
-            result = try_aws(value, name)
-        elif kind == "gcp":
-            result = try_gcp(value, name)
-        elif kind == "azure":
-            result = try_azure(value, name)
+        if kind == "path":
+            if "://" in value:
+                print(f"  {name}: refused remote URL (network access is disabled)")
+                source = None
+            else:
+                source = resolve_local_path(value)
+                if not source:
+                    print(f"  {name}: local file not found: {value}")
         else:
-            slug = value
-            result = try_svgl(slug, name)
-            if not result:
-                result = try_devicon(slug, name)
-            if not result:
-                result = try_gilbarbara(slug, name)
+            source = find_logo(light_index, value)
 
-        if result:
-            data, ext, dark = result
-            save_icon(outdir, name, data, ext)
-            if dark:
-                ddata, dext = dark
-                save_icon(outdir, name, ddata, dext, dark=True)
-            manifest["icons"].append({"name": name, "ext": ext, "source": kind})
-            print(f"  {name}: fetched ({ext})")
+        if source:
+            ext = source.suffix.lower().lstrip(".")
+            save_icon(outdir, name, source.read_bytes(), ext)
+            manifest["icons"].append({"name": name, "ext": ext, "source": "local"})
+            print(f"  {name}: copied from {source}")
+
+            dark_source = find_logo(dark_index, value)
+            if dark_source:
+                dark_ext = dark_source.suffix.lower().lstrip(".")
+                save_icon(outdir, name, dark_source.read_bytes(), dark_ext, dark=True)
+                manifest["dark"].append(name)
         else:
             save_icon(outdir, name, placeholder_svg(name), "svg")
             manifest["fallbacks"].append(name)
-            print(f"  {name}: fallback placeholder (no logo found)")
+            print(f"  {name}: fallback placeholder (no local logo found)")
 
     (outdir / "manifest.json").write_text(
         json.dumps(manifest, indent=2), encoding="utf-8"
     )
     total = len(manifest["icons"])
     fallbacks = len(manifest["fallbacks"])
-    print(f"\nFetched {total} icons, {fallbacks} fallbacks -> {outdir}")
+    print(f"\nResolved {total} local icons, {fallbacks} fallbacks -> {outdir}")
+    print("No network access was used.")
 
 
 if __name__ == "__main__":
-    import urllib.parse  # needed by try_svgl quoting
     main()
